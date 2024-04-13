@@ -60,6 +60,11 @@ selectedClustersInfo <- read_tsv(paste0(STUDY, "/selectedClustersInfo.tab.txt.gz
 
 
 
+# summarise targets available for analysis
+unique(selectedClustersInfo$p_name)
+
+
+
 ###___AMA1 ----
 # =============================================================================#
 
