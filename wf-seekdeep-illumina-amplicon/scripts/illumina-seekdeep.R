@@ -274,7 +274,9 @@ clusters_MDR1 <- selectedClustersInfo %>%
     summarise(
               min = min(s_COI),
               mean = median(s_COI),
-              max = max(s_COI))
+              max = max(s_COI),
+              .by = source
+              )
 )
 
 
@@ -288,19 +290,31 @@ clusters_MDR1 <- selectedClustersInfo %>%
 fasta_DHFR <- read_lines("resources-genome/fasta-cds/PfDHFR.txt")
 
 
-##___extract the wildtype amino acids ----
+
+##___extract the wildtype alleles/haplotypes ----
 # -----------------------------------------------------------------------------#
+
+
+# alleles
 (
   wt_alleles <- sapply(positions_DHFR, function(pos) substr(fasta_DHFR, pos, pos))
 )
 
 
+
+# haplotypes
+(
+  wt_haplotype <- paste(wt_alleles, collapse = "")
+)
+
+
+
 ##___compute allele frequencies ----
 # -----------------------------------------------------------------------------#
 
-
 ###____table ----
 # --------------------------------------------#
+
 freqSNP_DHFR <- clusters_DHFR %>%
   select(s_Sample, source, starts_with("pos")) %>%
   reframe( # collapse alleles per codon per sample
@@ -337,6 +351,7 @@ freqSNP_DHFR <- clusters_DHFR %>%
 
 ###____plot ----
 # --------------------------------------------#
+
 (
   my_plot <- clusters_DHFR %>%
     select(s_Sample, source, starts_with("pos")) %>%
@@ -381,6 +396,7 @@ freqSNP_DHFR <- clusters_DHFR %>%
 
 ###____save plot ----
 # -----------------------------------------------------------------------------#
+
 jpeg(filename = "plot/dhfr-snps.jpeg",
      width = 8, height = 5, units = 'in', res = 600,
      # type = "cairo",       #options::"cairo", "Xlib", "quartz"
@@ -389,12 +405,12 @@ jpeg(filename = "plot/dhfr-snps.jpeg",
 
 
 
-##___generate haplotypes and resistance profiles ----
+##___compute haplotype frequencies and resistance profiles ----
 # -----------------------------------------------------------------------------#
-
 
 ###____table ----
 # --------------------------------------------#
+
 freqHap_DHFR <- clusters_DHFR %>%
   select(source, s_Sample, contains("pos"), haplotype) %>%
   # define level of resistance
@@ -430,6 +446,7 @@ freqHap_DHFR <- clusters_DHFR %>%
 
 ###____plot ----
 # --------------------------------------------#
+
 (
   my_plot <- clusters_DHFR %>%
     select(source, s_Sample, contains("pos"), haplotype) %>%
@@ -473,6 +490,7 @@ freqHap_DHFR <- clusters_DHFR %>%
 
 ###____save plot ----
 # -----------------------------------------------------------------------------#
+
 jpeg(filename = "plot/dhfr-haplotypes.jpeg",
      width = 5, height = 5, units = 'in', res = 600,
      # type = "cairo",       #options::"cairo", "Xlib", "quartz"
@@ -484,22 +502,30 @@ jpeg(filename = "plot/dhfr-haplotypes.jpeg",
 ## __DHPS ----
 # =============================================================================#
 
-
 ##___import the wildtype sequence ----
 # -----------------------------------------------------------------------------#
 fasta_DHPS <- read_lines("resources-genome/fasta-cds/PfDHPS.txt")
 
 
-##___extract the wildtype amino acids ----
+##___extract the wildtype alleles/haplotypes ----
 # -----------------------------------------------------------------------------#
+
+# alleles
 (
   wt_alleles <- sapply(positions_DHPS, function(pos) substr(fasta_DHPS, pos, pos))
 )
 
 
+
+# haplotypes
+(
+  wt_haplotype <- paste(wt_alleles, collapse = "")
+)
+
+
+
 ##___compute allele frequencies ----
 # -----------------------------------------------------------------------------#
-
 
 ###____table ----
 # --------------------------------------------#
@@ -539,6 +565,7 @@ freqSNP_DHPS <- clusters_DHPS %>%
 
 ###____plot ----
 # --------------------------------------------#
+
 (
   my_plot <- clusters_DHPS %>%
     select(s_Sample, source, starts_with("pos")) %>%
@@ -585,6 +612,7 @@ freqSNP_DHPS <- clusters_DHPS %>%
 
 ###____save plot ----
 # -----------------------------------------------------------------------------#
+
 jpeg(filename = "plot/dhps-snps.jpeg",
      width = 8, height = 5, units = 'in', res = 600,
      # type = "cairo",       #options::"cairo", "Xlib", "quartz"
@@ -592,12 +620,13 @@ jpeg(filename = "plot/dhps-snps.jpeg",
 ); print(my_plot); dev.off()
 
 
-##___generate haplotypes and resistance profiles ----
-# -----------------------------------------------------------------------------#
 
+##___compute haplotype frequencies and resistance profiles ----
+# -----------------------------------------------------------------------------#
 
 ###____table ----
 # --------------------------------------------#
+
 freqHap_DHPS <- clusters_DHPS %>%
   select(source, s_Sample, contains("pos"), haplotype) %>%
   # define level of resistance
@@ -633,6 +662,7 @@ freqHap_DHPS <- clusters_DHPS %>%
 
 ###____plot ----
 # --------------------------------------------#
+
 (
   my_plot <- clusters_DHPS %>%
     select(source, s_Sample, contains("pos"), haplotype) %>%
@@ -676,6 +706,7 @@ freqHap_DHPS <- clusters_DHPS %>%
 
 ###____save plot ----
 # -----------------------------------------------------------------------------#
+
 jpeg(filename = "plot/dhps-haplotypes.jpeg",
      width = 5, height = 5, units = 'in', res = 600,
      # type = "cairo",       #options::"cairo", "Xlib", "quartz"
@@ -687,25 +718,32 @@ jpeg(filename = "plot/dhps-haplotypes.jpeg",
 ## __K13 ----
 # =============================================================================#
 
-
-# import the K13 wildtype sequence
+##___import the wildtype sequence ----
 # -----------------------------------------------------------------------------#
+
 fasta_K13 <- read_lines("resources-genome/fasta-cds/PfK13.txt")
 
 
-# extract the wildtype amino acids from the protein sequence for the given positions
+
+##___extract the wildtype alleles/haplotypes ----
 # -----------------------------------------------------------------------------#
+
+# alleles
 (
   wt_alleles <- sapply(positions_K13, function(pos) substr(fasta_K13, pos, pos))
 )
 
+
+
+# haplotypes
 (
   wt_haplotype <- paste(wt_alleles, collapse = "")
 )
 
 
-# compute allele frequencies
+##___compute allele frequencies ----
 # -----------------------------------------------------------------------------#
+
 freqSNP_K13 <- clusters_K13 %>%
   select(s_Sample, source, starts_with("pos")) %>%
   reframe( # collapse alleles per codon per sample
@@ -740,8 +778,9 @@ freqSNP_K13 <- clusters_K13 %>%
 
 
 
-# haplotype frequencies
+##___compute haplotype frequencies ----
 # -----------------------------------------------------------------------------#
+
 freqHap_K13 <- clusters_K13 %>%
   reframe(
           source,
@@ -767,22 +806,32 @@ freqHap_K13 <- clusters_K13 %>%
 # =============================================================================#
 
 
-# import the MDR1 wildtype sequence
+##___import the wildtype sequence ----
 # -----------------------------------------------------------------------------#
+
 fasta_MDR1 <- read_lines("resources-genome/fasta-cds/PfMDR1.txt")
 
 
 
-# extract the wildtype amino acids from the protein sequence for the given positions
+##___extract the wildtype alleles/haplotypes ----
 # -----------------------------------------------------------------------------#
+
+# alleles
 (
   wt_alleles <- sapply(positions_MDR1, function(pos) substr(fasta_MDR1, pos, pos))
 )
 
 
 
-# compute allele frequencies
+# haplotypes
+(
+  wt_haplotype <- paste(wt_alleles, collapse = "")
+)
+
+
+##___compute allele frequencies ----
 # -----------------------------------------------------------------------------#
+
 freqSNP_MDR1 <- clusters_MDR1 %>%
   select(s_Sample, source, starts_with("pos")) %>%
   reframe( # collapse alleles per codon per sample
@@ -816,25 +865,9 @@ freqSNP_MDR1 <- clusters_MDR1 %>%
 
 
 
-# vector of polymorphic codons
+##___compute haplotype frequencies ----
 # -----------------------------------------------------------------------------#
-(
-  positions_MDR1 <- selectedClustersInfo %>%
-    filter(p_name == "MDR1" & str_detect(h_AATyped, "^PF3D7")) %>%
-    mutate(h_AATyped = str_remove(h_AATyped, ":136.")) %>%  # drop codon 16
-    select(h_AATyped) %>%
-    slice(1) %>%
-    mutate(h_AATyped = str_replace(h_AATyped, "PF3D7_.+--", ""),
-           numbers = str_extract_all(h_AATyped, "\\d+")) %>%
-    unnest(numbers) %>%
-    mutate(numbers = as.numeric(numbers)) %>%
-    pull(numbers)
-)
 
-
-
-# haplotype frequencies
-# -----------------------------------------------------------------------------#
 freqHap_MDR1 <- clusters_MDR1 %>%
   # -----------------------#
   # keep codons 86 and 184
