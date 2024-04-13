@@ -13,7 +13,6 @@ rm(list = ls())
 # =============================================================================#
 # load packages
 library(data.table, quietly = TRUE)
-library(networkD3)
 library(tidyverse, quietly = TRUE)
 source("wf-seekdeep-illumina-amplicon/scripts/functions.R")
 
