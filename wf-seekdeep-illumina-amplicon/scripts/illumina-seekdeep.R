@@ -24,7 +24,7 @@ library(tidyverse, quietly = TRUE)
 
 # specify the study dir name
 # STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2024_02_23_ilri_illumina_2x300/2024_04_11-04-seekdeep/"
-# STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2023_05_25_ilri_illumina_2x300/2024_04_12-01-seekdeep-dhps/"
+STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2023_05_25_ilri_illumina_2x300/2024_04_12-01-seekdeep-dhps/"
 STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2023_05_25_ilri_illumina_2x300/2024_04_12-01-seekdeep-dhfr/"
 
 
@@ -622,7 +622,7 @@ freqHap_DHPS <- clusters_DHPS %>%
   reframe(
           source, dhps_resistance,
           haplotype = paste(haplotype, collapse = ","),
-          dhps_resistance = paste(dhps_resistance, collapse = ","),
+          dhps_resistance = paste(unique(sort(dhps_resistance)), collapse = ","),
           .by = c(s_Sample)
           ) %>%
   distinct(s_Sample, .keep_all = TRUE) %>%
@@ -770,7 +770,7 @@ freqHap_DHFR <- clusters_DHFR %>%
   reframe(
           source, dhps_resistance,
           haplotype = paste(haplotype, collapse = ","),
-          dhps_resistance = paste(dhps_resistance, collapse = ","),
+          dhps_resistance = paste(unique(sort(dhps_resistance)), collapse = ","),
           .by = c(s_Sample)
           ) %>%
   distinct(s_Sample, .keep_all = TRUE) %>%
