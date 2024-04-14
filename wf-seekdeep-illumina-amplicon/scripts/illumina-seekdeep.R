@@ -23,16 +23,16 @@ library(tidyverse, quietly = TRUE)
 # *****************************************************************************#
 
 # specify the study dir name
-STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2024_02_23_ilri_illumina_2x300/2024_04_11-04-seekdeep/"
+# STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2024_02_23_ilri_illumina_2x300/2024_04_11-04-seekdeep/"
 # STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2023_05_25_ilri_illumina_2x300/2024_04_12-01-seekdeep-dhps/"
-# STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2023_05_25_ilri_illumina_2x300/2024_04_12-01-seekdeep-dhfr/"
+STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2023_05_25_ilri_illumina_2x300/2024_04_12-01-seekdeep-dhfr/"
 
 
 ## __a. import fastq extraction reports (by fastq) ----
 # =============================================================================#
 
 
-### ___i. import report ----
+### ____i. import report ----
 # -----------------------------------------------------------------------------#
 
 extStats <- read_tsv(paste0(STUDY, "/reports/allExtractionStats.tab.txt"),
@@ -42,7 +42,7 @@ extStats <- read_tsv(paste0(STUDY, "/reports/allExtractionStats.tab.txt"),
 
 
 
-### ___ii. qc summary - all fastq ----
+### ____ii. qc summary - all fastq ----
 # -----------------------------------------------------------------------------#
 
 extStatsFastqAll <- extStats %>%
@@ -57,7 +57,7 @@ extStatsFastqAll <- extStats %>%
 
 
 
-### ___iii. qc summary - by fastq ----
+### ____iii. qc summary - by fastq ----
 # -----------------------------------------------------------------------------#
 
 extStatsFastqEach <- extStats %>%
@@ -77,7 +77,7 @@ extStatsFastqEach <- extStats %>%
 # =============================================================================#
 
 
-### ___i. import report ----
+### ____i. import report ----
 # -----------------------------------------------------------------------------#
 
 extProfile <- read_tsv(paste0(STUDY, "reports/allExtractionProfile.tab.txt"),
@@ -87,7 +87,7 @@ extProfile <- read_tsv(paste0(STUDY, "reports/allExtractionProfile.tab.txt"),
 
 
 
-### ___ii. qc summary - by target ----
+### ____ii. qc summary - by target ----
 # -----------------------------------------------------------------------------#
 
 extProfileTarget <- extProfile %>%
@@ -131,6 +131,12 @@ extProfileTarget <- extProfile %>%
 
 
 
+### ____save table ----
+# -----------------------------------------------------------------------------#
+write_csv(extProfileTarget, paste0(STUDY, "output/qc-read-depth-target.csv"))
+
+
+
 ## __c. import analysis data ----
 # =============================================================================#
 
@@ -170,12 +176,14 @@ source("wf-seekdeep-illumina-amplicon/scripts/aggregate-clusters-mdr1.R")
 # =============================================================================#
 
 source("wf-seekdeep-illumina-amplicon/scripts/aggregate-clusters-dhps.R")
+source("wf-seekdeep-illumina-amplicon/scripts/functions-resistance-profile.R")
 
 
 ###___PfDHFR ----
 # =============================================================================#
 
 source("wf-seekdeep-illumina-amplicon/scripts/aggregate-clusters-dhfr.R")
+source("wf-seekdeep-illumina-amplicon/scripts/functions-resistance-profile.R")
 
 
 
@@ -188,7 +196,7 @@ source("wf-seekdeep-illumina-amplicon/scripts/aggregate-clusters-dhfr.R")
 # =============================================================================#
 
 
-### ___i. coi by source ----
+### ____i. coi by source ----
 # -----------------------------------------------------------------------------#
 
 (
@@ -203,7 +211,7 @@ source("wf-seekdeep-illumina-amplicon/scripts/aggregate-clusters-dhfr.R")
 
 
 
-### ___i. coi by sample ----
+### ____ii. coi by sample ----
 # -----------------------------------------------------------------------------#
 
 coi_sample <- clusters_AMA1 %>%
@@ -211,7 +219,7 @@ coi_sample <- clusters_AMA1 %>%
   select(source, s_Sample, s_COI)
 
 
-# save table
+### ____iii. save table ----
 write_csv(coi_sample, paste0(STUDY, "output/coi-by-sample.csv"))
 
 
@@ -315,7 +323,13 @@ freqSNP_K13 <- clusters_K13 %>%
 
 
 
-##___compute haplotype frequencies ----
+### ____save table ----
+# -----------------------------------------------------------------------------#
+write_csv(freqSNP_K13, paste0(STUDY, "output/freq-allele-k13.csv"))
+
+
+
+## ___compute haplotype frequencies ----
 # -----------------------------------------------------------------------------#
 
 freqHap_K13 <- clusters_K13 %>%
@@ -337,6 +351,12 @@ freqHap_K13 <- clusters_K13 %>%
          total = sum(count)
          ) %>%
   arrange(source, desc(freq))
+
+
+
+### ____save table ----
+# -----------------------------------------------------------------------------#
+write_csv(freqHap_K13, paste0(STUDY, "output/freq-haplotype-k13.csv"))
 
 
 
@@ -439,6 +459,11 @@ freqSNP_MDR1 <- clusters_MDR1 %>%
 
 
 
+### ____save table ----
+# -----------------------------------------------------------------------------#
+write_csv(freqSNP_MDR1, paste0(STUDY, "output/freq-allele-mdr1.csv"))
+
+
 
 ##___compute haplotype frequencies ----
 # -----------------------------------------------------------------------------#
@@ -462,6 +487,12 @@ freqHap_MDR1 <- clusters_MDR1 %>%
          total = sum(count)
          ) %>%
   arrange(source, desc(freq))
+
+
+
+### ____save table ----
+# -----------------------------------------------------------------------------#
+write_csv(freqHap_MDR1, paste0(STUDY, "output/freq-haplotype-mdr1.csv"))
 
 
 
@@ -493,9 +524,6 @@ fasta_DHPS <- read_lines("resources-genome/fasta-cds/PfDHPS.txt")
 
 ##___compute allele frequencies ----
 # -----------------------------------------------------------------------------#
-
-###____table ----
-# --------------------------------------------#
 
 freqSNP_DHPS <- clusters_DHPS %>%
   # select relevant columns
@@ -565,69 +593,15 @@ freqSNP_DHPS <- clusters_DHPS %>%
             )
 
 
-###____plot ----
-# --------------------------------------------#
 
-(
-  my_plot <- clusters_DHPS %>%
-    select(s_Sample, source, starts_with("pos")) %>%
-    reframe( # collapse alleles per codon per sample
-            source,
-            across(starts_with("pos"), ~paste(unique(sort(.)), collapse = ","),
-                   .names = "{.col}"),
-            .by = s_Sample) %>%
-    distinct(s_Sample, .keep_all = TRUE) %>%
-    pivot_longer(
-                 cols = starts_with("pos"), # dynamically select columns that start with "pos"
-                 names_to = "codon",
-                 values_to = "allele"
-                 ) %>%
-    mutate(codon = str_remove(codon, "pos")) %>%
-    summarise(count=n(), .by = c(source, codon, allele)) %>%
-    arrange(source, as.numeric(codon)) %>%
-    mutate(
-           freq = count/sum(count) * 100, .by = c(source, codon),
-           freq = round(freq,1),
-           allele = str_remove_all(allele, "\\d+")
-           ) %>%
-    mutate(codon = as.numeric(codon)) %>%
-    left_join(data.frame(position = positions_DHPS, wildtype = wt_alleles),
-              by = c("codon" = "position")) %>%
-    mutate(variant = case_when(
-                               str_detect(allele, "\\,") ~ "mixed",
-                               allele == wildtype ~ "wildtype",
-                               allele != wildtype ~ "mutant"),
-           codon_allele = paste(wildtype, codon, allele, sep = "")
-           ) %>%
-    # drop positions not associated with resistance
-    filter(! codon %in% c(431, 436)) %>%
-    ggplot(aes(x=as.factor(codon), y=freq, fill=variant)) +
-      geom_bar(stat = "identity", position = "stack", width = 0.7) +
-      ggprism::theme_prism() +
-      scale_fill_manual(values=c("grey","maroon", "black")) +
-      facet_wrap(. ~ source, scales = "free_x") +
-      labs(x = "Codon Position", y = "Relative Frequency", fill = "Genotype") +
-      scale_y_continuous(limits=c(0, 101), breaks=seq(0, 100, by=10))
-)
-
-
-
-###____save plot ----
+### ____save table ----
 # -----------------------------------------------------------------------------#
-
-jpeg(filename = "plot/dhps-snps.jpeg",
-     width = 8, height = 5, units = 'in', res = 600,
-     # type = "cairo",       #options::"cairo", "Xlib", "quartz"
-     # antialias = "none" #options::"default", "none", "gray", "subpixel"
-); print(my_plot); dev.off()
+write_csv(freqSNP_DHPS, paste0(STUDY, "output/freq-allele-dhps.csv"))
 
 
 
 ##___compute haplotype frequencies and resistance profiles ----
 # -----------------------------------------------------------------------------#
-
-###____table ----
-# --------------------------------------------#
 
 freqHap_DHPS <- clusters_DHPS %>%
   select(source, s_Sample, contains("pos"), haplotype) %>%
@@ -662,58 +636,9 @@ freqHap_DHPS <- clusters_DHPS %>%
 
 
 
-###____plot ----
-# --------------------------------------------#
-
-(
-  my_plot <- clusters_DHPS %>%
-    select(source, s_Sample, contains("pos"), haplotype) %>%
-    # define level of resistance
-    mutate(
-           profile_437 = case_when(pos437 == "437A" ~ "wt", .default = "mut"),
-           profile_540 = case_when(pos540 == "540K" ~ "wt", .default = "mut"),
-           profile_581 = case_when(pos581 == "581A" ~ "wt", .default = "mut")
-           ) %>%
-    rowwise() %>%
-    # calculate resistance profiles for dhps and total mutations for dhps
-    mutate(
-           mutations = sum(profile_437 == "mut", profile_540 == "mut", profile_581 == "mut", na.rm = TRUE),
-           dhfr_resistance = get_resistance_profile(mutations, n=sum(!is.na(c(profile_437, profile_540, profile_581)))),
-           haplotype = paste0(haplotype," (", dhfr_resistance, ")")
-           ) %>%
-    ungroup() %>%
-    reframe(
-            source, dhfr_resistance,
-            haplotype = paste(haplotype, collapse = ","),
-            dhfr_resistance = paste(dhfr_resistance, collapse = ","),
-            .by = c(s_Sample)
-            ) %>%
-    distinct(s_Sample, .keep_all = TRUE) %>%
-    summarise(count=n(), .by = c(source, dhfr_resistance)) %>%
-    mutate(
-           profile = case_when(str_detect(dhfr_resistance, ",") ~ "mixed",
-                               .default = dhfr_resistance),
-           freq = count/sum(count) * 100, .by = source
-           ) %>%
-    ggplot(aes(x=source, y=freq, group=profile, fill=profile)) +
-      geom_bar(stat = "identity", position = "stack", width = 0.7) +
-      ggprism::theme_prism() +
-      scale_fill_manual(values=c("navy blue", "grey","orange", "maroon", "black")) +
-      facet_wrap(. ~ source, scales = "free_x") +
-      labs(x = "Haplotype", y = "Relative Frequency", fill = "Haplotype") +
-      scale_y_continuous(limits=c(0, 101), breaks=seq(0, 100, by=10))
-)
-
-
-
-###____save plot ----
+### ____save table ----
 # -----------------------------------------------------------------------------#
-
-jpeg(filename = "plot/dhps-haplotypes.jpeg",
-     width = 5, height = 5, units = 'in', res = 600,
-     # type = "cairo",       #options::"cairo", "Xlib", "quartz"
-     # antialias = "none" #options::"default", "none", "gray", "subpixel"
-); print(my_plot); dev.off()
+write_csv(freqHap_DHPS, paste0(STUDY, "output/freq-haplotype-dhps.csv"))
 
 
 
@@ -747,9 +672,6 @@ fasta_DHFR <- read_lines("resources-genome/fasta-cds/PfDHFR.txt")
 
 ##___compute allele frequencies ----
 # -----------------------------------------------------------------------------#
-
-###____table ----
-# --------------------------------------------#
 
 freqSNP_DHFR <- clusters_DHFR %>%
   # select relevant columns
@@ -820,67 +742,14 @@ freqSNP_DHFR <- clusters_DHFR %>%
 
 
 
-###____plot ----
-# --------------------------------------------#
-
-(
-  my_plot <- clusters_DHFR %>%
-    select(s_Sample, source, starts_with("pos")) %>%
-    reframe( # collapse alleles per codon per sample
-            source,
-            across(starts_with("pos"), ~paste(unique(sort(.)), collapse = ","),
-                   .names = "{.col}"),
-            .by = s_Sample) %>%
-    distinct(s_Sample, .keep_all = TRUE) %>%
-    pivot_longer(
-                 cols = starts_with("pos"), # dynamically select columns that start with "pos"
-                 names_to = "codon",
-                 values_to = "allele"
-                 ) %>%
-    mutate(codon = str_remove(codon, "pos")) %>%
-    summarise(count=n(), .by = c(source, codon, allele)) %>%
-    arrange(source, as.numeric(codon)) %>%
-    mutate(
-           freq = count/sum(count) * 100, .by = c(source, codon),
-           freq = round(freq,1),
-           allele = str_remove_all(allele, "\\d+")
-           ) %>%
-    mutate(codon = as.numeric(codon)) %>%
-    left_join(data.frame(position = positions_DHFR, wildtype = wt_alleles),
-              by = c("codon" = "position")) %>%
-    mutate(variant = case_when(
-                               str_detect(allele, "\\,") ~ "mixed",
-                               allele == wildtype ~ "wildtype",
-                               allele != wildtype ~ "mutant"),
-           codon_allele = paste(wildtype, codon, allele, sep = "")
-           ) %>%
-    ggplot(aes(x=as.factor(codon), y=freq, fill=variant)) +
-      geom_bar(stat = "identity", position = "stack", width = 0.7) +
-      ggprism::theme_prism() +
-      scale_fill_manual(values=c("grey","maroon", "black")) +
-      facet_wrap(. ~ source, scales = "free_x") +
-      labs(x = "Codon Position", y = "Relative Frequency", fill = "Genotype") +
-      scale_y_continuous(limits=c(0, 101), breaks=seq(0, 100, by=10))
-)
-
-
-
-###____save plot ----
+### ____save table ----
 # -----------------------------------------------------------------------------#
-
-jpeg(filename = "plot/dhfr-snps.jpeg",
-     width = 8, height = 5, units = 'in', res = 600,
-     # type = "cairo",       #options::"cairo", "Xlib", "quartz"
-     # antialias = "none" #options::"default", "none", "gray", "subpixel"
-); print(my_plot); dev.off()
+write_csv(freqSNP_DHFR, paste0(STUDY, "output/freq-allele-dhfr.csv"))
 
 
 
 ##___compute haplotype frequencies and resistance profiles ----
 # -----------------------------------------------------------------------------#
-
-###____table ----
-# --------------------------------------------#
 
 freqHap_DHFR <- clusters_DHFR %>%
   select(source, s_Sample, contains("pos"), haplotype) %>%
@@ -915,58 +784,8 @@ freqHap_DHFR <- clusters_DHFR %>%
 
 
 
-###____plot ----
-# --------------------------------------------#
-
-(
-  my_plot <- clusters_DHFR %>%
-    select(source, s_Sample, contains("pos"), haplotype) %>%
-    # define level of resistance
-    mutate(
-           profile_51 = case_when(pos51 == "51N" ~ "wt", .default = "mut"),
-           profile_59 = case_when(pos59 == "59C" ~ "wt", .default = "mut"),
-           profile_108 = case_when(pos108 == "108S" ~ "wt", .default = "mut")
-           ) %>%
-    rowwise() %>%
-    # calculate resistance profiles for dhps and total mutations for dhps
-    mutate(
-           mutations = sum(profile_51 == "mut", profile_59 == "mut", profile_108 == "mut", na.rm = TRUE),
-           dhps_resistance = get_resistance_profile(mutations, n=sum(!is.na(c(profile_51, profile_59, profile_108)))),
-           haplotype = paste0(haplotype," (", dhps_resistance, ")")
-           ) %>%
-    ungroup() %>%
-    reframe(
-            source, dhps_resistance,
-            haplotype = paste(haplotype, collapse = ","),
-            dhps_resistance = paste(dhps_resistance, collapse = ","),
-            .by = c(s_Sample)
-            ) %>%
-    distinct(s_Sample, .keep_all = TRUE) %>%
-    summarise(count=n(), .by = c(source, dhps_resistance)) %>%
-    mutate(
-           profile = case_when(str_detect(dhps_resistance, ",") ~ "mixed",
-                               .default = dhps_resistance),
-           freq = count/sum(count) * 100, .by = source
-           ) %>%
-    ggplot(aes(x=source, y=freq, group=profile, fill=profile)) +
-      geom_bar(stat = "identity", position = "stack", width = 0.7) +
-      ggprism::theme_prism() +
-      scale_fill_manual(values=c("navy blue","grey", "maroon", "black")) +
-      facet_wrap(. ~ source, scales = "free_x") +
-      labs(x = "Haplotype", y = "Relative Frequency", fill = "Haplotype") +
-      scale_y_continuous(limits=c(0, 101), breaks=seq(0, 100, by=10))
-)
-
-
-
-###____save plot ----
+### ____save table ----
 # -----------------------------------------------------------------------------#
-
-jpeg(filename = "plot/dhfr-haplotypes.jpeg",
-     width = 5, height = 5, units = 'in', res = 600,
-     # type = "cairo",       #options::"cairo", "Xlib", "quartz"
-     # antialias = "none" #options::"default", "none", "gray", "subpixel"
-); print(my_plot); dev.off()
-
+write_csv(freqHap_DHFR, paste0(STUDY, "output/freq-haplotype-dhfr.csv"))
 
 
