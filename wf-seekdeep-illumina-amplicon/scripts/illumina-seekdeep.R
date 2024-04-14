@@ -30,11 +30,11 @@ STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2024_0
 # STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2023_05_25_ilri_illumina_2x300/2024_04_12-01-seekdeep-dhfr/"
 
 
-## __a. import FASTQ extraction reports ----
+## __a. import fastq extraction reports (by fastq) ----
 # =============================================================================#
 
 
-### ___i. extraction reports by fastq ----
+### ___i. import report ----
 # -----------------------------------------------------------------------------#
 
 extStats <- read_tsv(paste0(STUDY, "/reports/allExtractionStats.tab.txt"),
@@ -74,7 +74,12 @@ extStatsFastqEach <- extStats %>%
   mutate(across(everything(), ~ base::format(.x, big.mark = ",")))
 
 
-# extraction reports by FASTQ and gene
+
+## __b. import fastq extraction reports (by target) ----
+# =============================================================================#
+
+
+### ___i. import report ----
 # -----------------------------------------------------------------------------#
 
 extProfile <- read_tsv(paste0(STUDY, "reports/allExtractionProfile.tab.txt"),
@@ -82,6 +87,51 @@ extProfile <- read_tsv(paste0(STUDY, "reports/allExtractionProfile.tab.txt"),
   mutate_all(list(~str_replace(., "\\(.+\\)", ""))) %>%  # remove all characters in braces
   mutate_at(.vars = 3:ncol(.), .funs = as.numeric)       # to numeric
 
+
+
+### ___ii. qc summary - by target ----
+# -----------------------------------------------------------------------------#
+
+extProfileTarget <- extProfile %>%
+  mutate(name = str_remove(name, pattern = "MID.+")) %>% # drop MID substring
+  summarise(
+            # generate sum across all columns by fastq and target
+            across(totalMatching:last_col(), ~sum(.x, na.rm = TRUE)),
+            .by = c(inputName, name)
+            ) %>%
+  # select relevant columns
+  # -----------------------------------
+  select(inputName, name, totalMatching, good) %>%
+  # summary of totals, all data
+  mutate(
+         totalAll = sum(totalMatching),
+         totalAllGood = sum(good),
+         totalAllGoodPerc = round(totalAllGood / totalAll, 2),
+         totalAllGood = base::format(totalAllGood, big.mark = ","),
+         totalAllGood = paste0(totalAllGood, " [", totalAllGoodPerc, "]"),
+         ) %>%
+  # summary of totals by fastq
+  mutate(
+         totalFastq = sum(totalMatching),
+         totalFastqGood = sum(good),
+         totalFastqGoodPerc = round(totalFastqGood / totalFastq, 2),
+         totalFastq = base::format(totalFastq, big.mark = ","),
+         totalFastqGoodPerc = paste0(totalFastq, " [", totalFastqGoodPerc, "]"),
+         .by = inputName
+         ) %>%
+  # summary of totals by fastq and target
+  mutate(
+         totalTargetGoodPerc = round(good / totalMatching, 2),
+         totalTargetMatching = base::format(totalMatching, big.mark = ","),
+         totalTargetGoodPerc = paste0(totalTargetMatching, " [", totalTargetGoodPerc, "]"),
+         ) %>%
+  # format: long to wide 
+  pivot_wider(
+              id_cols = c(inputName, totalAllGood, totalFastqGoodPerc),
+              names_from = "name",
+              values_from = "totalTargetGoodPerc"
+              )
+  
 
 
 ## __b. import analysis data ----
