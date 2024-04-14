@@ -189,10 +189,11 @@ source("wf-seekdeep-illumina-amplicon/scripts/aggregate-clusters-dhfr.R")
 # =============================================================================#
 
 
-# coi by source
+### ___i. coi by source ----
 # -----------------------------------------------------------------------------#
+
 (
-  coi_AMA1 <- clusters_AMA1 %>%
+  coi_source <- clusters_AMA1 %>%
     summarise(
               min = min(s_COI),
               mean = median(s_COI),
@@ -200,6 +201,19 @@ source("wf-seekdeep-illumina-amplicon/scripts/aggregate-clusters-dhfr.R")
               .by = source
               )
 )
+
+
+
+### ___i. coi by sample ----
+# -----------------------------------------------------------------------------#
+
+coi_sample <- clusters_AMA1 %>%
+  distinct(s_Sample, .keep_all = TRUE) %>%
+  select(source, s_Sample, s_COI)
+
+
+# save table
+write_csv(coi_sample, paste0(STUDY, "output/coi-by-sample.csv"))
 
 
 
