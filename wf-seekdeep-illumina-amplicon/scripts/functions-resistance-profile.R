@@ -1,4 +1,4 @@
-### ____i. function to determine resistance profile based on count ----
+# function to determine resistance profile based on count ----
 # -------------------------------------------#
 get_resistance_profile <- function(count, n) {
       if (is.na(count) || count == 0 && n == 0) {
@@ -15,7 +15,7 @@ get_resistance_profile <- function(count, n) {
   }
 
 
-### ____ii. function to convert number to word ----
+# function to convert number to word ----
 number_to_word <- function(num) {
   words <- c("zero", "single", "double", "triple", "quadruple", "quintuple",
              "sextuple", "septuple", "octuple", "nonuple", "decuple")

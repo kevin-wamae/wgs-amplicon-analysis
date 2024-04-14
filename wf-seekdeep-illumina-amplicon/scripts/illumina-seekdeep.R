@@ -1,5 +1,3 @@
-# This R script processes output from SeekDeep 
-
 # *****************************************************************************#
 #     An R pipeline for aggregating allele frequency data from SeekDeep
 # *****************************************************************************#
@@ -16,7 +14,7 @@ rm(list = ls())
 
 library(data.table, quietly = TRUE)
 library(tidyverse, quietly = TRUE)
-source("wf-seekdeep-illumina-amplicon/scripts/functions.R")
+# source("wf-seekdeep-illumina-amplicon/scripts/functions-resistance-profile.R")
 
 
 
@@ -100,7 +98,6 @@ extProfileTarget <- extProfile %>%
             .by = c(inputName, name)
             ) %>%
   # select relevant columns
-  # -----------------------------------
   select(inputName, name, totalMatching, good) %>%
   # summary of totals, all data
   mutate(
@@ -134,16 +131,13 @@ extProfileTarget <- extProfile %>%
   
 
 
-## __b. import analysis data ----
+## __c. import analysis data ----
 # =============================================================================#
 
-###__extract clusters for each target ----
-# # -----------------------------------------------------------------------------#
 selectedClustersInfo <- read_tsv(paste0(STUDY, "/selectedClustersInfo.tab.txt.gz"),
                      show_col_types = FALSE) %>%
   mutate(source = "None") %>% # define source of samples
   filter(h_AATyped != "Untranslatable")
-
 
 
 # summarise targets available for analysis
@@ -151,197 +145,38 @@ unique(selectedClustersInfo$p_name)
 
 
 
-###___AMA1 ----
+## __d. extract clusters for each available ----
 # =============================================================================#
 
-
-# generate a vector of polymorphic codons
-# -----------------------------------------------------------------------------#
-(
-  positions_AMA1 <- selectedClustersInfo %>%
-    filter(p_name == "PFAMA1" & str_detect(h_AATyped, "^PF3D7")) %>%
-    select(h_AATyped) %>%
-    slice(1) %>%
-    mutate(h_AATyped = str_replace(h_AATyped, "PF3D7_.+--", ""),
-           numbers = str_extract_all(h_AATyped, "\\d+")) %>%
-    unnest(numbers) %>%
-    mutate(numbers = as.numeric(numbers)) %>%
-    pull(numbers)
-)
-
-
-
-# filter variant data
-# -----------------------------------------------------------------------------#
-clusters_AMA1 <- selectedClustersInfo %>%
-  filter(p_name == "PFAMA1") %>%
-  mutate(
-        purrr::map_dfc(
-                      set_names(positions_AMA1, paste0("pos", positions_AMA1)),
-                      ~ str_extract(string = h_AATyped, pattern = paste0(.x, "."))
-                      )) %>%
-  rowwise() %>%
-  mutate(
-         codon_pos = paste(c_across(all_of(paste0("pos", positions_AMA1))), collapse = ", "),
-         codon_pos = str_remove_all(string = codon_pos, pattern = "-."),
-         haplotype = str_remove_all(string = codon_pos, pattern = "\\d+|,\\s")
-         ) %>%
-  ungroup()
-
-
-
-###___K13 ----
+###___PfAMA1 ----
 # =============================================================================#
 
-
-# vector of polymorphic codons
-# -----------------------------------------------------------------------------#
-(
-  positions_K13 <- selectedClustersInfo %>%
-    filter(p_name == "PFK13" & str_detect(h_AATyped, "^PF3D7")) %>%
-    select(h_AATyped) %>%
-    slice(1) %>%
-    mutate(h_AATyped = str_replace(h_AATyped, "PF3D7_.+--", ""),
-           numbers = str_extract_all(h_AATyped, "\\d+")) %>%
-    unnest(numbers) %>%
-    mutate(numbers = as.numeric(numbers)) %>%
-    pull(numbers)
-)
+source("wf-seekdeep-illumina-amplicon/scripts/aggregate-clusters-ama1.R")
 
 
-# filter variant data
-# -----------------------------------------------------------------------------#
-clusters_K13 <- selectedClustersInfo %>%
-  filter(p_name == "PFK13") %>%
-  mutate(
-        purrr::map_dfc(
-                      set_names(positions_K13, paste0("pos", positions_K13)),
-                      ~ str_extract(string = h_AATyped, pattern = paste0(.x, "."))
-                      )) %>%
-  rowwise() %>%
-  mutate(
-         codon_pos = paste(c_across(all_of(paste0("pos", positions_K13))), collapse = ", "),
-         codon_pos = str_remove_all(string = codon_pos, pattern = "-."),
-         haplotype = str_remove_all(string = codon_pos, pattern = "\\d+|,\\s")
-         ) %>%
-  ungroup()
-
-
-
-###___MDR1 ----
+###___PfK13 ----
 # =============================================================================#
 
-
-# vector of polymorphic codons
-# -----------------------------------------------------------------------------#
-(
-  positions_MDR1 <- selectedClustersInfo %>%
-    filter(p_name == "PFMDR1" & str_detect(h_AATyped, "^PF3D7")) %>%
-    # mutate(h_AATyped = str_remove(h_AATyped, ":136.")) %>%  # drop codon 16
-    select(h_AATyped) %>%
-    slice(1) %>%
-    mutate(h_AATyped = str_replace(h_AATyped, "PF3D7_.+--", ""),
-           numbers = str_extract_all(h_AATyped, "\\d+")) %>%
-    unnest(numbers) %>%
-    mutate(numbers = as.numeric(numbers)) %>%
-    pull(numbers)
-)
+source("wf-seekdeep-illumina-amplicon/scripts/aggregate-clusters-k13.R")
 
 
-
-# filter variant data
-# -----------------------------------------------------------------------------#
-clusters_MDR1 <- selectedClustersInfo %>%
-  filter(p_name == "PFMDR1") %>%
-  mutate(
-        purrr::map_dfc(
-                      set_names(positions_MDR1, paste0("pos", positions_MDR1)),
-                      ~ str_extract(string = h_AATyped, pattern = paste0(.x, "."))
-                      )) %>%
-  rowwise() %>%
-  mutate(
-         codon_pos = paste(c_across(all_of(paste0("pos", positions_MDR1))), collapse = ", "),
-         codon_pos = str_remove_all(string = codon_pos, pattern = "-."),
-         haplotype = str_remove_all(string = codon_pos, pattern = "\\d+|,\\s")
-         ) %>%
-  ungroup()
-
-
-
-###___DHPS ----
+###___PfMDR1 ----
 # =============================================================================#
 
-
-# vector of polymorphic codons
-(
-  positions_DHPS <- selectedClustersInfo %>%
-    filter(p_name == "PFDHPS" & str_detect(h_AATyped, "^PF3D7")) %>%
-    select(h_AATyped) %>%
-    slice(1) %>%
-    mutate(h_AATyped = str_replace(h_AATyped, "PF3D7_.+--", ""),
-           numbers = str_extract_all(h_AATyped, "\\d+")) %>%
-    unnest(numbers) %>%
-    mutate(numbers = as.numeric(numbers)) %>%
-    pull(numbers)
-)
+source("wf-seekdeep-illumina-amplicon/scripts/aggregate-clusters-mdr1.R")
 
 
-
-# filter variant data
-# -----------------------------------------------------------------------------#
-clusters_DHPS <- selectedClustersInfo %>%
-  filter(p_name == "PFDHPS") %>%
-  mutate(
-        purrr::map_dfc(
-                      set_names(positions_DHPS, paste0("pos", positions_DHPS)),
-                      ~ str_extract(string = h_AATyped, pattern = paste0(.x, "."))
-                      )) %>%
-  rowwise() %>%
-  mutate(
-         codon_pos = paste(c_across(all_of(paste0("pos", positions_DHPS))), collapse = ", "),
-         codon_pos = str_remove_all(string = codon_pos, pattern = "-."),
-         haplotype = str_remove_all(string = codon_pos, pattern = "\\d+|,\\s")
-         ) %>%
-  ungroup()
-
-
-
-###___DHFR ----
+###___PfDHPS ----
 # =============================================================================#
 
-
-# vector of polymorphic codons
-(
-  positions_DHFR <- selectedClustersInfo %>%
-    filter(p_name == "PFDHFR" & str_detect(h_AATyped, "^PF3D7")) %>%
-    mutate(h_AATyped = str_remove(h_AATyped, "16A:")) %>%  # drop codon 16
-    select(h_AATyped) %>%
-    slice(1) %>%
-    mutate(h_AATyped = str_replace(h_AATyped, "PF3D7_.+--", ""),
-           numbers = str_extract_all(h_AATyped, "\\d+")) %>%
-    unnest(numbers) %>%
-    mutate(numbers = as.numeric(numbers)) %>%
-    pull(numbers)
-)
+source("wf-seekdeep-illumina-amplicon/scripts/aggregate-clusters-dhps.R")
 
 
+###___PfDHFR ----
+# =============================================================================#
 
-# filter variant data
-# -----------------------------------------------------------------------------#
-clusters_DHFR <- selectedClustersInfo %>%
-  filter(p_name == "PFDHFR") %>%
-  mutate(
-        purrr::map_dfc(
-                      set_names(positions_DHFR, paste0("pos", positions_DHFR)),
-                      ~ str_extract(string = h_AATyped, pattern = paste0(.x, "."))
-                      )) %>%
-  rowwise() %>%
-  mutate(
-         codon_pos = paste(c_across(all_of(paste0("pos", positions_DHFR))), collapse = ", "),
-         codon_pos = str_remove_all(string = codon_pos, pattern = "-."),
-         haplotype = str_remove_all(string = codon_pos, pattern = "\\d+|,\\s"),
-         ) %>%
-  ungroup()
+source("wf-seekdeep-illumina-amplicon/scripts/aggregate-clusters-dhfr.R")
+
 
 
 
@@ -350,7 +185,7 @@ clusters_DHFR <- selectedClustersInfo %>%
 # *****************************************************************************#
 
 
-## __AMA1 ----
+## __PfAMA1 ----
 # =============================================================================#
 
 
@@ -368,7 +203,7 @@ clusters_DHFR <- selectedClustersInfo %>%
 
 
 
-## __K13 ----
+## __PfK13 ----
 # =============================================================================#
 
 ##___import the wildtype sequence ----
@@ -470,7 +305,7 @@ freqHap_K13 <- clusters_K13 %>%
 
 
 
-## __MDR1 ----
+## __PfMDR1 ----
 # =============================================================================#
 
 
@@ -572,7 +407,7 @@ freqHap_MDR1 <- clusters_MDR1 %>%
 
 
 
-## __DHPS ----
+## __PfDHPS ----
 # =============================================================================#
 
 ##___import the wildtype sequence ----
@@ -802,7 +637,7 @@ jpeg(filename = "plot/dhps-haplotypes.jpeg",
 
 
 
-## __DHFR ----
+## __PfDHFR ----
 # =============================================================================#
 
 
