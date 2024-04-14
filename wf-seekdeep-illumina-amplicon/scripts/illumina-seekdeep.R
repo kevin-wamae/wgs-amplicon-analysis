@@ -25,8 +25,8 @@ source("wf-seekdeep-illumina-amplicon/scripts/functions.R")
 # *****************************************************************************#
 
 # specify the study dir name
-# STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2024_02_23_ilri_illumina_2x300/2024_04_11-04-seekdeep/"
-STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2023_05_25_ilri_illumina_2x300/2024_04_12-01-seekdeep-dhps/"
+STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2024_02_23_ilri_illumina_2x300/2024_04_11-04-seekdeep/"
+# STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2023_05_25_ilri_illumina_2x300/2024_04_12-01-seekdeep-dhps/"
 # STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2023_05_25_ilri_illumina_2x300/2024_04_12-01-seekdeep-dhfr/"
 
 
@@ -34,7 +34,7 @@ STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2023_0
 # =============================================================================#
 
 
-# extraction reports by FASTQ
+### ___i. extraction reports by fastq ----
 # -----------------------------------------------------------------------------#
 
 extStats <- read_tsv(paste0(STUDY, "/reports/allExtractionStats.tab.txt"),
@@ -42,6 +42,20 @@ extStats <- read_tsv(paste0(STUDY, "/reports/allExtractionStats.tab.txt"),
   mutate_all(list(~str_replace(., "\\(.+\\)", ""))) %>%  # remove all characters in braces
   mutate_at(.vars = 2:ncol(.), .funs = as.numeric)       # to numeric
 
+
+
+### ___ii. fastq qc summary ----
+# -----------------------------------------------------------------------------#
+
+extStats %>%
+  mutate(filteredOut = Total - used) %>%
+  summarise(
+            sumTotal = sum(Total),           # total reads-input
+            sumUsed = sum(used),             # total reads-used
+            sumDiscarded = sum(filteredOut)  # total reads-discarded
+            ) %>%
+  # apply format with thousands separator to the resulting summary
+  mutate(across(everything(), ~ base::format(.x, big.mark = ",")))
 
 
 # extraction reports by FASTQ and gene
