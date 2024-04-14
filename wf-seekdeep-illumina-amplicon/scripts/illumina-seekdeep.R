@@ -44,15 +44,31 @@ extStats <- read_tsv(paste0(STUDY, "/reports/allExtractionStats.tab.txt"),
 
 
 
-### ___ii. fastq qc summary ----
+### ___ii. qc summary - all fastq ----
 # -----------------------------------------------------------------------------#
 
-extStats %>%
+extStatsFastqAll <- extStats %>%
   mutate(filteredOut = Total - used) %>%
   summarise(
             sumTotal = sum(Total),           # total reads-input
             sumUsed = sum(used),             # total reads-used
             sumDiscarded = sum(filteredOut)  # total reads-discarded
+            ) %>%
+  # apply format with thousands separator to the resulting summary
+  mutate(across(everything(), ~ base::format(.x, big.mark = ",")))
+
+
+
+### ___iii. qc summary - by fastq ----
+# -----------------------------------------------------------------------------#
+
+extStatsFastqEach <- extStats %>%
+  mutate(filteredOut = Total - used) %>%
+  summarise(
+            sumTotal = sum(Total),           # total reads-input
+            sumUsed = sum(used),             # total reads-used
+            sumDiscarded = sum(filteredOut), # total reads-discarded
+            .by = inputName
             ) %>%
   # apply format with thousands separator to the resulting summary
   mutate(across(everything(), ~ base::format(.x, big.mark = ",")))
