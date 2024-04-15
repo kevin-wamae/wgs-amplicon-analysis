@@ -21,14 +21,15 @@ library(tidyverse, quietly = TRUE)
 # 2. import data ----
 # *****************************************************************************#
 
-# specify the study dir name
+## __a. specify dir-input path ----
 STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2024_02_23_ilri_illumina_2x300/2024_04_11-04-seekdeep/"
+STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2024_02_23_kwtrp_illumina_2x300/2024_03_01-01-seekdeep"
 # STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2023_05_25_ilri_illumina_2x300/2024_04_12-01-seekdeep-dhps/"
 # STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2023_05_25_ilri_illumina_2x300/2024_04_12-01-seekdeep-dhfr/"
 
 
 
-## __a. import fastq extraction reports (by target) ----
+## __b. import fastq extraction reports (by target) ----
 # =============================================================================#
 
 
@@ -92,7 +93,7 @@ write_csv(extProfileTarget, paste0(STUDY, "output/qc-read-depth-target.csv"))
 
 
 
-## __b. import analysis data ----
+## __c. import analysis data ----
 # =============================================================================#
 
 selectedClustersInfo <- read_tsv(paste0(STUDY, "/selectedClustersInfo.tab.txt.gz"),
@@ -103,7 +104,7 @@ selectedClustersInfo <- read_tsv(paste0(STUDY, "/selectedClustersInfo.tab.txt.gz
 
 
 
-## __c. extract clusters for each available ----
+## __d. extract clusters for each available ----
 # =============================================================================#
 
 ###___PfAMA1 ----
