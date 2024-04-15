@@ -14,7 +14,6 @@ rm(list = ls())
 
 library(data.table, quietly = TRUE)
 library(tidyverse, quietly = TRUE)
-# source("wf-seekdeep-illumina-amplicon/scripts/functions-resistance-profile.R")
 
 
 
@@ -61,15 +60,15 @@ extProfileTarget <- extProfile %>%
          totalAllGood = sum(good),
          totalAllGoodPerc = round(totalAllGood / totalAll, 2),
          totalAllGood = base::format(totalAllGood, big.mark = ","),
-         totalAllGood = paste0(totalAllGood, " [", totalAllGoodPerc, "]"),
+         totalAllGoodPerc = paste0(totalAllGood, " [", totalAllGoodPerc, "]"),
          ) %>%
   # summary of totals by fastq
   mutate(
-         totalFastq = sum(totalMatching),
-         totalFastqGood = sum(good),
-         totalFastqGoodPerc = round(totalFastqGood / totalFastq, 2),
-         totalFastq = base::format(totalFastq, big.mark = ","),
-         totalFastqGoodPerc = paste0(totalFastq, " [", totalFastqGoodPerc, "]"),
+         totalByFastq = sum(totalMatching),
+         totalByFastqGood = sum(good),
+         totalByFastqGoodPerc = round(totalByFastqGood / totalByFastq, 2),
+         totalByFastq = base::format(totalByFastq, big.mark = ","),
+         totalByFastqGoodPerc = paste0(totalByFastq, " [", totalByFastqGoodPerc, "]"),
          .by = inputName
          ) %>%
   # summary of totals by fastq and target
@@ -80,7 +79,7 @@ extProfileTarget <- extProfile %>%
          ) %>%
   # format: long to wide
   pivot_wider(
-              id_cols = c(inputName, totalAllGood, totalFastqGoodPerc),
+              id_cols = c(inputName, totalAllGoodPerc, totalByFastqGoodPerc),
               names_from = "name",
               values_from = "totalTargetGoodPerc"
               )
@@ -99,11 +98,8 @@ write_csv(extProfileTarget, paste0(STUDY, "output/qc-read-depth-target.csv"))
 selectedClustersInfo <- read_tsv(paste0(STUDY, "/selectedClustersInfo.tab.txt.gz"),
                      show_col_types = FALSE) %>%
   mutate(source = "None") %>% # define source of samples
-  filter(h_AATyped != "Untranslatable")
-
-
-# summarise targets available for analysis
-unique(selectedClustersInfo$p_name)
+  # filter untranslatable and show targets available for analysis
+  filter(h_AATyped != "Untranslatable"); unique(selectedClustersInfo$p_name)
 
 
 
@@ -282,37 +278,6 @@ freqSNP_K13 <- clusters_K13 %>%
 ### ____save table ----
 # -----------------------------------------------------------------------------#
 write_csv(freqSNP_K13, paste0(STUDY, "output/freq-allele-k13.csv"))
-
-
-
-## ___compute haplotype frequencies ----
-# -----------------------------------------------------------------------------#
-
-freqHap_K13 <- clusters_K13 %>%
-  reframe(
-          source,
-          haplotype = paste(sort(unique(haplotype)), collapse = ","),
-          .by = c(s_Sample)
-          ) %>%
-  distinct(s_Sample, .keep_all = TRUE) %>%
-  summarise(count=n(), .by = c(source, haplotype)) %>%
-  mutate(
-         freq = count/sum(count), .by = source,
-         freq = round(freq * 100, 1),
-         variant = case_when(
-                             haplotype == wt_haplotype ~ "wildtype",
-                             str_detect(haplotype, ",") ~ "mixed",
-                             TRUE ~ "mutant",
-                             ),
-         total = sum(count)
-         ) %>%
-  arrange(source, desc(freq))
-
-
-
-### ____save table ----
-# -----------------------------------------------------------------------------#
-write_csv(freqHap_K13, paste0(STUDY, "output/freq-haplotype-k13.csv"))
 
 
 
