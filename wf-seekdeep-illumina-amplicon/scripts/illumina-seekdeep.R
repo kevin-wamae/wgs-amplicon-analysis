@@ -23,57 +23,13 @@ library(tidyverse, quietly = TRUE)
 # *****************************************************************************#
 
 # specify the study dir name
-# STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2024_02_23_ilri_illumina_2x300/2024_04_11-04-seekdeep/"
-STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2023_05_25_ilri_illumina_2x300/2024_04_12-01-seekdeep-dhps/"
-STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2023_05_25_ilri_illumina_2x300/2024_04_12-01-seekdeep-dhfr/"
-
-
-## __a. import fastq extraction reports (by fastq) ----
-# =============================================================================#
-
-
-### ____i. import report ----
-# -----------------------------------------------------------------------------#
-
-extStats <- read_tsv(paste0(STUDY, "/reports/allExtractionStats.tab.txt"),
-                     show_col_types = FALSE) %>%
-  mutate_all(list(~str_replace(., "\\(.+\\)", ""))) %>%  # remove all characters in braces
-  mutate_at(.vars = 2:ncol(.), .funs = as.numeric)       # to numeric
+STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2024_02_23_ilri_illumina_2x300/2024_04_11-04-seekdeep/"
+# STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2023_05_25_ilri_illumina_2x300/2024_04_12-01-seekdeep-dhps/"
+# STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2023_05_25_ilri_illumina_2x300/2024_04_12-01-seekdeep-dhfr/"
 
 
 
-### ____ii. qc summary - all fastq ----
-# -----------------------------------------------------------------------------#
-
-extStatsFastqAll <- extStats %>%
-  mutate(filteredOut = Total - used) %>%
-  summarise(
-            sumTotal = sum(Total),           # total reads-input
-            sumUsed = sum(used),             # total reads-used
-            sumDiscarded = sum(filteredOut)  # total reads-discarded
-            ) %>%
-  # apply format with thousands separator to the resulting summary
-  mutate(across(everything(), ~ base::format(.x, big.mark = ",")))
-
-
-
-### ____iii. qc summary - by fastq ----
-# -----------------------------------------------------------------------------#
-
-extStatsFastqEach <- extStats %>%
-  mutate(filteredOut = Total - used) %>%
-  summarise(
-            sumTotal = sum(Total),           # total reads-input
-            sumUsed = sum(used),             # total reads-used
-            sumDiscarded = sum(filteredOut), # total reads-discarded
-            .by = inputName
-            ) %>%
-  # apply format with thousands separator to the resulting summary
-  mutate(across(everything(), ~ base::format(.x, big.mark = ",")))
-
-
-
-## __b. import fastq extraction reports (by target) ----
+## __a. import fastq extraction reports (by target) ----
 # =============================================================================#
 
 
@@ -137,7 +93,7 @@ write_csv(extProfileTarget, paste0(STUDY, "output/qc-read-depth-target.csv"))
 
 
 
-## __c. import analysis data ----
+## __b. import analysis data ----
 # =============================================================================#
 
 selectedClustersInfo <- read_tsv(paste0(STUDY, "/selectedClustersInfo.tab.txt.gz"),
@@ -151,7 +107,7 @@ unique(selectedClustersInfo$p_name)
 
 
 
-## __d. extract clusters for each available ----
+## __c. extract clusters for each available ----
 # =============================================================================#
 
 ###___PfAMA1 ----
