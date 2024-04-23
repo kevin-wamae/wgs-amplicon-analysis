@@ -26,8 +26,13 @@ library(tidyverse, quietly = TRUE)
 # STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2024_02_23_kwtrp_illumina_2x300/2024_03_01-01-seekdeep"
 # STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2023_05_25_ilri_illumina_2x300/2024_04_12-01-seekdeep-dhps/"
 # STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2023_05_25_ilri_illumina_2x300/2024_04_12-01-seekdeep-dhfr/"
+# STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2024_02_23_kwtrp_illumina_2x300/2024_03_01-01-seekdeep/"
+STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2024_02_23_kwtrp_illumina_2x300/2024_04_23-02-seekdeep/"
 
-STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2024_02_23_kwtrp_illumina_2x300/2024_03_01-01-seekdeep/"
+
+
+# create the output directory for generated reports
+dir.create(paste0(STUDY, "output/"), recursive = TRUE, showWarnings = FALSE)
 
 
 
@@ -98,8 +103,26 @@ write_csv(extProfileTarget, paste0(STUDY, "output/qc-read-depth-target.csv"))
 ## __c. import analysis data ----
 # =============================================================================#
 
+# one file
+# -----------------------------------------------------------------------------#
 selectedClustersInfo <- read_tsv(paste0(STUDY, "/selectedClustersInfo.tab.txt.gz"),
                      show_col_types = FALSE) %>%
+  mutate(source = "None") %>% # define source of samples
+  # filter untranslatable and show targets available for analysis
+  filter(h_AATyped != "Untranslatable"); unique(selectedClustersInfo$p_name)
+
+
+
+# multiple files
+# -----------------------------------------------------------------------------#
+# List files with the specific prefix
+files <- list.files(path = STUDY,
+                    pattern = "^selectedClustersInfo_.*\\.gz$",
+                    full.names = TRUE)
+
+# Read and bind the data frames
+selectedClustersInfo <- files %>%
+  map_dfr(~ read_tsv(.x, col_types = cols())) %>%  # adjust col_types as needed
   mutate(source = "None") %>% # define source of samples
   # filter untranslatable and show targets available for analysis
   filter(h_AATyped != "Untranslatable"); unique(selectedClustersInfo$p_name)
