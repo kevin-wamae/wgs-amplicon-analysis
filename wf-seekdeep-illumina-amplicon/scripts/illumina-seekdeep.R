@@ -21,11 +21,13 @@ library(tidyverse, quietly = TRUE)
 # 2. import data ----
 # *****************************************************************************#
 
-## __a. specify dir-input path ----
-STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2024_02_23_ilri_illumina_2x300/2024_04_11-04-seekdeep/"
-STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2024_02_23_kwtrp_illumina_2x300/2024_03_01-01-seekdeep"
+## __a. specify input-dir path ----
+# STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2024_02_23_ilri_illumina_2x300/2024_04_11-04-seekdeep/"
+# STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2024_02_23_kwtrp_illumina_2x300/2024_03_01-01-seekdeep"
 # STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2023_05_25_ilri_illumina_2x300/2024_04_12-01-seekdeep-dhps/"
 # STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2023_05_25_ilri_illumina_2x300/2024_04_12-01-seekdeep-dhfr/"
+
+STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2024_02_23_kwtrp_illumina_2x300/2024_03_01-01-seekdeep/"
 
 
 
@@ -110,33 +112,33 @@ selectedClustersInfo <- read_tsv(paste0(STUDY, "/selectedClustersInfo.tab.txt.gz
 ###___PfAMA1 ----
 # =============================================================================#
 
-source("wf-seekdeep-illumina-amplicon/scripts/aggregate-clusters-ama1.R")
+source("wf-seekdeep-illumina-amplicon/scripts/functions/aggregate-clusters-ama1.R")
 
 
 ###___PfK13 ----
 # =============================================================================#
 
-source("wf-seekdeep-illumina-amplicon/scripts/aggregate-clusters-k13.R")
+source("wf-seekdeep-illumina-amplicon/scripts/functions/aggregate-clusters-k13.R")
 
 
 ###___PfMDR1 ----
 # =============================================================================#
 
-source("wf-seekdeep-illumina-amplicon/scripts/aggregate-clusters-mdr1.R")
+source("wf-seekdeep-illumina-amplicon/scripts/functions/aggregate-clusters-mdr1.R")
 
 
 ###___PfDHPS ----
 # =============================================================================#
 
-source("wf-seekdeep-illumina-amplicon/scripts/aggregate-clusters-dhps.R")
-source("wf-seekdeep-illumina-amplicon/scripts/functions-resistance-profile.R")
+source("wf-seekdeep-illumina-amplicon/scripts/functions/aggregate-clusters-dhps.R")
+source("wf-seekdeep-illumina-amplicon/scripts/functions/functions-resistance-profile.R")
 
 
 ###___PfDHFR ----
 # =============================================================================#
 
-source("wf-seekdeep-illumina-amplicon/scripts/aggregate-clusters-dhfr.R")
-source("wf-seekdeep-illumina-amplicon/scripts/functions-resistance-profile.R")
+source("wf-seekdeep-illumina-amplicon/scripts/functions/aggregate-clusters-dhfr.R")
+source("wf-seekdeep-illumina-amplicon/scripts/functions/functions-resistance-profile.R")
 
 
 
@@ -164,6 +166,11 @@ source("wf-seekdeep-illumina-amplicon/scripts/functions-resistance-profile.R")
 
 
 
+### save table
+write_csv(coi_source, paste0(STUDY, "output/coi-by-souce.csv"))
+
+
+
 ### ____ii. coi by sample ----
 # -----------------------------------------------------------------------------#
 
@@ -172,7 +179,8 @@ coi_sample <- clusters_AMA1 %>%
   select(source, s_Sample, s_COI)
 
 
-### ____iii. save table ----
+
+### save table
 write_csv(coi_sample, paste0(STUDY, "output/coi-by-sample.csv"))
 
 
@@ -543,7 +551,7 @@ freqHap_DHPS <- clusters_DHPS %>%
   ungroup() %>%
   reframe(
           source, dhps_resistance,
-          haplotype = paste(haplotype, collapse = ","),
+          haplotype = paste(sort(unique(haplotype)), collapse = ","),
           dhps_resistance = paste(unique(sort(dhps_resistance)), collapse = ","),
           .by = c(s_Sample)
           ) %>%
@@ -691,7 +699,7 @@ freqHap_DHFR <- clusters_DHFR %>%
   ungroup() %>%
   reframe(
           source, dhps_resistance,
-          haplotype = paste(haplotype, collapse = ","),
+          haplotype = paste(sort(unique(haplotype)), collapse = ","),
           dhps_resistance = paste(unique(sort(dhps_resistance)), collapse = ","),
           .by = c(s_Sample)
           ) %>%
