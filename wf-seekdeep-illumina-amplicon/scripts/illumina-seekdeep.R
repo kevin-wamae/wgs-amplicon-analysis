@@ -22,11 +22,6 @@ library(tidyverse, quietly = TRUE)
 # *****************************************************************************#
 
 ## __a. specify input-dir path ----
-# STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2024_02_23_ilri_illumina_2x300/2024_04_11-04-seekdeep/"
-# STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2024_02_23_kwtrp_illumina_2x300/2024_03_01-01-seekdeep"
-# STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2023_05_25_ilri_illumina_2x300/2024_04_12-01-seekdeep-dhps/"
-# STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2023_05_25_ilri_illumina_2x300/2024_04_12-01-seekdeep-dhfr/"
-# STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2024_02_23_kwtrp_illumina_2x300/2024_03_01-01-seekdeep/"
 STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2024_02_23_kwtrp_illumina_2x300/2024_04_23-02-seekdeep/"
 
 
@@ -39,14 +34,14 @@ dir.create(paste0(STUDY, "output/"), recursive = TRUE, showWarnings = FALSE)
 ## __b. import fastq extraction reports (by target) ----
 # =============================================================================#
 
-
 ### ____i. import report ----
 # -----------------------------------------------------------------------------#
 
 extProfile <- read_tsv(paste0(STUDY, "reports/allExtractionProfile.tab.txt"),
                        show_col_types = FALSE) %>%
   mutate_all(list(~str_replace(., "\\(.+\\)", ""))) %>%  # remove all characters in braces
-  mutate_at(.vars = 3:ncol(.), .funs = as.numeric)       # to numeric
+  mutate_at(.vars = 3:ncol(.), .funs = as.numeric) %>%   # to numeric
+  mutate(inputName = str_remove(inputName, "_R1"))       # drop _R1 suffix
 
 
 
@@ -96,6 +91,7 @@ extProfileTarget <- extProfile %>%
 
 ### ____save table ----
 # -----------------------------------------------------------------------------#
+
 write_csv(extProfileTarget, paste0(STUDY, "output/qc-read-depth-target.csv"))
 
 
@@ -105,27 +101,84 @@ write_csv(extProfileTarget, paste0(STUDY, "output/qc-read-depth-target.csv"))
 
 # one file
 # -----------------------------------------------------------------------------#
+
 selectedClustersInfo <- read_tsv(paste0(STUDY, "/selectedClustersInfo.tab.txt.gz"),
                      show_col_types = FALSE) %>%
   mutate(source = "None") %>% # define source of samples
   # filter untranslatable and show targets available for analysis
-  filter(h_AATyped != "Untranslatable"); unique(selectedClustersInfo$p_name)
+  filter(h_AATyped != "Untranslatable")
 
 
 
-# multiple files
+# check what markers are available
+(
+  available_markers <- unique(selectedClustersInfo$p_name)
+)
+
+
+
+# multiple files, start by listing files with the specific prefix
 # -----------------------------------------------------------------------------#
-# List files with the specific prefix
-files <- list.files(path = STUDY,
+
+file_list <- list.files(path = STUDY,
                     pattern = "^selectedClustersInfo_.*\\.gz$",
                     full.names = TRUE)
 
-# Read and bind the data frames
-selectedClustersInfo <- files %>%
+
+
+# read and bind the data frames
+selectedClustersInfo <- file_list %>%
   map_dfr(~ read_tsv(.x, col_types = cols())) %>%  # adjust col_types as needed
   mutate(source = "None") %>% # define source of samples
   # filter untranslatable and show targets available for analysis
-  filter(h_AATyped != "Untranslatable"); unique(selectedClustersInfo$p_name)
+  filter(h_AATyped != "Untranslatable")
+
+
+
+# check what markers are available
+(
+  available_markers <- unique(selectedClustersInfo$p_name)
+)
+
+
+
+## __d. identify samples without data ----
+# =============================================================================#
+
+# import sample names
+sampleNames <- read_tsv(paste0(STUDY, "/info/sampNames.tab.txt"),
+                        show_col_types = FALSE,
+                        col_names = c("inputName", "s_Sample", "mid"))
+
+
+# dynamically create columns based on available_markers
+for (marker in available_markers) {
+  sampleNames[[paste0("gene_", marker)]] <- paste0(toupper(marker), sampleNames$mid)
+}
+
+
+
+# merge sample names with read-extraction profile
+sampleNamesProfile <- sampleNames %>%
+  pivot_longer(                                  # transform: wide to long
+               cols = starts_with("gene_"),
+               names_to = "target",
+               values_to = "name"
+               ) %>%
+  left_join(
+            extProfile,                          # merge with extProfile 
+            by = c("inputName", "name")
+            ) %>% 
+  pivot_wider(                                   # transform: long to wide
+              id_cols = c(inputName, s_Sample),
+              names_from = "target",
+              values_from = "good"
+              )
+
+
+
+### save table
+write_csv(sampleNamesProfile, paste0(STUDY, "output/read-extraction-profile.csv"))
 
 
 
