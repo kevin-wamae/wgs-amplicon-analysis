@@ -38,7 +38,7 @@ dir.create(paste0(STUDY, DATE, "output/"), recursive = TRUE, showWarnings = FALS
 ### ____i. import report ----
 # -----------------------------------------------------------------------------#
 
-extProfile <- read_tsv(paste0(STUDY, DATE, "reports/allExtractionProfile.tab.txt"),
+raw_extProfile <- read_tsv(paste0(STUDY, DATE, "reports/allExtractionProfile.tab.txt"),
                        show_col_types = FALSE) %>%
   mutate_all(list(~str_replace(., "\\(.+\\)", ""))) %>%  # remove all characters in braces
   mutate_at(.vars = 3:ncol(.), .funs = as.numeric) %>%   # to numeric
@@ -49,7 +49,7 @@ extProfile <- read_tsv(paste0(STUDY, DATE, "reports/allExtractionProfile.tab.txt
 ### ____ii. qc summary - by target ----
 # -----------------------------------------------------------------------------#
 
-extProfileTarget <- extProfile %>%
+raw_extProfileTarget <- raw_extProfile %>%
   mutate(name = str_remove(name, pattern = "MID.+")) %>% # drop MID substring
   summarise(
             # generate sum across all columns by fastq and target
@@ -93,7 +93,7 @@ extProfileTarget <- extProfile %>%
 ### ____save table ----
 # -----------------------------------------------------------------------------#
 
-write_csv(extProfileTarget, paste0(STUDY, DATE, "output/qc-read-depth-target.csv"))
+write_csv(raw_extProfileTarget, paste0(STUDY, DATE, "output/qc-read-depth-target.csv"))
 
 
 
@@ -103,7 +103,7 @@ write_csv(extProfileTarget, paste0(STUDY, DATE, "output/qc-read-depth-target.csv
 ### ____i. one file ----
 # -----------------------------------------------------------------------------#
 
-selectedClustersInfo <- read_tsv(paste0(STUDY, DATE, "/selectedClustersInfo.tab.txt.gz"),
+raw_selectedClustersInfo <- read_tsv(paste0(STUDY, DATE, "/selectedClustersInfo.tab.txt.gz"),
                      show_col_types = FALSE) %>%
   mutate(source = "None") %>% # define source of samples
   # filter untranslatable and show targets available for analysis
@@ -113,7 +113,7 @@ selectedClustersInfo <- read_tsv(paste0(STUDY, DATE, "/selectedClustersInfo.tab.
 
 # check what markers are available
 (
-  available_markers <- unique(selectedClustersInfo$p_name)
+  available_markers <- unique(raw_selectedClustersInfo$p_name)
 )
 
 
@@ -129,7 +129,7 @@ file_list <- list.files(path = paste0(STUDY, DATE),
 
 
 # read and bind the data frames
-selectedClustersInfo <- file_list %>%
+raw_selectedClustersInfo <- file_list %>%
   map_dfr(~ read_tsv(.x, col_types = cols())) %>%  # adjust col_types as needed
   mutate(source = "None") %>% # define source of samples
   # filter untranslatable and show targets available for analysis
@@ -139,7 +139,7 @@ selectedClustersInfo <- file_list %>%
 
 # check what markers are available
 (
-  available_markers <- unique(selectedClustersInfo$p_name)
+  available_markers <- unique(raw_selectedClustersInfo$p_name)
 )
 
 
@@ -155,27 +155,27 @@ source(paste0(STUDY, "/scripts/add_sample_source.R"))
 # =============================================================================#
 
 # import sample names
-sampleNames <- read_tsv(paste0(STUDY, DATE, "/info/sampNames.tab.txt"),
+raw_sampleNames <- read_tsv(paste0(STUDY, DATE, "/info/sampNames.tab.txt"),
                         show_col_types = FALSE,
                         col_names = c("inputName", "s_Sample", "mid"))
 
 
 # dynamically create columns based on available_markers
 for (marker in available_markers) {
-  sampleNames[[paste0("gene_", marker)]] <- paste0(toupper(marker), sampleNames$mid)
+  raw_sampleNames[[paste0("gene_", marker)]] <- paste0(toupper(marker), raw_sampleNames$mid)
 }
 
 
 
 # merge sample names with read-extraction profile
-sampleNamesProfile <- sampleNames %>%
+raw_sampleNamesProfile <- raw_sampleNames %>%
   pivot_longer(                                  # transform: wide to long
                cols = starts_with("gene_"),
                names_to = "target",
                values_to = "name"
                ) %>%
   left_join(
-            extProfile,                          # merge with extProfile 
+            raw_extProfile,                          # merge with raw_extProfile 
             by = c("inputName", "name")
             ) %>% 
   pivot_wider(                                   # transform: long to wide
@@ -187,7 +187,7 @@ sampleNamesProfile <- sampleNames %>%
 
 
 ### save table
-write_csv(sampleNamesProfile, paste0(STUDY, DATE, "output/read-extraction-profile.csv"))
+write_csv(raw_sampleNamesProfile, paste0(STUDY, DATE, "output/read-extraction-profile.csv"))
 
 
 
@@ -240,8 +240,10 @@ source("wf-seekdeep-illumina-amplicon/scripts/functions/functions-resistance-pro
 # -----------------------------------------------------------------------------#
 
 (
-  coi_source <- clusters_AMA1 %>%
+  df_coi_source <- df_clusters_AMA1 %>%
+    distinct(s_Sample, .keep_all = TRUE) %>%  # de-duplicate sample entries
     summarise(
+              sample_size=n(),
               min = min(s_COI),
               mean = median(s_COI),
               max = max(s_COI),
@@ -252,21 +254,21 @@ source("wf-seekdeep-illumina-amplicon/scripts/functions/functions-resistance-pro
 
 
 ### save table
-write_csv(coi_source, paste0(STUDY, DATE, "output/coi-by-souce.csv"))
+write_csv(df_coi_source, paste0(STUDY, DATE, "output/coi-by-souce.csv"))
 
 
 
 ### ____ii. coi by sample ----
 # -----------------------------------------------------------------------------#
 
-coi_sample <- clusters_AMA1 %>%
+df_coi_sample <- df_clusters_AMA1 %>%
   distinct(s_Sample, .keep_all = TRUE) %>%
   select(source, s_Sample, s_COI)
 
 
 
 ### save table
-write_csv(coi_sample, paste0(STUDY, DATE, "output/coi-by-sample.csv"))
+write_csv(df_coi_sample, paste0(STUDY, DATE, "output/coi-by-sample.csv"))
 
 
 
@@ -300,13 +302,13 @@ fasta_K13 <- read_lines("resources-genome/fasta-cds/PfK13.txt")
 ##___compute allele frequencies ----
 # -----------------------------------------------------------------------------#
 
-freqSNP_K13 <- clusters_K13 %>%
+df_freqSNP_K13 <- df_clusters_K13 %>%
   # select relevant columns
   # ---------------------------------#
-  select(s_Sample, source, starts_with("pos")) %>%
+  select(s_Sample, starts_with("pos")) %>%
   # collapse alleles per codon per sample
   # ---------------------------------#
-  reframe(source,
+  reframe(
           across(starts_with("pos"), ~paste(unique(sort(.)), collapse = ","),
                  .names = "{.col}"),
           .by = s_Sample) %>%
@@ -325,10 +327,10 @@ freqSNP_K13 <- clusters_K13 %>%
   mutate(codon = str_remove(codon, "pos")) %>%
   # generate allele frequencies
   # ---------------------------------#
-  summarise(count=n(), .by = c(source, codon, allele)) %>%
-  arrange(source, as.numeric(codon)) %>%
+  summarise(count=n(), .by = c(codon, allele)) %>%
+  arrange(as.numeric(codon)) %>%
   mutate(
-         freq = count/sum(count) * 100, .by = c(source, codon),
+         freq = count/sum(count) * 100, .by = c(codon),
          freq = round(freq,1),
          allele = str_remove_all(allele, "\\d+")
          ) %>%
@@ -349,7 +351,7 @@ freqSNP_K13 <- clusters_K13 %>%
          ) %>%
   # transform: long to wide
   # ---------------------------------#
-  pivot_wider(id_cols = c(source, codon, codon_allele),
+  pivot_wider(id_cols = c(codon, codon_allele),
               names_from = "variant",
               values_from = "freq") %>%
   # ensure potentially missing columns are present
@@ -364,14 +366,15 @@ freqSNP_K13 <- clusters_K13 %>%
             wildtype = first(na.omit(wildtype)),
             mutant = first(na.omit(mutant)),
             mixed = first(na.omit(mixed)),
-            .by = c(source, codon)
+            .by = c(codon)
             )
 
 
 
 ### ____save table ----
 # -----------------------------------------------------------------------------#
-write_csv(freqSNP_K13, paste0(STUDY, DATE, "output/freq-allele-k13.csv"))
+
+write_csv(df_freqSNP_K13, paste0(STUDY, DATE, "output/freq-allele-k13.csv"))
 
 
 
@@ -405,7 +408,7 @@ fasta_MDR1 <- read_lines("resources-genome/fasta-cds/PfMDR1.txt")
 ##___compute allele frequencies ----
 # -----------------------------------------------------------------------------#
 
-freqSNP_MDR1 <- clusters_MDR1 %>%
+df_freqSNP_MDR1 <- df_clusters_MDR1 %>%
   # select relevant columns
   # ---------------------------------#
   select(s_Sample, source, starts_with("pos")) %>%
@@ -476,14 +479,14 @@ freqSNP_MDR1 <- clusters_MDR1 %>%
 
 ### ____save table ----
 # -----------------------------------------------------------------------------#
-write_csv(freqSNP_MDR1, paste0(STUDY, DATE, "output/freq-allele-mdr1.csv"))
+write_csv(df_freqSNP_MDR1, paste0(STUDY, DATE, "output/freq-allele-mdr1.csv"))
 
 
 
 ##___compute haplotype frequencies ----
 # -----------------------------------------------------------------------------#
 
-freqHap_MDR1 <- clusters_MDR1 %>%
+df_freqHap_MDR1 <- df_clusters_MDR1 %>%
   reframe(
           source,
           haplotype = paste(sort(unique(haplotype)), collapse = ","),
@@ -507,7 +510,7 @@ freqHap_MDR1 <- clusters_MDR1 %>%
 
 ### ____save table ----
 # -----------------------------------------------------------------------------#
-write_csv(freqHap_MDR1, paste0(STUDY, DATE, "output/freq-haplotype-mdr1.csv"))
+write_csv(df_freqHap_MDR1, paste0(STUDY, DATE, "output/freq-haplotype-mdr1.csv"))
 
 
 
@@ -540,7 +543,7 @@ fasta_DHPS <- read_lines("resources-genome/fasta-cds/PfDHPS.txt")
 ##___compute allele frequencies ----
 # -----------------------------------------------------------------------------#
 
-freqSNP_DHPS <- clusters_DHPS %>%
+df_freqSNP_DHPS <- df_clusters_DHPS %>%
   # select relevant columns
   # ---------------------------------#
   select(s_Sample, source, starts_with("pos")) %>%
@@ -611,14 +614,14 @@ freqSNP_DHPS <- clusters_DHPS %>%
 
 ### ____save table ----
 # -----------------------------------------------------------------------------#
-write_csv(freqSNP_DHPS, paste0(STUDY, DATE, "output/freq-allele-dhps.csv"))
+write_csv(df_freqSNP_DHPS, paste0(STUDY, DATE, "output/freq-allele-dhps.csv"))
 
 
 
 ##___compute haplotype frequencies and resistance profiles ----
 # -----------------------------------------------------------------------------#
 
-freqHap_DHPS <- clusters_DHPS %>%
+df_freqHap_DHPS <- df_clusters_DHPS %>%
   select(source, s_Sample, contains("pos"), haplotype) %>%
   # define level of resistance
   mutate(
@@ -653,7 +656,7 @@ freqHap_DHPS <- clusters_DHPS %>%
 
 ### ____save table ----
 # -----------------------------------------------------------------------------#
-write_csv(freqHap_DHPS, paste0(STUDY, DATE, "output/freq-haplotype-dhps.csv"))
+write_csv(df_freqHap_DHPS, paste0(STUDY, DATE, "output/freq-haplotype-dhps.csv"))
 
 
 
@@ -688,7 +691,7 @@ fasta_DHFR <- read_lines("resources-genome/fasta-cds/PfDHFR.txt")
 ##___compute allele frequencies ----
 # -----------------------------------------------------------------------------#
 
-freqSNP_DHFR <- clusters_DHFR %>%
+df_freqSNP_DHFR <- df_clusters_DHFR %>%
   # select relevant columns
   # ---------------------------------#
   select(s_Sample, source, starts_with("pos")) %>%
@@ -759,14 +762,14 @@ freqSNP_DHFR <- clusters_DHFR %>%
 
 ### ____save table ----
 # -----------------------------------------------------------------------------#
-write_csv(freqSNP_DHFR, paste0(STUDY, DATE, "output/freq-allele-dhfr.csv"))
+write_csv(df_freqSNP_DHFR, paste0(STUDY, DATE, "output/freq-allele-dhfr.csv"))
 
 
 
 ##___compute haplotype frequencies and resistance profiles ----
 # -----------------------------------------------------------------------------#
 
-freqHap_DHFR <- clusters_DHFR %>%
+df_freqHap_DHFR <- df_clusters_DHFR %>%
   select(source, s_Sample, contains("pos"), haplotype) %>%
   # define level of resistance
   mutate(
@@ -801,6 +804,6 @@ freqHap_DHFR <- clusters_DHFR %>%
 
 ### ____save table ----
 # -----------------------------------------------------------------------------#
-write_csv(freqHap_DHFR, paste0(STUDY, DATE, "output/freq-haplotype-dhfr.csv"))
+write_csv(df_freqHap_DHFR, paste0(STUDY, DATE, "output/freq-haplotype-dhfr.csv"))
 
 

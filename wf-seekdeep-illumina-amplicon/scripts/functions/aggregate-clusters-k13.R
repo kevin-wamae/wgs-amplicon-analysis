@@ -1,7 +1,7 @@
 # vector of polymorphic codons
 # -----------------------------------------------------------------------------#
 (
-  positions_K13 <- selectedClustersInfo %>%
+  positions_K13 <- raw_selectedClustersInfo %>%
     filter(str_detect(p_name, "^PFK13"), str_detect(h_AATyped, "^PF3D7")) %>%
     select(h_AATyped) %>%
     slice(1) %>%
@@ -15,7 +15,7 @@
 
 # filter variant data
 # -----------------------------------------------------------------------------#
-clusters_K13 <- selectedClustersInfo %>%
+df_clusters_K13 <- raw_selectedClustersInfo %>%
   filter(str_detect(p_name, "^PFK13")) %>%
   mutate(
          purrr::map_dfc(

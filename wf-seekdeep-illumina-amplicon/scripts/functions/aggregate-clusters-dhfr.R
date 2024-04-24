@@ -1,6 +1,6 @@
 # vector of polymorphic codons
 (
-  positions_DHFR <- selectedClustersInfo %>%
+  positions_DHFR <- raw_selectedClustersInfo %>%
     filter(str_detect(p_name, "^PFDHFR"), str_detect(h_AATyped, "^PF3D7")) %>%
     # mutate(h_AATyped = str_remove(h_AATyped, "16A:")) %>%  # drop codon 16
     select(h_AATyped) %>%
@@ -16,7 +16,7 @@
 
 # filter variant data
 # -----------------------------------------------------------------------------#
-clusters_DHFR <- selectedClustersInfo %>%
+df_clusters_DHFR <- raw_selectedClustersInfo %>%
   filter(str_detect(p_name, "^PFDHFR")) %>%
   mutate(
         purrr::map_dfc(
