@@ -22,8 +22,8 @@ library(tidyverse, quietly = TRUE)
 # *****************************************************************************#
 
 ## __a. specify input-dir path ----
-STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2024_02_23_kwtrp_illumina_2x300/"
-DATE = "2024_04_23-02-seekdeep/"
+STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2023_05_25_ilri_illumina_2x300/"
+DATE = "2024_04_12-01-seekdeep-dhps/"
 
 
 
@@ -103,7 +103,7 @@ write_csv(raw_extProfileTarget, paste0(STUDY, DATE, "output/qc-read-depth-target
 ### ____i. one file ----
 # -----------------------------------------------------------------------------#
 
-raw_selectedClustersInfo <- read_tsv(paste0(STUDY, DATE, "/selectedClustersInfo.tab.txt.gz"),
+raw_selectedClustersInfo <- read_tsv(paste0(STUDY, DATE, "selectedClustersInfo.tab.txt.gz"),
                      show_col_types = FALSE) %>%
   mutate(source = "None") %>% # define source of samples
   # filter untranslatable and show targets available for analysis
@@ -147,7 +147,7 @@ raw_selectedClustersInfo <- file_list %>%
 ### ____iii. add sample origin, if avaialable ----
 # -----------------------------------------------------------------------------#
 
-source(paste0(STUDY, "/scripts/add_sample_source.R"))
+source(paste0(STUDY, "scripts/add_sample_source.R"))
 
 
 
@@ -158,6 +158,7 @@ source(paste0(STUDY, "/scripts/add_sample_source.R"))
 raw_sampleNames <- read_tsv(paste0(STUDY, DATE, "/info/sampNames.tab.txt"),
                         show_col_types = FALSE,
                         col_names = c("inputName", "s_Sample", "mid"))
+
 
 
 # dynamically create columns based on available_markers
@@ -302,79 +303,15 @@ fasta_K13 <- read_lines("resources-genome/fasta-cds/PfK13.txt")
 ##___compute allele frequencies ----
 # -----------------------------------------------------------------------------#
 
-df_freqSNP_K13 <- df_clusters_K13 %>%
-  # select relevant columns
-  # ---------------------------------#
-  select(s_Sample, starts_with("pos")) %>%
-  # collapse alleles per codon per sample
-  # ---------------------------------#
-  reframe(
-          across(starts_with("pos"), ~paste(unique(sort(.)), collapse = ","),
-                 .names = "{.col}"),
-          .by = s_Sample) %>%
-  # remove duplicates
-  # ---------------------------------#
-  distinct(s_Sample, .keep_all = TRUE) %>%
-  # transform: wide to long
-  # ---------------------------------#
-  pivot_longer(
-               cols = starts_with("pos"),
-               names_to = "codon",
-               values_to = "allele"
-               ) %>%
-  # drop string 'pos'
-  # ---------------------------------#
-  mutate(codon = str_remove(codon, "pos")) %>%
-  # generate allele frequencies
-  # ---------------------------------#
-  summarise(count=n(), .by = c(codon, allele)) %>%
-  arrange(as.numeric(codon)) %>%
-  mutate(
-         freq = count/sum(count) * 100, .by = c(codon),
-         freq = round(freq,1),
-         allele = str_remove_all(allele, "\\d+")
-         ) %>%
-  mutate(codon = as.numeric(codon)) %>%
-  # merge with wildtype alleles
-  # ---------------------------------#
-  left_join(
-            data.frame(position = positions_K13, wildtype = wt_alleles),
-            by = c("codon" = "position")) %>%
-  # code for infection-type
-  # ---------------------------------#
-  mutate(codon_allele = paste0(wildtype, codon, allele),
-         variant = case_when(
-                             str_detect(allele, "\\,") ~ "mixed",
-                             allele == wildtype ~ "wildtype",
-                             allele != wildtype ~ "mutant"),
-         freq = paste0(freq, " [", count, "]")
-         ) %>%
-  # transform: long to wide
-  # ---------------------------------#
-  pivot_wider(id_cols = c(codon, codon_allele),
-              names_from = "variant",
-              values_from = "freq") %>%
-  # ensure potentially missing columns are present
-  # ---------------------------------#
-  mutate(wildtype = if ("wildtype" %in% names(.)) wildtype else NA_character_,
-         mutant = if ("mutant" %in% names(.)) mutant else NA_character_,
-         mixed = if ("mixed" %in% names(.)) mixed else NA_character_
-         ) %>%
-  # collapse rows by source and codon position
-  # ---------------------------------#
-  summarise(codon_allele = paste(codon_allele, collapse=", "),
-            wildtype = first(na.omit(wildtype)),
-            mutant = first(na.omit(mutant)),
-            mixed = first(na.omit(mixed)),
-            .by = c(codon)
-            )
+source("wf-seekdeep-illumina-amplicon/scripts/functions/compute-snpfreq-k13.R")
 
 
 
 ### ____save table ----
 # -----------------------------------------------------------------------------#
 
-write_csv(df_freqSNP_K13, paste0(STUDY, DATE, "output/freq-allele-k13.csv"))
+write_csv(df_freqSNP_K13_All, paste0(STUDY, DATE, "output/freq-allele-k13-all.csv"))
+write_csv(df_freqSNP_K13_Source, paste0(STUDY, DATE, "output/freq-allele-k13-source.csv"))
 
 
 
@@ -408,109 +345,29 @@ fasta_MDR1 <- read_lines("resources-genome/fasta-cds/PfMDR1.txt")
 ##___compute allele frequencies ----
 # -----------------------------------------------------------------------------#
 
-df_freqSNP_MDR1 <- df_clusters_MDR1 %>%
-  # select relevant columns
-  # ---------------------------------#
-  select(s_Sample, source, starts_with("pos")) %>%
-          # collapse alleles per codon per sample
-  # ---------------------------------#
-  reframe(source,
-          across(starts_with("pos"), ~paste(unique(sort(.)), collapse = ","),
-                 .names = "{.col}"),
-          .by = s_Sample) %>%
-  # remove duplicates
-  # ---------------------------------#
-  distinct(s_Sample, .keep_all = TRUE) %>%
-  # transform: wide to long
-  # ---------------------------------#
-  pivot_longer(
-               cols = starts_with("pos"),
-               names_to = "codon",
-               values_to = "allele"
-               ) %>%
-  # drop string 'pos'
-  # ---------------------------------#
-  mutate(codon = str_remove(codon, "pos")) %>%
-  # generate allele frequencies
-  # ---------------------------------#
-  summarise(count=n(), .by = c(source, codon, allele)) %>%
-  arrange(source, as.numeric(codon)) %>%
-  mutate(
-         freq = count/sum(count) * 100, .by = c(source, codon),
-         freq = round(freq,1),
-         allele = str_remove_all(allele, "\\d+")
-         ) %>%
-  mutate(codon = as.numeric(codon)) %>%
-  # merge with wildtype alleles
-  # ---------------------------------#
-  left_join(
-            data.frame(position = positions_MDR1, wildtype = wt_alleles),
-            by = c("codon" = "position")) %>%
-  # code for infection-type
-  # ---------------------------------#
-  mutate(codon_allele = paste0(wildtype, codon, allele),
-         variant = case_when(
-                             str_detect(allele, "\\,") ~ "mixed",
-                             allele == wildtype ~ "wildtype",
-                             allele != wildtype ~ "mutant"),
-         freq = paste0(freq, " [", count, "]")
-         ) %>%
-  # transform: long to wide
-  # ---------------------------------#
-  pivot_wider(id_cols = c(source, codon, codon_allele),
-              names_from = "variant",
-              values_from = "freq") %>%
-  # ensure potentially missing columns are present
-  # ---------------------------------#
-  mutate(wildtype = if ("wildtype" %in% names(.)) wildtype else NA_character_,
-         mutant = if ("mutant" %in% names(.)) mutant else NA_character_,
-         mixed = if ("mixed" %in% names(.)) mixed else NA_character_
-         ) %>%
-  # collapse rows by source and codon position
-  # ---------------------------------#
-  summarise(codon_allele = paste(codon_allele, collapse=", "),
-            wildtype = first(na.omit(wildtype)),
-            mutant = first(na.omit(mutant)),
-            mixed = first(na.omit(mixed)),
-            .by = c(source, codon)
-            )
+source("wf-seekdeep-illumina-amplicon/scripts/functions/compute-snpfreq-mdr1.R")
 
 
 
 ### ____save table ----
 # -----------------------------------------------------------------------------#
-write_csv(df_freqSNP_MDR1, paste0(STUDY, DATE, "output/freq-allele-mdr1.csv"))
+
+write_csv(df_freqSNP_MDR1_All, paste0(STUDY, DATE, "output/freq-allele-mdr1-all.csv"))
+write_csv(df_freqSNP_MDR1_Source, paste0(STUDY, DATE, "output/freq-allele-mdr1-source.csv"))
 
 
 
 ##___compute haplotype frequencies ----
 # -----------------------------------------------------------------------------#
 
-df_freqHap_MDR1 <- df_clusters_MDR1 %>%
-  reframe(
-          source,
-          haplotype = paste(sort(unique(haplotype)), collapse = ","),
-          .by = c(s_Sample)
-          ) %>%
-  distinct(s_Sample, .keep_all = TRUE) %>%
-  summarise(count=n(), .by = c(source, haplotype)) %>%
-  mutate(
-         freq = count/sum(count), .by = source,
-         freq = round(freq * 100, 1),
-         variant = case_when(
-                             haplotype == wt_haplotype ~ "wildtype",
-                             str_detect(haplotype, ",") ~ "mixed",
-                             TRUE ~ "mutant",
-                             ),
-         total = sum(count)
-         ) %>%
-  arrange(source, desc(freq))
+source("wf-seekdeep-illumina-amplicon/scripts/functions/compute-hapfreq-mdr1.R")
 
 
 
 ### ____save table ----
 # -----------------------------------------------------------------------------#
-write_csv(df_freqHap_MDR1, paste0(STUDY, DATE, "output/freq-haplotype-mdr1.csv"))
+write_csv(df_freqHap_MDR1_All, paste0(STUDY, DATE, "output/freq-haplotype-mdr1-all.csv"))
+write_csv(df_freqHap_MDR1_Source, paste0(STUDY, DATE, "output/freq-haplotype-mdr1-source.csv"))
 
 
 
@@ -519,6 +376,7 @@ write_csv(df_freqHap_MDR1, paste0(STUDY, DATE, "output/freq-haplotype-mdr1.csv")
 
 ##___import the wildtype sequence ----
 # -----------------------------------------------------------------------------#
+
 fasta_DHPS <- read_lines("resources-genome/fasta-cds/PfDHPS.txt")
 
 
@@ -543,120 +401,29 @@ fasta_DHPS <- read_lines("resources-genome/fasta-cds/PfDHPS.txt")
 ##___compute allele frequencies ----
 # -----------------------------------------------------------------------------#
 
-df_freqSNP_DHPS <- df_clusters_DHPS %>%
-  # select relevant columns
-  # ---------------------------------#
-  select(s_Sample, source, starts_with("pos")) %>%
-  # collapse alleles per codon per sample
-  # ---------------------------------#
-  reframe(source,
-          across(starts_with("pos"), ~paste(unique(sort(.)), collapse = ","),
-                 .names = "{.col}"),
-          .by = s_Sample) %>%
-  # remove duplicates
-  # ---------------------------------#
-  distinct(s_Sample, .keep_all = TRUE) %>%
-  # transform: wide to long
-  # ---------------------------------#
-  pivot_longer(
-               cols = starts_with("pos"),
-               names_to = "codon",
-               values_to = "allele"
-               ) %>%
-  # drop string 'pos'
-  # ---------------------------------#
-  mutate(codon = str_remove(codon, "pos")) %>%
-  # generate allele frequencies
-  # ---------------------------------#
-  summarise(count=n(), .by = c(source, codon, allele)) %>%
-  arrange(source, as.numeric(codon)) %>%
-  mutate(
-         freq = count/sum(count) * 100, .by = c(source, codon),
-         freq = round(freq,1),
-         allele = str_remove_all(allele, "\\d+")
-         ) %>%
-  mutate(codon = as.numeric(codon)) %>%
-  # merge with wildtype alleles
-  # ---------------------------------#
-  left_join(
-            data.frame(position = positions_DHPS, wildtype = wt_alleles),
-            by = c("codon" = "position")) %>%
-  # code for infection-type
-  # ---------------------------------#
-  mutate(codon_allele = paste0(wildtype, codon, allele),
-         variant = case_when(
-                             str_detect(allele, "\\,") ~ "mixed",
-                             allele == wildtype ~ "wildtype",
-                             allele != wildtype ~ "mutant"),
-         freq = paste0(freq, " [", count, "]")
-         ) %>%
-  # transform: long to wide
-  # ---------------------------------#
-  pivot_wider(id_cols = c(source, codon, codon_allele),
-              names_from = "variant",
-              values_from = "freq") %>%
-  # ensure potentially missing columns are present
-  # ---------------------------------#
-  mutate(wildtype = if ("wildtype" %in% names(.)) wildtype else NA_character_,
-         mutant = if ("mutant" %in% names(.)) mutant else NA_character_,
-         mixed = if ("mixed" %in% names(.)) mixed else NA_character_
-         ) %>%
-  # collapse rows by source and codon position
-  # ---------------------------------#
-  summarise(codon_allele = paste(codon_allele, collapse=", "),
-            wildtype = first(na.omit(wildtype)),
-            mutant = first(na.omit(mutant)),
-            mixed = first(na.omit(mixed)),
-            .by = c(source, codon)
-            )
+source("wf-seekdeep-illumina-amplicon/scripts/functions/compute-snpfreq-dhps.R")
 
 
 
 ### ____save table ----
 # -----------------------------------------------------------------------------#
-write_csv(df_freqSNP_DHPS, paste0(STUDY, DATE, "output/freq-allele-dhps.csv"))
+
+write_csv(df_freqSNP_DHPS_All, paste0(STUDY, DATE, "output/freq-allele-dhps-all.csv"))
+write_csv(df_freqSNP_DHPS_Source, paste0(STUDY, DATE, "output/freq-allele-dhps-source.csv"))
 
 
 
 ##___compute haplotype frequencies and resistance profiles ----
 # -----------------------------------------------------------------------------#
 
-df_freqHap_DHPS <- df_clusters_DHPS %>%
-  select(source, s_Sample, contains("pos"), haplotype) %>%
-  # define level of resistance
-  mutate(
-         profile_437 = case_when(pos437 == "437A" ~ "wt", .default = "mut"),
-         profile_540 = case_when(pos540 == "540K" ~ "wt", .default = "mut"),
-         profile_581 = case_when(pos581 == "581A" ~ "wt", .default = "mut")
-         ) %>%
-  rowwise() %>%
-  # calculate resistance profiles for dhps and total mutations for dhps
-  mutate(
-         mutations = sum(profile_437 == "mut", profile_540 == "mut", profile_581 == "mut", na.rm = TRUE),
-         dhps_resistance = get_resistance_profile(mutations, n=sum(!is.na(c(profile_437, profile_540, profile_581)))),
-         haplotype = paste0(haplotype," (", dhps_resistance, ")")
-         ) %>%
-  ungroup() %>%
-  reframe(
-          source, dhps_resistance,
-          haplotype = paste(sort(unique(haplotype)), collapse = ","),
-          dhps_resistance = paste(unique(sort(dhps_resistance)), collapse = ","),
-          .by = c(s_Sample)
-          ) %>%
-  distinct(s_Sample, .keep_all = TRUE) %>%
-  summarise(count=n(), .by = c(source, haplotype)) %>%
-  mutate(
-         freq = count/sum(count), .by = source,
-         freq = round(freq * 100, 1),
-         total = sum(count)
-         ) %>%
-  arrange(source, desc(freq))
-
+source("wf-seekdeep-illumina-amplicon/scripts/functions/compute-hapfreq-dhps.R")
 
 
 ### ____save table ----
 # -----------------------------------------------------------------------------#
-write_csv(df_freqHap_DHPS, paste0(STUDY, DATE, "output/freq-haplotype-dhps.csv"))
+
+write_csv(df_freqHap_DHPS_All, paste0(STUDY, DATE, "output/freq-haplotype-dhps-all.csv"))
+write_csv(df_freqHap_DHPS_Source, paste0(STUDY, DATE, "output/freq-haplotype-dhps-source.csv"))
 
 
 
@@ -666,6 +433,7 @@ write_csv(df_freqHap_DHPS, paste0(STUDY, DATE, "output/freq-haplotype-dhps.csv")
 
 ##___import the wildtype sequence ----
 # -----------------------------------------------------------------------------#
+
 fasta_DHFR <- read_lines("resources-genome/fasta-cds/PfDHFR.txt")
 
 
@@ -691,119 +459,29 @@ fasta_DHFR <- read_lines("resources-genome/fasta-cds/PfDHFR.txt")
 ##___compute allele frequencies ----
 # -----------------------------------------------------------------------------#
 
-df_freqSNP_DHFR <- df_clusters_DHFR %>%
-  # select relevant columns
-  # ---------------------------------#
-  select(s_Sample, source, starts_with("pos")) %>%
-  # collapse alleles per codon per sample
-  # ---------------------------------#
-  reframe(source,
-          across(starts_with("pos"), ~paste(unique(sort(.)), collapse = ","),
-                 .names = "{.col}"),
-          .by = s_Sample) %>%
-  # remove duplicates
-  # ---------------------------------#
-  distinct(s_Sample, .keep_all = TRUE) %>%
-  # transform: wide to long
-  # ---------------------------------#
-  pivot_longer(
-               cols = starts_with("pos"),
-               names_to = "codon",
-               values_to = "allele"
-               ) %>%
-  # drop string 'pos'
-  # ---------------------------------#
-  mutate(codon = str_remove(codon, "pos")) %>%
-  # generate allele frequencies
-  # ---------------------------------#
-  summarise(count=n(), .by = c(source, codon, allele)) %>%
-  arrange(source, as.numeric(codon)) %>%
-  mutate(
-         freq = count/sum(count) * 100, .by = c(source, codon),
-         freq = round(freq,1),
-         allele = str_remove_all(allele, "\\d+")
-         ) %>%
-  mutate(codon = as.numeric(codon)) %>%
-  # merge with wildtype alleles
-  # ---------------------------------#
-  left_join(
-            data.frame(position = positions_DHFR, wildtype = wt_alleles),
-            by = c("codon" = "position")) %>%
-  # code for infection-type
-  # ---------------------------------#
-  mutate(codon_allele = paste0(wildtype, codon, allele),
-         variant = case_when(
-                             str_detect(allele, "\\,") ~ "mixed",
-                             allele == wildtype ~ "wildtype",
-                             allele != wildtype ~ "mutant"),
-         freq = paste0(freq, " [", count, "]")
-         ) %>%
-  # transform: long to wide
-  # ---------------------------------#
-  pivot_wider(id_cols = c(source, codon, codon_allele),
-              names_from = "variant",
-              values_from = "freq") %>%
-  # ensure potentially missing columns are present
-  # ---------------------------------#
-  mutate(wildtype = if ("wildtype" %in% names(.)) wildtype else NA_character_,
-         mutant = if ("mutant" %in% names(.)) mutant else NA_character_,
-         mixed = if ("mixed" %in% names(.)) mixed else NA_character_
-         ) %>%
-  # collapse rows by source and codon position
-  # ---------------------------------#
-  summarise(codon_allele = paste(codon_allele, collapse=", "),
-            wildtype = first(na.omit(wildtype)),
-            mutant = first(na.omit(mutant)),
-            mixed = first(na.omit(mixed)),
-            .by = c(source, codon)
-            )
+source("wf-seekdeep-illumina-amplicon/scripts/functions/compute-snpfreq-dhfr.R")
 
 
 
 ### ____save table ----
 # -----------------------------------------------------------------------------#
-write_csv(df_freqSNP_DHFR, paste0(STUDY, DATE, "output/freq-allele-dhfr.csv"))
+
+write_csv(df_freqSNP_DHFR_All, paste0(STUDY, DATE, "output/freq-allele-dhfr-all.csv"))
+write_csv(df_freqSNP_DHFR_Source, paste0(STUDY, DATE, "output/freq-allele-dhfr-source.csv"))
 
 
 
 ##___compute haplotype frequencies and resistance profiles ----
 # -----------------------------------------------------------------------------#
 
-df_freqHap_DHFR <- df_clusters_DHFR %>%
-  select(source, s_Sample, contains("pos"), haplotype) %>%
-  # define level of resistance
-  mutate(
-         profile_51 = case_when(pos51 == "51N" ~ "wt", .default = "mut"),
-         profile_59 = case_when(pos59 == "59C" ~ "wt", .default = "mut"),
-         profile_108 = case_when(pos108 == "108S" ~ "wt", .default = "mut")
-         ) %>%
-  rowwise() %>%
-  # calculate resistance profiles for dhps and total mutations for dhps
-  mutate(
-         mutations = sum(profile_51 == "mut", profile_59 == "mut", profile_108 == "mut", na.rm = TRUE),
-         dhps_resistance = get_resistance_profile(mutations, n=sum(!is.na(c(profile_51, profile_59, profile_108)))),
-         haplotype = paste0(haplotype," (", dhps_resistance, ")")
-         ) %>%
-  ungroup() %>%
-  reframe(
-          source, dhps_resistance,
-          haplotype = paste(sort(unique(haplotype)), collapse = ","),
-          dhps_resistance = paste(unique(sort(dhps_resistance)), collapse = ","),
-          .by = c(s_Sample)
-          ) %>%
-  distinct(s_Sample, .keep_all = TRUE) %>%
-  summarise(count=n(), .by = c(source, haplotype)) %>%
-  mutate(
-         freq = count/sum(count), .by = source,
-         freq = round(freq * 100, 1),
-         total = sum(count)
-         ) %>%
-  arrange(source, desc(freq))
+source("wf-seekdeep-illumina-amplicon/scripts/functions/compute-hapfreq-dhfr.R")
 
 
 
 ### ____save table ----
 # -----------------------------------------------------------------------------#
-write_csv(df_freqHap_DHFR, paste0(STUDY, DATE, "output/freq-haplotype-dhfr.csv"))
+
+write_csv(df_freqHap_DHFR_All, paste0(STUDY, DATE, "output/freq-haplotype-dhfr-all.csv"))
+write_csv(df_freqHap_DHFR_Source, paste0(STUDY, DATE, "output/freq-haplotype-dhfr-source.csv"))
 
 
