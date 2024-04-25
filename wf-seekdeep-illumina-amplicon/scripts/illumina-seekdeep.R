@@ -25,8 +25,8 @@ library(tidyverse, quietly = TRUE)
 
 # make sure to end file paths with `/`
 PATH_STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/"
-PATH_RUN = "2024_02_23_ilri_illumina_2x300/"
-PATH_DATE = "2024_04_24-01-seekdeep/"
+PATH_RUN = "2024_04_16_kwtrp_illumina_2x300/"
+PATH_DATE = "2024_04_21-01-seekdeep/"
 
 
 
@@ -149,14 +149,14 @@ raw_selectedClustersInfo <- file_list %>%
 
 
 
-### ____iii. add sample origin, if avaialable ----
-# -----------------------------------------------------------------------------#
+## __d. add sample origin, if avaialable ----
+# =============================================================================#
 
 source(paste0(PATH_STUDY, "scripts/add_sample_source.R"))
 
 
 
-## __d. identify samples without data ----
+## __e. identify samples without data ----
 # =============================================================================#
 
 # import sample names
@@ -198,11 +198,11 @@ raw_sampleNamesProfile <- raw_sampleNames %>%
 
 
 ### save table
-write_csv(raw_sampleNamesProfile, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/read-extraction-profile.csv"))
+write_csv(raw_sampleNamesProfile, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/qc-read-ext-profile.csv"))
 
 
 
-## __d. extract clusters for each available gene ----
+## __f. extract clusters for each available gene ----
 # =============================================================================#
 
 ###___PfAMA1 ----
