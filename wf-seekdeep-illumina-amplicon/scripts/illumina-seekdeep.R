@@ -22,13 +22,14 @@ library(tidyverse, quietly = TRUE)
 # *****************************************************************************#
 
 ## __a. specify input-dir path ----
-STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/2023_05_25_ilri_illumina_2x300/"
-DATE = "2024_04_12-01-seekdeep-dhps/"
+PATH_STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/"
+PATH_RUN = "2024_02_23_ilri_illumina_2x300/"
+PATH_DATE = "2024_04_11-04-seekdeep/"
 
 
 
 # create the output directory for generated reports
-dir.create(paste0(STUDY, DATE, "output/"), recursive = TRUE, showWarnings = FALSE)
+dir.create(paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/"), recursive = TRUE, showWarnings = FALSE)
 
 
 
@@ -38,7 +39,7 @@ dir.create(paste0(STUDY, DATE, "output/"), recursive = TRUE, showWarnings = FALS
 ### ____i. import report ----
 # -----------------------------------------------------------------------------#
 
-raw_extProfile <- read_tsv(paste0(STUDY, DATE, "reports/allExtractionProfile.tab.txt"),
+raw_extProfile <- read_tsv(paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "reports/allExtractionProfile.tab.txt"),
                        show_col_types = FALSE) %>%
   mutate_all(list(~str_replace(., "\\(.+\\)", ""))) %>%  # remove all characters in braces
   mutate_at(.vars = 3:ncol(.), .funs = as.numeric) %>%   # to numeric
@@ -93,7 +94,7 @@ raw_extProfileTarget <- raw_extProfile %>%
 ### ____save table ----
 # -----------------------------------------------------------------------------#
 
-write_csv(raw_extProfileTarget, paste0(STUDY, DATE, "output/qc-read-depth-target.csv"))
+write_csv(raw_extProfileTarget, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/qc-read-depth-target.csv"))
 
 
 
@@ -103,7 +104,7 @@ write_csv(raw_extProfileTarget, paste0(STUDY, DATE, "output/qc-read-depth-target
 ### ____i. one file ----
 # -----------------------------------------------------------------------------#
 
-raw_selectedClustersInfo <- read_tsv(paste0(STUDY, DATE, "selectedClustersInfo.tab.txt.gz"),
+raw_selectedClustersInfo <- read_tsv(paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "selectedClustersInfo.tab.txt.gz"),
                      show_col_types = FALSE) %>%
   mutate(source = "None") %>% # define source of samples
   # filter untranslatable and show targets available for analysis
@@ -122,7 +123,7 @@ raw_selectedClustersInfo <- read_tsv(paste0(STUDY, DATE, "selectedClustersInfo.t
 # -----------------------------------------------------------------------------#
 
 # start by listing files with the specific prefix
-file_list <- list.files(path = paste0(STUDY, DATE),
+file_list <- list.files(path = paste0(PATH_STUDY, PATH_RUN, PATH_DATE),
                     pattern = "^selectedClustersInfo_.*\\.gz$",
                     full.names = TRUE)
 
@@ -147,7 +148,7 @@ raw_selectedClustersInfo <- file_list %>%
 ### ____iii. add sample origin, if avaialable ----
 # -----------------------------------------------------------------------------#
 
-source(paste0(STUDY, "scripts/add_sample_source.R"))
+source(paste0(PATH_STUDY, "scripts/add_sample_source.R"))
 
 
 
@@ -155,7 +156,7 @@ source(paste0(STUDY, "scripts/add_sample_source.R"))
 # =============================================================================#
 
 # import sample names
-raw_sampleNames <- read_tsv(paste0(STUDY, DATE, "/info/sampNames.tab.txt"),
+raw_sampleNames <- read_tsv(paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "/info/sampNames.tab.txt"),
                         show_col_types = FALSE,
                         col_names = c("inputName", "s_Sample", "mid"))
 
@@ -188,7 +189,7 @@ raw_sampleNamesProfile <- raw_sampleNames %>%
 
 
 ### save table
-write_csv(raw_sampleNamesProfile, paste0(STUDY, DATE, "output/read-extraction-profile.csv"))
+write_csv(raw_sampleNamesProfile, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/read-extraction-profile.csv"))
 
 
 
@@ -255,7 +256,7 @@ source("wf-seekdeep-illumina-amplicon/scripts/functions/functions-resistance-pro
 
 
 ### save table
-write_csv(df_coi_source, paste0(STUDY, DATE, "output/coi-by-souce.csv"))
+write_csv(df_coi_source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/coi-by-souce.csv"))
 
 
 
@@ -269,7 +270,7 @@ df_coi_sample <- df_clusters_AMA1 %>%
 
 
 ### save table
-write_csv(df_coi_sample, paste0(STUDY, DATE, "output/coi-by-sample.csv"))
+write_csv(df_coi_sample, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/coi-by-sample.csv"))
 
 
 
@@ -279,7 +280,7 @@ write_csv(df_coi_sample, paste0(STUDY, DATE, "output/coi-by-sample.csv"))
 ##___import the wildtype sequence ----
 # -----------------------------------------------------------------------------#
 
-fasta_K13 <- read_lines("resources-genome/fasta-cds/PfK13.txt")
+fasta_file <- read_lines("resources-genome/fasta-cds/PfK13.txt")
 
 
 
@@ -288,7 +289,7 @@ fasta_K13 <- read_lines("resources-genome/fasta-cds/PfK13.txt")
 
 # alleles
 (
-  wt_alleles <- sapply(positions_K13, function(pos) substr(fasta_K13, pos, pos))
+  wt_alleles <- sapply(positions_K13, function(pos) substr(fasta_file, pos, pos))
 )
 
 
@@ -310,8 +311,8 @@ source("wf-seekdeep-illumina-amplicon/scripts/functions/compute-snpfreq-k13.R")
 ### ____save table ----
 # -----------------------------------------------------------------------------#
 
-write_csv(df_freqSNP_K13_All, paste0(STUDY, DATE, "output/freq-allele-k13-all.csv"))
-write_csv(df_freqSNP_K13_Source, paste0(STUDY, DATE, "output/freq-allele-k13-source.csv"))
+write_csv(df_freqSNP_K13_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-k13-all.csv"))
+write_csv(df_freqSNP_K13_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-k13-source.csv"))
 
 
 
@@ -352,8 +353,8 @@ source("wf-seekdeep-illumina-amplicon/scripts/functions/compute-snpfreq-mdr1.R")
 ### ____save table ----
 # -----------------------------------------------------------------------------#
 
-write_csv(df_freqSNP_MDR1_All, paste0(STUDY, DATE, "output/freq-allele-mdr1-all.csv"))
-write_csv(df_freqSNP_MDR1_Source, paste0(STUDY, DATE, "output/freq-allele-mdr1-source.csv"))
+write_csv(df_freqSNP_MDR1_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-mdr1-all.csv"))
+write_csv(df_freqSNP_MDR1_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-mdr1-source.csv"))
 
 
 
@@ -366,8 +367,8 @@ source("wf-seekdeep-illumina-amplicon/scripts/functions/compute-hapfreq-mdr1.R")
 
 ### ____save table ----
 # -----------------------------------------------------------------------------#
-write_csv(df_freqHap_MDR1_All, paste0(STUDY, DATE, "output/freq-haplotype-mdr1-all.csv"))
-write_csv(df_freqHap_MDR1_Source, paste0(STUDY, DATE, "output/freq-haplotype-mdr1-source.csv"))
+write_csv(df_freqHap_MDR1_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-mdr1-all.csv"))
+write_csv(df_freqHap_MDR1_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-mdr1-source.csv"))
 
 
 
@@ -408,8 +409,8 @@ source("wf-seekdeep-illumina-amplicon/scripts/functions/compute-snpfreq-dhps.R")
 ### ____save table ----
 # -----------------------------------------------------------------------------#
 
-write_csv(df_freqSNP_DHPS_All, paste0(STUDY, DATE, "output/freq-allele-dhps-all.csv"))
-write_csv(df_freqSNP_DHPS_Source, paste0(STUDY, DATE, "output/freq-allele-dhps-source.csv"))
+write_csv(df_freqSNP_DHPS_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-dhps-all.csv"))
+write_csv(df_freqSNP_DHPS_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-dhps-source.csv"))
 
 
 
@@ -422,8 +423,8 @@ source("wf-seekdeep-illumina-amplicon/scripts/functions/compute-hapfreq-dhps.R")
 ### ____save table ----
 # -----------------------------------------------------------------------------#
 
-write_csv(df_freqHap_DHPS_All, paste0(STUDY, DATE, "output/freq-haplotype-dhps-all.csv"))
-write_csv(df_freqHap_DHPS_Source, paste0(STUDY, DATE, "output/freq-haplotype-dhps-source.csv"))
+write_csv(df_freqHap_DHPS_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-dhps-all.csv"))
+write_csv(df_freqHap_DHPS_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-dhps-source.csv"))
 
 
 
@@ -466,8 +467,8 @@ source("wf-seekdeep-illumina-amplicon/scripts/functions/compute-snpfreq-dhfr.R")
 ### ____save table ----
 # -----------------------------------------------------------------------------#
 
-write_csv(df_freqSNP_DHFR_All, paste0(STUDY, DATE, "output/freq-allele-dhfr-all.csv"))
-write_csv(df_freqSNP_DHFR_Source, paste0(STUDY, DATE, "output/freq-allele-dhfr-source.csv"))
+write_csv(df_freqSNP_DHFR_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-dhfr-all.csv"))
+write_csv(df_freqSNP_DHFR_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-dhfr-source.csv"))
 
 
 
@@ -481,7 +482,7 @@ source("wf-seekdeep-illumina-amplicon/scripts/functions/compute-hapfreq-dhfr.R")
 ### ____save table ----
 # -----------------------------------------------------------------------------#
 
-write_csv(df_freqHap_DHFR_All, paste0(STUDY, DATE, "output/freq-haplotype-dhfr-all.csv"))
-write_csv(df_freqHap_DHFR_Source, paste0(STUDY, DATE, "output/freq-haplotype-dhfr-source.csv"))
+write_csv(df_freqHap_DHFR_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-dhfr-all.csv"))
+write_csv(df_freqHap_DHFR_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-dhfr-source.csv"))
 
 
