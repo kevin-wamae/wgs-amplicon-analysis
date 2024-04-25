@@ -31,7 +31,9 @@ PATH_DATE = "2024_04_24-01-seekdeep/"
 
 
 # create the output directory for generated reports
-dir.create(paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/"), recursive = TRUE, showWarnings = FALSE)
+dir.create(paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/"),
+           recursive = TRUE,
+           showWarnings = FALSE)
 
 
 
@@ -43,9 +45,9 @@ dir.create(paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/"), recursive = TRUE,
 
 raw_extProfile <- read_tsv(paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "reports/allExtractionProfile.tab.txt"),
                        show_col_types = FALSE) %>%
-  mutate_all(list(~str_replace(., "\\(.+\\)", ""))) %>%  # remove all characters in braces
-  mutate_at(.vars = 3:ncol(.), .funs = as.numeric) %>%   # to numeric
-  mutate(inputName = str_remove(inputName, "_R1"))       # drop _R1 suffix
+  mutate_all(list(~str_replace(., "\\(.+\\)", ""))) %>%       # remove all characters in braces
+  mutate_at(.vars = 3:ncol(.), .funs = as.numeric) %>%        # to numeric
+  mutate(inputName = str_remove(inputName, "_R1|_S.+_L.+"))   # drop read or miseq-lane suffix
 
 
 
@@ -173,20 +175,25 @@ for (marker in available_markers) {
 
 # merge sample names with read-extraction profile
 raw_sampleNamesProfile <- raw_sampleNames %>%
-  pivot_longer(                                  # transform: wide to long
+  pivot_longer(                                    # transform: wide to long
                cols = starts_with("gene_"),
                names_to = "target",
                values_to = "name"
                ) %>%
   left_join(
-            raw_extProfile,                          # merge with raw_extProfile 
+            raw_extProfile,                        # merge with raw_extProfile 
             by = c("inputName", "name")
             ) %>% 
-  pivot_wider(                                   # transform: long to wide
+  pivot_wider(                                     # transform: long to wide
               id_cols = c(inputName, s_Sample),
               names_from = "target",
               values_from = "good"
-              )
+              ) %>%
+  mutate(across(.cols = starts_with("gene_"),      # add thousands separator and replace_na
+                ~ifelse(is.na(.x), "0", format(.x,
+                                               big.mark = ",",
+                                               decimal.mark = ".",
+                                               nsmall = 0))))
 
 
 
@@ -247,11 +254,11 @@ source("wf-seekdeep-illumina-amplicon/scripts/functions/functions-resistance-pro
   df_coi_source <- df_clusters_AMA1 %>%
     distinct(s_Sample, .keep_all = TRUE) %>%  # de-duplicate sample entries
     summarise(
-              sample_size=n(),
+              sample_size=n(),                # determine sample size
               min = min(s_COI),
               mean = median(s_COI),
               max = max(s_COI),
-              .by = source
+              .by = source                    # group by sample-origin
               )
 )
 
