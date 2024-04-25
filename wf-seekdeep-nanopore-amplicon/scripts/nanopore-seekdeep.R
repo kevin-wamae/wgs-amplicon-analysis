@@ -25,7 +25,7 @@ library(tidyverse, quietly = TRUE)
 
 
 # *****************************************************************************#
-# 2. import data ----
+# 1. import data ----
 # *****************************************************************************#
 
 ## __a. specify input-dir path ----
@@ -50,7 +50,7 @@ dir.create(paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/"),
 
 # extraction reports by FASTQ
 # -----------------------------------------------------------------------------#
-raw_extProfileDELETE <- read_tsv(paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "reports/allExtractionStats.tab.txt"),
+raw_extProfile <- read_tsv(paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "reports/allExtractionStats.tab.txt"),
                      show_col_types = FALSE) %>%
   mutate_at(.vars = 2:ncol(.), .funs = as.numeric) # to numeric, from "totalReadsProcessed" to "passedFrac"
 
@@ -78,7 +78,6 @@ raw_extProfileTarget <- read_tsv(paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "report
 # -----------------------------------------------------------------------------#
 
 write_csv(raw_extProfileTarget, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/qc-target-read-depth.csv"))
-
 
 
 
@@ -134,3 +133,44 @@ raw_selectedClustersInfo <- file_list %>%
 
 source(paste0(PATH_STUDY, "scripts/add_sample_source.R"))
 
+
+
+## __f. extract clusters for each available gene ----
+# =============================================================================#
+
+###___PfAMA1 ----
+# =============================================================================#
+
+source("src/functions/aggregate-clusters-ama1.R")
+
+
+###___PfK13-469 ----
+# =============================================================================#
+
+source("src/functions/aggregate-clusters-k13-469.R")
+
+
+###___PfK13-675 ----
+# =============================================================================#
+
+source("src/functions/aggregate-clusters-k13-675.R")
+
+
+###___PfMDR1 ----
+# =============================================================================#
+
+source("src/functions/aggregate-clusters-mdr1.R")
+
+
+###___PfDHPS ----
+# =============================================================================#
+
+source("src/functions/aggregate-clusters-dhps.R")
+source("src/functions/functions-resistance-profile.R")
+
+
+###___PfDHFR ----
+# =============================================================================#
+
+source("src/functions/aggregate-clusters-dhfr.R")
+source("src/functions/functions-resistance-profile.R")
