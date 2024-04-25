@@ -1,3 +1,37 @@
+##___determine allele changes by codon-position ----
+# -----------------------------------------------------------------------------#
+df_Alleles <- df_clusters_K13 %>%
+  select(starts_with("pos")) %>%
+  # transform: wide to long format
+  # ---------------------------------#
+  pivot_longer(
+               cols = starts_with("pos"),
+               names_to = "codon",
+               values_to = "allele"
+               ) %>%
+  # remove duplicates to reduce redundancy
+  # ---------------------------------#
+  distinct(codon, allele, .keep_all = TRUE) %>%
+  # extract numerical part and letter part of allele into separate columns
+  # ---------------------------------#
+  mutate(
+         codon = as.numeric(str_extract(allele, "\\d+")),
+         allele = str_extract(allele, "[A-Z]"),
+         ) %>%
+  # merge with reference data to add wildtype allele information
+  # ---------------------------------#
+  left_join(
+            data.frame(position = positions_K13, wildtype = wt_alleles),
+            by = c("codon" = "position")
+            ) %>%
+  # apply filter based on group count: if more than one, filter by allele difference
+  # ---------------------------------#
+  filter(if (n() > 1) {allele != wildtype | is.na(wildtype)} else {TRUE}, .by = codon) %>%
+  mutate(codon_residue = paste0(wildtype, codon, allele)) %>%
+  select(codon, codon_residue)
+
+
+
 ##___compute allele frequencies, regardless source ----
 # -----------------------------------------------------------------------------#
 
@@ -69,7 +103,16 @@ df_freqSNP_K13_All <- df_clusters_K13 %>%
             ) %>%
   # replace na in allele frequencies with 0
   # ---------------------------------#
-  mutate_at(.vars = 3:5, replace_na, "0 [0]")
+  mutate_at(.vars = 3:5, replace_na, "0 [0]") %>%
+  # replace codon allele
+  # ---------------------------------#
+  select(-codon_allele) %>%
+  left_join(df_Alleles, by = "codon") %>%
+  # drop alleles with 100% wildtype frequency or missing allele information (stop codons)
+  # ---------------------------------#
+  filter(! str_detect(wildtype, "100 \\[") & ! is.na(codon_residue)) %>%
+  mutate(codon = codon_residue) %>%
+  select(-codon_residue)
 
 
 
@@ -144,4 +187,14 @@ df_freqSNP_K13_Source <- df_clusters_K13 %>%
             ) %>%
   # replace na in allele frequencies with 0
   # ---------------------------------#
-  mutate_at(.vars = 4:6, replace_na, "0 [0]")
+  mutate_at(.vars = 4:6, replace_na, "0 [0]") %>%
+  # replace codon allele
+  # ---------------------------------#
+  select(-codon_allele) %>%
+  left_join(df_Alleles, by = "codon") %>%
+  # drop alleles with 100% wildtype frequency or missing allele information (stop codons)
+  # ---------------------------------#
+  filter(! str_detect(wildtype, "100 \\[") & ! is.na(codon_residue)) %>%
+  mutate(codon = codon_residue) %>%
+  select(-codon_residue)
+
