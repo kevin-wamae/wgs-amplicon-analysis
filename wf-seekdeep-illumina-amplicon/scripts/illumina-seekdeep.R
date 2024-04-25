@@ -332,7 +332,7 @@ write_csv(df_freqSNP_K13_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output
 ##___import the wildtype sequence ----
 # -----------------------------------------------------------------------------#
 
-fasta_MDR1 <- read_lines("resources-genome/fasta-cds/PfMDR1.txt")
+fasta_file <- read_lines("resources-genome/fasta-cds/PfMDR1.txt")
 
 
 
@@ -341,7 +341,7 @@ fasta_MDR1 <- read_lines("resources-genome/fasta-cds/PfMDR1.txt")
 
 # alleles
 (
-  wt_alleles <- sapply(positions_MDR1, function(pos) substr(fasta_MDR1, pos, pos))
+  wt_alleles <- sapply(positions_MDR1, function(pos) substr(fasta_file, pos, pos))
 )
 
 
@@ -387,7 +387,7 @@ write_csv(df_freqHap_MDR1_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "outpu
 ##___import the wildtype sequence ----
 # -----------------------------------------------------------------------------#
 
-fasta_DHPS <- read_lines("resources-genome/fasta-cds/PfDHPS.txt")
+fasta_file <- read_lines("resources-genome/fasta-cds/PfDHPS.txt")
 
 
 
@@ -396,7 +396,7 @@ fasta_DHPS <- read_lines("resources-genome/fasta-cds/PfDHPS.txt")
 
 # alleles
 (
-  wt_alleles <- sapply(positions_DHPS, function(pos) substr(fasta_DHPS, pos, pos))
+  wt_alleles <- sapply(positions_DHPS, function(pos) substr(fasta_file, pos, pos))
 )
 
 
@@ -444,7 +444,7 @@ write_csv(df_freqHap_DHPS_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "outpu
 ##___import the wildtype sequence ----
 # -----------------------------------------------------------------------------#
 
-fasta_DHFR <- read_lines("resources-genome/fasta-cds/PfDHFR.txt")
+fasta_file <- read_lines("resources-genome/fasta-cds/PfDHFR.txt")
 
 
 
@@ -454,7 +454,7 @@ fasta_DHFR <- read_lines("resources-genome/fasta-cds/PfDHFR.txt")
 
 # alleles
 (
-  wt_alleles <- sapply(positions_DHFR, function(pos) substr(fasta_DHFR, pos, pos))
+  wt_alleles <- sapply(positions_DHFR, function(pos) substr(fasta_file, pos, pos))
 )
 
 
