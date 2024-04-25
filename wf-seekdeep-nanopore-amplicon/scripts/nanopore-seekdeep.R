@@ -144,16 +144,10 @@ source(paste0(PATH_STUDY, "scripts/add_sample_source.R"))
 source("src/functions/aggregate-clusters-ama1.R")
 
 
-###___PfK13-469 ----
+###___PfK13 ----
 # =============================================================================#
 
-source("src/functions/aggregate-clusters-k13-469.R")
-
-
-###___PfK13-675 ----
-# =============================================================================#
-
-source("src/functions/aggregate-clusters-k13-675.R")
+source("src/functions/aggregate-clusters-k13.R")
 
 
 ###___PfMDR1 ----
@@ -174,3 +168,264 @@ source("src/functions/functions-resistance-profile.R")
 
 source("src/functions/aggregate-clusters-dhfr.R")
 source("src/functions/functions-resistance-profile.R")
+
+
+
+# *****************************************************************************#
+# 2. compute allele frequencies ----
+# *****************************************************************************#
+
+
+## __PfAMA1 ----
+# =============================================================================#
+
+
+### ____i. coi by source ----
+# -----------------------------------------------------------------------------#
+
+(
+  df_coi_source <- df_clusters_AMA1 %>%
+    distinct(s_Sample, .keep_all = TRUE) %>%  # de-duplicate sample entries
+    summarise(
+              sample_size=n(),                # determine sample size
+              min = min(s_COI),
+              mean = median(s_COI),
+              max = max(s_COI),
+              .by = source                    # group by sample-origin
+              )
+)
+
+
+
+### save table
+write_csv(df_coi_source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/coi-by-souce.csv"))
+
+
+
+### ____ii. coi by sample ----
+# -----------------------------------------------------------------------------#
+
+df_coi_sample <- df_clusters_AMA1 %>%
+  distinct(s_Sample, .keep_all = TRUE) %>%
+  select(source, s_Sample, s_COI)
+
+
+
+### save table
+write_csv(df_coi_sample, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/coi-by-sample.csv"))
+
+
+
+## __PfK13 ----
+# =============================================================================#
+
+##___import the wildtype sequence ----
+# -----------------------------------------------------------------------------#
+
+fasta_file <- read_lines("resources-genome/fasta-cds/PfK13.txt")
+
+
+
+##___extract the wildtype alleles/haplotypes ----
+# -----------------------------------------------------------------------------#
+
+# alleles
+(
+  wt_alleles <- sapply(positions_K13, function(pos) substr(fasta_file, pos, pos))
+)
+
+
+
+# haplotypes
+(
+  wt_haplotype <- paste(wt_alleles, collapse = "")
+)
+
+
+
+##___compute allele frequencies ----
+# -----------------------------------------------------------------------------#
+
+source("src/functions/compute-snpfreq-k13.R")
+
+
+
+### ____save table ----
+# -----------------------------------------------------------------------------#
+
+write_csv(df_freqSNP_K13_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-k13-all.csv"))
+write_csv(df_freqSNP_K13_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-k13-source.csv"))
+
+
+
+## __PfMDR1 ----
+# =============================================================================#
+
+
+##___import the wildtype sequence ----
+# -----------------------------------------------------------------------------#
+
+fasta_file <- read_lines("resources-genome/fasta-cds/PfMDR1.txt")
+
+
+
+##___extract the wildtype alleles/haplotypes ----
+# -----------------------------------------------------------------------------#
+
+# alleles
+(
+  wt_alleles <- sapply(positions_MDR1, function(pos) substr(fasta_file, pos, pos))
+)
+
+
+
+# haplotypes
+(
+  wt_haplotype <- paste(wt_alleles, collapse = "")
+)
+
+
+##___compute allele frequencies ----
+# -----------------------------------------------------------------------------#
+
+source("src/functions/compute-snpfreq-mdr1.R")
+
+
+
+### ____save table ----
+# -----------------------------------------------------------------------------#
+
+write_csv(df_freqSNP_MDR1_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-mdr1-all.csv"))
+write_csv(df_freqSNP_MDR1_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-mdr1-source.csv"))
+
+
+
+##___compute haplotype frequencies ----
+# -----------------------------------------------------------------------------#
+
+source("src/functions/compute-hapfreq-mdr1.R")
+
+
+
+### ____save table ----
+# -----------------------------------------------------------------------------#
+write_csv(df_freqHap_MDR1_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-mdr1-all.csv"))
+write_csv(df_freqHap_MDR1_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-mdr1-source.csv"))
+
+
+
+## __PfDHPS ----
+# =============================================================================#
+
+##___import the wildtype sequence ----
+# -----------------------------------------------------------------------------#
+
+fasta_file <- read_lines("resources-genome/fasta-cds/PfDHPS.txt")
+
+
+
+##___extract the wildtype alleles/haplotypes ----
+# -----------------------------------------------------------------------------#
+
+# alleles
+(
+  wt_alleles <- sapply(positions_DHPS, function(pos) substr(fasta_file, pos, pos))
+)
+
+
+
+# haplotypes
+(
+  wt_haplotype <- paste(wt_alleles, collapse = "")
+)
+
+
+
+##___compute allele frequencies ----
+# -----------------------------------------------------------------------------#
+
+source("src/functions/compute-snpfreq-dhps.R")
+
+
+
+### ____save table ----
+# -----------------------------------------------------------------------------#
+
+write_csv(df_freqSNP_DHPS_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-dhps-all.csv"))
+write_csv(df_freqSNP_DHPS_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-dhps-source.csv"))
+
+
+
+##___compute haplotype frequencies and resistance profiles ----
+# -----------------------------------------------------------------------------#
+
+source("src/functions/compute-hapfreq-dhps.R")
+
+
+### ____save table ----
+# -----------------------------------------------------------------------------#
+
+write_csv(df_freqHap_DHPS_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-dhps-all.csv"))
+write_csv(df_freqHap_DHPS_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-dhps-source.csv"))
+
+
+
+## __PfDHFR ----
+# =============================================================================#
+
+
+##___import the wildtype sequence ----
+# -----------------------------------------------------------------------------#
+
+fasta_file <- read_lines("resources-genome/fasta-cds/PfDHFR.txt")
+
+
+
+##___extract the wildtype alleles/haplotypes ----
+# -----------------------------------------------------------------------------#
+
+
+# alleles
+(
+  wt_alleles <- sapply(positions_DHFR, function(pos) substr(fasta_file, pos, pos))
+)
+
+
+
+# haplotypes
+(
+  wt_haplotype <- paste(wt_alleles, collapse = "")
+)
+
+
+
+##___compute allele frequencies ----
+# -----------------------------------------------------------------------------#
+
+source("src/functions/compute-snpfreq-dhfr.R")
+
+
+
+### ____save table ----
+# -----------------------------------------------------------------------------#
+
+write_csv(df_freqSNP_DHFR_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-dhfr-all.csv"))
+write_csv(df_freqSNP_DHFR_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-dhfr-source.csv"))
+
+
+
+##___compute haplotype frequencies and resistance profiles ----
+# -----------------------------------------------------------------------------#
+
+source("src/functions/compute-hapfreq-dhfr.R")
+
+
+
+### ____save table ----
+# -----------------------------------------------------------------------------#
+
+write_csv(df_freqHap_DHFR_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-dhfr-all.csv"))
+write_csv(df_freqHap_DHFR_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-dhfr-source.csv"))
+
+
+
