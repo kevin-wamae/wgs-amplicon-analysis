@@ -11,13 +11,15 @@ df_freqHap_MDR1_All <- df_clusters_MDR1 %>%
   mutate(
          freq = count/sum(count),
          freq = round(freq * 100, 1),
+         freq = paste0(freq, " [", count, "]"),
          variant = case_when(
                              haplotype == wt_haplotype ~ "wildtype",
                              str_detect(haplotype, ",") ~ "mixed",
                              TRUE ~ "mutant",
                              ),
-         total = sum(count)
+         total = sum(count),
          ) %>%
+  select(-count) %>%
   arrange(desc(freq))
 
 
@@ -35,6 +37,7 @@ df_freqHap_MDR1_Source <- df_clusters_MDR1 %>%
   mutate(
          freq = count/sum(count), .by = source,
          freq = round(freq * 100, 1),
+         freq = paste0(freq, " [", count, "]"),
          variant = case_when(
                              haplotype == wt_haplotype ~ "wildtype",
                              str_detect(haplotype, ",") ~ "mixed",
@@ -42,4 +45,5 @@ df_freqHap_MDR1_Source <- df_clusters_MDR1 %>%
                              ),
          total = sum(count)
          ) %>%
+  select(-count) %>%
   arrange(source, desc(freq))
