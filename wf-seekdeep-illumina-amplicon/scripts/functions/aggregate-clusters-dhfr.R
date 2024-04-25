@@ -1,8 +1,8 @@
-# vector of polymorphic codons
+# generate a vector of polymorphic codons
+# -----------------------------------------------------------------------------#
 (
   positions_DHFR <- raw_selectedClustersInfo %>%
     filter(str_detect(p_name, "^PFDHFR"), str_detect(h_AATyped, "^PF3D7")) %>%
-    # mutate(h_AATyped = str_remove(h_AATyped, "16A:")) %>%  # drop codon 16
     select(h_AATyped) %>%
     slice(1) %>%
     mutate(h_AATyped = str_replace(h_AATyped, "PF3D7_.+--", ""),

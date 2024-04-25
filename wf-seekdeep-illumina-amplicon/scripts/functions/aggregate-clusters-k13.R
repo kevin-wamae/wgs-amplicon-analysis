@@ -1,4 +1,4 @@
-# vector of polymorphic codons
+# generate a vector of polymorphic codons
 # -----------------------------------------------------------------------------#
 (
   positions_K13 <- raw_selectedClustersInfo %>%
@@ -13,6 +13,7 @@
 )
 
 
+
 # filter variant data
 # -----------------------------------------------------------------------------#
 df_clusters_K13 <- raw_selectedClustersInfo %>%
@@ -24,8 +25,8 @@ df_clusters_K13 <- raw_selectedClustersInfo %>%
                         )) %>%
   rowwise() %>%
   mutate(
-    codon_pos = paste(c_across(all_of(paste0("pos", positions_K13))), collapse = ", "),
-    codon_pos = str_remove_all(string = codon_pos, pattern = "-."),
-    haplotype = str_remove_all(string = codon_pos, pattern = "\\d+|,\\s")
-  ) %>%
+         codon_pos = paste(c_across(all_of(paste0("pos", positions_K13))), collapse = ", "),
+         codon_pos = str_remove_all(string = codon_pos, pattern = "-."),
+         haplotype = str_remove_all(string = codon_pos, pattern = "\\d+|,\\s")
+         ) %>%
   ungroup()

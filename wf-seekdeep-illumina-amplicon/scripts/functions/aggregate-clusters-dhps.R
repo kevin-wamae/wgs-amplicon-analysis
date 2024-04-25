@@ -1,4 +1,5 @@
-# vector of polymorphic codons
+# generate a vector of polymorphic codons
+# -----------------------------------------------------------------------------#
 (
   positions_DHPS <- raw_selectedClustersInfo %>%
     filter(str_detect(p_name, "^PFDHPS"), str_detect(h_AATyped, "^PF3D7")) %>%
@@ -18,10 +19,10 @@
 df_clusters_DHPS <- raw_selectedClustersInfo %>%
   filter(str_detect(p_name, "^PFDHPS")) %>%
   mutate(
-        purrr::map_dfc(
-                      set_names(positions_DHPS, paste0("pos", positions_DHPS)),
-                      ~ str_extract(string = h_AATyped, pattern = paste0(.x, "."))
-                      )) %>%
+         purrr::map_dfc(
+                        set_names(positions_DHPS, paste0("pos", positions_DHPS)),
+                        ~ str_extract(string = h_AATyped, pattern = paste0(.x, "."))
+                        )) %>%
   rowwise() %>%
   mutate(
          codon_pos = paste(c_across(all_of(paste0("pos", positions_DHPS))), collapse = ", "),
