@@ -22,9 +22,11 @@ library(tidyverse, quietly = TRUE)
 # *****************************************************************************#
 
 ## __a. specify input-dir path ----
+
+# make sure to end file paths with `/`
 PATH_STUDY = "wf-seekdeep-illumina-amplicon/input/ssurvey_2022 - western_kenya/"
 PATH_RUN = "2024_02_23_ilri_illumina_2x300/"
-PATH_DATE = "2024_04_11-04-seekdeep/"
+PATH_DATE = "2024_04_24-01-seekdeep/"
 
 
 
@@ -94,7 +96,7 @@ raw_extProfileTarget <- raw_extProfile %>%
 ### ____save table ----
 # -----------------------------------------------------------------------------#
 
-write_csv(raw_extProfileTarget, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/qc-read-depth-target.csv"))
+write_csv(raw_extProfileTarget, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/qc-target-read-depth.csv"))
 
 
 
