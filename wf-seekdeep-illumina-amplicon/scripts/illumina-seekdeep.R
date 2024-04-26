@@ -208,33 +208,33 @@ write_csv(raw_sampleNamesProfile, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "outpu
 ###___PfAMA1 ----
 # =============================================================================#
 
-source("src/functions/aggregate-clusters-ama1.R")
+source("resources-src/functions/aggregate-clusters-ama1.R")
 
 
 ###___PfK13 ----
 # =============================================================================#
 
-source("src/functions/aggregate-clusters-k13.R")
+source("resources-src/functions/aggregate-clusters-k13.R")
 
 
 ###___PfMDR1 ----
 # =============================================================================#
 
-source("src/functions/aggregate-clusters-mdr1.R")
+source("resources-src/functions/aggregate-clusters-mdr1.R")
 
 
 ###___PfDHPS ----
 # =============================================================================#
 
-source("src/functions/aggregate-clusters-dhps.R")
-source("src/functions/functions-resistance-profile.R")
+source("resources-src/functions/aggregate-clusters-dhps.R")
+source("resources-src/functions/functions-resistance-profile.R")
 
 
 ###___PfDHFR ----
 # =============================================================================#
 
-source("src/functions/aggregate-clusters-dhfr.R")
-source("src/functions/functions-resistance-profile.R")
+source("resources-src/functions/aggregate-clusters-dhfr.R")
+source("resources-src/functions/functions-resistance-profile.R")
 
 
 
@@ -313,7 +313,7 @@ fasta_file <- read_lines("resources-genome/fasta-cds/PfK13.txt")
 ##___compute allele frequencies ----
 # -----------------------------------------------------------------------------#
 
-source("src/functions/compute-snpfreq-k13.R")
+source("resources-src/functions/compute-snpfreq-k13.R")
 
 
 
@@ -355,7 +355,7 @@ fasta_file <- read_lines("resources-genome/fasta-cds/PfMDR1.txt")
 ##___compute allele frequencies ----
 # -----------------------------------------------------------------------------#
 
-source("src/functions/compute-snpfreq-mdr1.R")
+source("resources-src/functions/compute-snpfreq-mdr1.R")
 
 
 
@@ -370,7 +370,7 @@ write_csv(df_freqSNP_MDR1_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "outpu
 ##___compute haplotype frequencies ----
 # -----------------------------------------------------------------------------#
 
-source("src/functions/compute-hapfreq-mdr1.R")
+source("resources-src/functions/compute-hapfreq-mdr1.R")
 
 
 
@@ -411,7 +411,7 @@ fasta_file <- read_lines("resources-genome/fasta-cds/PfDHPS.txt")
 ##___compute allele frequencies ----
 # -----------------------------------------------------------------------------#
 
-source("src/functions/compute-snpfreq-dhps.R")
+source("resources-src/functions/compute-snpfreq-dhps.R")
 
 
 
@@ -426,7 +426,7 @@ write_csv(df_freqSNP_DHPS_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "outpu
 ##___compute haplotype frequencies and resistance profiles ----
 # -----------------------------------------------------------------------------#
 
-source("src/functions/compute-hapfreq-dhps.R")
+source("resources-src/functions/compute-hapfreq-dhps.R")
 
 
 ### ____save table ----
@@ -469,7 +469,7 @@ fasta_file <- read_lines("resources-genome/fasta-cds/PfDHFR.txt")
 ##___compute allele frequencies ----
 # -----------------------------------------------------------------------------#
 
-source("src/functions/compute-snpfreq-dhfr.R")
+source("resources-src/functions/compute-snpfreq-dhfr.R")
 
 
 
@@ -484,7 +484,7 @@ write_csv(df_freqSNP_DHFR_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "outpu
 ##___compute haplotype frequencies and resistance profiles ----
 # -----------------------------------------------------------------------------#
 
-source("src/functions/compute-hapfreq-dhfr.R")
+source("resources-src/functions/compute-hapfreq-dhfr.R")
 
 
 
