@@ -9,14 +9,6 @@ rm(list = ls())
 
 
 
-# load packages
-# =============================================================================#
-
-library(data.table, quietly = TRUE)
-library(tidyverse, quietly = TRUE)
-
-
-
 # =============================================================================#
 # load packages
 library(data.table, quietly = TRUE)
@@ -31,9 +23,9 @@ library(tidyverse, quietly = TRUE)
 ## __a. specify input-dir path ----
 
 # make sure to end file paths with `/`
-PATH_STUDY = "wf-seekdeep-nanopore-amplicon/input/turkana_embatalk/"
-PATH_RUN = "2024_04_12_nanopore_r10.4.1/"
-PATH_DATE = "2024_04_24-01-seekdeep/"
+PATH_STUDY = "input/multidrug_resistance_lab_kisumu/"
+PATH_RUN = "2024_04_19_nanopore_r10.4.1/"
+PATH_DATE = "2024_04_23-01-seekdeep/"
 
 
 
@@ -141,33 +133,33 @@ source(paste0(PATH_STUDY, "scripts/add_sample_source.R"))
 ###___PfAMA1 ----
 # =============================================================================#
 
-source("resources-src/functions/aggregate-clusters-ama1.R")
+source("../resources-src/functions/aggregate-clusters-ama1.R")
 
 
 ###___PfK13 ----
 # =============================================================================#
 
-source("resources-src/functions/aggregate-clusters-k13.R")
+source("../resources-src/functions/aggregate-clusters-k13.R")
 
 
 ###___PfMDR1 ----
 # =============================================================================#
 
-source("resources-src/functions/aggregate-clusters-mdr1.R")
+source("../resources-src/functions/aggregate-clusters-mdr1.R")
 
 
 ###___PfDHPS ----
 # =============================================================================#
 
-source("resources-src/functions/aggregate-clusters-dhps.R")
-source("resources-src/functions/functions-resistance-profile.R")
+source("../resources-src/functions/aggregate-clusters-dhps.R")
+source("../resources-src/functions/functions-resistance-profile.R")
 
 
 ###___PfDHFR ----
 # =============================================================================#
 
-source("resources-src/functions/aggregate-clusters-dhfr.R")
-source("resources-src/functions/functions-resistance-profile.R")
+source("../resources-src/functions/aggregate-clusters-dhfr.R")
+source("../resources-src/functions/functions-resistance-profile.R")
 
 
 
@@ -222,7 +214,7 @@ write_csv(df_coi_sample, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/coi-by-
 ##___import the wildtype sequence ----
 # -----------------------------------------------------------------------------#
 
-fasta_file <- read_lines("resources-genome/fasta-cds/PfK13.txt")
+fasta_file <- read_lines("../resources-genome/fasta-cds/PfK13.txt")
 
 
 
@@ -246,7 +238,7 @@ fasta_file <- read_lines("resources-genome/fasta-cds/PfK13.txt")
 ##___compute allele frequencies ----
 # -----------------------------------------------------------------------------#
 
-source("resources-src/functions/compute-snpfreq-k13.R")
+source("../resources-src/functions/compute-snpfreq-k13.R")
 
 
 
@@ -255,6 +247,7 @@ source("resources-src/functions/compute-snpfreq-k13.R")
 
 write_csv(df_freqSNP_K13_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-k13-all.csv"))
 write_csv(df_freqSNP_K13_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-k13-source.csv"))
+write_csv(df_freqSNP_K13_Sample, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-k13-sample.csv"))
 
 
 
@@ -265,7 +258,7 @@ write_csv(df_freqSNP_K13_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output
 ##___import the wildtype sequence ----
 # -----------------------------------------------------------------------------#
 
-fasta_file <- read_lines("resources-genome/fasta-cds/PfMDR1.txt")
+fasta_file <- read_lines("../resources-genome/fasta-cds/PfMDR1.txt")
 
 
 
@@ -288,7 +281,7 @@ fasta_file <- read_lines("resources-genome/fasta-cds/PfMDR1.txt")
 ##___compute allele frequencies ----
 # -----------------------------------------------------------------------------#
 
-source("resources-src/functions/compute-snpfreq-mdr1.R")
+source("../resources-src/functions/compute-snpfreq-mdr1.R")
 
 
 
@@ -303,7 +296,7 @@ write_csv(df_freqSNP_MDR1_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "outpu
 ##___compute haplotype frequencies ----
 # -----------------------------------------------------------------------------#
 
-source("resources-src/functions/compute-hapfreq-mdr1.R")
+source("../resources-src/functions/compute-hapfreq-mdr1.R")
 
 
 
@@ -320,7 +313,7 @@ write_csv(df_freqHap_MDR1_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "outpu
 ##___import the wildtype sequence ----
 # -----------------------------------------------------------------------------#
 
-fasta_file <- read_lines("resources-genome/fasta-cds/PfDHPS.txt")
+fasta_file <- read_lines("../resources-genome/fasta-cds/PfDHPS.txt")
 
 
 
@@ -344,7 +337,7 @@ fasta_file <- read_lines("resources-genome/fasta-cds/PfDHPS.txt")
 ##___compute allele frequencies ----
 # -----------------------------------------------------------------------------#
 
-source("resources-src/functions/compute-snpfreq-dhps.R")
+source("../resources-src/functions/compute-snpfreq-dhps.R")
 
 
 
@@ -359,7 +352,7 @@ write_csv(df_freqSNP_DHPS_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "outpu
 ##___compute haplotype frequencies and resistance profiles ----
 # -----------------------------------------------------------------------------#
 
-source("resources-src/functions/compute-hapfreq-dhps.R")
+source("../resources-src/functions/compute-hapfreq-dhps.R")
 
 
 ### ____save table ----
@@ -377,7 +370,7 @@ write_csv(df_freqHap_DHPS_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "outpu
 ##___import the wildtype sequence ----
 # -----------------------------------------------------------------------------#
 
-fasta_file <- read_lines("resources-genome/fasta-cds/PfDHFR.txt")
+fasta_file <- read_lines("../resources-genome/fasta-cds/PfDHFR.txt")
 
 
 
@@ -402,7 +395,7 @@ fasta_file <- read_lines("resources-genome/fasta-cds/PfDHFR.txt")
 ##___compute allele frequencies ----
 # -----------------------------------------------------------------------------#
 
-source("resources-src/functions/compute-snpfreq-dhfr.R")
+source("../resources-src/functions/compute-snpfreq-dhfr.R")
 
 
 
@@ -417,7 +410,7 @@ write_csv(df_freqSNP_DHFR_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "outpu
 ##___compute haplotype frequencies and resistance profiles ----
 # -----------------------------------------------------------------------------#
 
-source("resources-src/functions/compute-hapfreq-dhfr.R")
+source("../resources-src/functions/compute-hapfreq-dhfr.R")
 
 
 
