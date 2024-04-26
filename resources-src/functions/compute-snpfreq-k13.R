@@ -198,3 +198,23 @@ df_freqSNP_K13_Source <- df_clusters_K13 %>%
   mutate(codon = codon_residue) %>%
   select(-codon_residue)
 
+
+
+##___compute allele frequencies, by sample ----
+# -----------------------------------------------------------------------------#
+
+df_freqSNP_K13_Sample <- df_clusters_K13 %>%
+  # select relevant columns
+  # ---------------------------------#
+  select(R1_name, s_Sample, source, starts_with("pos")) %>%
+  # collapse alleles per codon per sample
+  # ---------------------------------#
+  reframe(source, R1_name,
+          across(starts_with("pos"), ~paste(unique(sort(.)), collapse = ","),
+                 .names = "{.col}"),
+          .by = s_Sample) %>%
+  # remove duplicates
+  # ---------------------------------#
+  distinct(s_Sample, .keep_all = TRUE)
+
+
