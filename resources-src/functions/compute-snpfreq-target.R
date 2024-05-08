@@ -1,6 +1,6 @@
 ##___determine allele changes by codon-position ----
 # -----------------------------------------------------------------------------#
-df_Alleles <- df_clusters_DHPS %>%
+df_WT_Alleles <- df_clusters_Target %>%
   select(starts_with("pos")) %>%
   # transform: wide to long format
   # ---------------------------------#
@@ -21,7 +21,7 @@ df_Alleles <- df_clusters_DHPS %>%
   # merge with reference data to add wildtype allele information
   # ---------------------------------#
   left_join(
-            data.frame(position = positions_DHPS, wildtype = wt_alleles),
+            data.frame(position = positions_Target, wildtype = wt_alleles),
             by = c("codon" = "position")
             ) %>%
   # apply filter based on group count: if more than one, filter by allele difference
@@ -35,7 +35,7 @@ df_Alleles <- df_clusters_DHPS %>%
 ##___compute allele frequencies, regardless source ----
 # -----------------------------------------------------------------------------#
 
-df_freqSNP_DHPS_All <- df_clusters_DHPS %>%
+df_freqSNP_All <- df_clusters_Target %>%
   # select relevant columns
   # ---------------------------------#
   select(s_Sample, starts_with("pos")) %>%
@@ -71,7 +71,7 @@ df_freqSNP_DHPS_All <- df_clusters_DHPS %>%
   # merge with wildtype alleles
   # ---------------------------------#
   left_join(
-            data.frame(position = positions_DHPS, wildtype = wt_alleles),
+            data.frame(position = positions_Target, wildtype = wt_alleles),
             by = c("codon" = "position")) %>%
   # code for infection-type
   # ---------------------------------#
@@ -107,7 +107,7 @@ df_freqSNP_DHPS_All <- df_clusters_DHPS %>%
   # replace codon allele
   # ---------------------------------#
   select(-codon_allele) %>%
-  left_join(df_Alleles, by = "codon") %>%
+  left_join(df_WT_Alleles, by = "codon") %>%
   # drop alleles with 100% wildtype frequency or missing allele information (stop codons)
   # ---------------------------------#
   filter(! str_detect(wildtype, "100 \\[") & ! is.na(codon_residue)) %>%
@@ -116,11 +116,10 @@ df_freqSNP_DHPS_All <- df_clusters_DHPS %>%
 
 
 
-
 ##___compute allele frequencies, by source ----
 # -----------------------------------------------------------------------------#
 
-df_freqSNP_DHPS_Source <- df_clusters_DHPS %>%
+df_freqSNP_Source <- df_clusters_Target %>%
   # select relevant columns
   # ---------------------------------#
   select(s_Sample, source, starts_with("pos")) %>%
@@ -156,7 +155,7 @@ df_freqSNP_DHPS_Source <- df_clusters_DHPS %>%
   # merge with wildtype alleles
   # ---------------------------------#
   left_join(
-            data.frame(position = positions_DHPS, wildtype = wt_alleles),
+            data.frame(position = positions_Target, wildtype = wt_alleles),
             by = c("codon" = "position")) %>%
   # code for infection-type
   # ---------------------------------#
@@ -192,10 +191,35 @@ df_freqSNP_DHPS_Source <- df_clusters_DHPS %>%
   # replace codon allele
   # ---------------------------------#
   select(-codon_allele) %>%
-  left_join(df_Alleles, by = "codon") %>%
+  left_join(df_WT_Alleles, by = "codon") %>%
   # drop alleles with 100% wildtype frequency or missing allele information (stop codons)
   # ---------------------------------#
   filter(! str_detect(wildtype, "100 \\[") & ! is.na(codon_residue)) %>%
   mutate(codon = codon_residue) %>%
   select(-codon_residue)
 
+
+
+##___compute allele frequencies, by sample ----
+# -----------------------------------------------------------------------------#
+
+df_freqSNP_Sample <- df_clusters_Target %>%
+  # select relevant columns
+  # ---------------------------------#
+  select(R1_name, s_Sample, source, starts_with("pos")) %>%
+  # collapse alleles per codon per sample
+  # ---------------------------------#
+  reframe(source, R1_name,
+          across(starts_with("pos"), ~paste(unique(sort(.)), collapse = ","),
+                 .names = "{.col}"),
+          .by = s_Sample) %>%
+  # remove duplicates
+  # ---------------------------------#
+  distinct(s_Sample, .keep_all = TRUE)
+
+
+
+##___remove temporary objects ----
+# -----------------------------------------------------------------------------#
+
+rm(df_WT_Alleles)
