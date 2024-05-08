@@ -1,7 +1,7 @@
 ##___compute allele frequencies, regardless source ----
 # -----------------------------------------------------------------------------#
 
-df_freqHap_DHFR_All <- df_clusters_DHFR %>%
+df_freqHap_All <- df_clusters_Target %>%
   select(s_Sample, contains("pos"), haplotype) %>%
   # define level of resistance
   mutate(
@@ -19,8 +19,7 @@ df_freqHap_DHFR_All <- df_clusters_DHFR %>%
   ungroup() %>%
   reframe(
           dhfr_resistance,
-          haplotype = paste(sort(unique(haplotype)), collapse = ","),
-          dhfr_resistance = paste(unique(sort(dhfr_resistance)), collapse = ","),
+          haplotype,
           .by = c(s_Sample)
           ) %>%
   distinct(s_Sample, .keep_all = TRUE) %>%
@@ -33,8 +32,7 @@ df_freqHap_DHFR_All <- df_clusters_DHFR %>%
                              haplotype == wt_haplotype ~ "wildtype",
                              str_detect(haplotype, ",") ~ "mixed",
                              TRUE ~ "mutant",
-                             ),
-         total = sum(count)
+                             )
          ) %>%
   select(-count) %>%
   arrange(desc(freq))
@@ -44,7 +42,7 @@ df_freqHap_DHFR_All <- df_clusters_DHFR %>%
 ##___compute allele frequencies, by source ----
 # -----------------------------------------------------------------------------#
 
-df_freqHap_DHFR_Source <- df_clusters_DHFR %>%
+df_freqHap_Source <- df_clusters_Target %>%
   select(source, s_Sample, contains("pos"), haplotype) %>%
   # define level of resistance
   mutate(
@@ -62,8 +60,7 @@ df_freqHap_DHFR_Source <- df_clusters_DHFR %>%
   ungroup() %>%
   reframe(
           source, dhfr_resistance,
-          haplotype = paste(sort(unique(haplotype)), collapse = ","),
-          dhfr_resistance = paste(unique(sort(dhfr_resistance)), collapse = ","),
+          haplotype,
           .by = c(s_Sample)
           ) %>%
   distinct(s_Sample, .keep_all = TRUE) %>%
@@ -76,8 +73,7 @@ df_freqHap_DHFR_Source <- df_clusters_DHFR %>%
                              haplotype == wt_haplotype ~ "wildtype",
                              str_detect(haplotype, ",") ~ "mixed",
                              TRUE ~ "mutant",
-                             ),
-         total = sum(count)
+                             )
          ) %>%
   select(-count) %>%
   arrange(source, desc(freq))

@@ -1,7 +1,7 @@
 ##___compute allele frequencies, regardless source ----
 # -----------------------------------------------------------------------------#
 
-df_freqHap_DHPS_All <- df_clusters_DHPS %>%
+df_freqHap_All <- df_clusters_Target %>%
   select(s_Sample, contains("pos"), haplotype) %>%
   # define level of resistance
   mutate(
@@ -43,7 +43,7 @@ df_freqHap_DHPS_All <- df_clusters_DHPS %>%
 ##___compute allele frequencies, by source ----
 # -----------------------------------------------------------------------------#
 
-df_freqHap_DHPS_Source <- df_clusters_DHPS %>%
+df_freqHap_Source <- df_clusters_Target %>%
   select(source, s_Sample, contains("pos"), haplotype) %>%
   # define level of resistance
   mutate(

@@ -1,13 +1,13 @@
 ##___compute allele frequencies, regardless source ----
 # -----------------------------------------------------------------------------#
 
-df_freqHap_MDR1_All <- df_clusters_MDR1 %>%
+df_freqHap_All <- df_clusters_Target %>%
   reframe(
-          haplotype = paste(sort(unique(haplotype)), collapse = ","),
+          haplotype,
           .by = c(s_Sample)
           ) %>%
-  distinct(s_Sample, .keep_all = TRUE) %>%
-  summarise(count=n(), .by = c(haplotype)) %>%
+  distinct(s_Sample, haplotype, .keep_all = TRUE) %>%
+  summarise(count=n(), .by = haplotype) %>%
   mutate(
          freq = count/sum(count),
          freq = round(freq * 100, 1),
@@ -16,8 +16,7 @@ df_freqHap_MDR1_All <- df_clusters_MDR1 %>%
                              haplotype == wt_haplotype ~ "wildtype",
                              str_detect(haplotype, ",") ~ "mixed",
                              TRUE ~ "mutant",
-                             ),
-         total = sum(count),
+                             )
          ) %>%
   select(-count) %>%
   arrange(desc(freq))
@@ -26,13 +25,12 @@ df_freqHap_MDR1_All <- df_clusters_MDR1 %>%
 ##___compute allele frequencies, by source ----
 # -----------------------------------------------------------------------------#
 
-df_freqHap_MDR1_Source <- df_clusters_MDR1 %>%
+df_freqHap_Source <- df_clusters_Target %>%
   reframe(
           source,
-          haplotype = paste(sort(unique(haplotype)), collapse = ","),
+          haplotype,
           .by = c(s_Sample)
           ) %>%
-  distinct(s_Sample, .keep_all = TRUE) %>%
   summarise(count=n(), .by = c(source, haplotype)) %>%
   mutate(
          freq = count/sum(count), .by = source,
@@ -42,8 +40,7 @@ df_freqHap_MDR1_Source <- df_clusters_MDR1 %>%
                              haplotype == wt_haplotype ~ "wildtype",
                              str_detect(haplotype, ",") ~ "mixed",
                              TRUE ~ "mutant",
-                             ),
-         total = sum(count)
+                             )
          ) %>%
   select(-count) %>%
   arrange(source, desc(freq))
