@@ -74,48 +74,16 @@ source(paste0(PATH_STUDY, "scripts/add_sample_source.R"))
 
 
 
-## __e. identify samples without data ----
-# =============================================================================#
+# *****************************************************************************#
+# 4. identify samples without data ----
+# *****************************************************************************#
 
-# import sample names
-raw_sampleNames <- read_tsv(paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "/info/sampNames.tab.txt"),
-                        show_col_types = FALSE,
-                        col_names = c("inputName", "s_Sample", "mid"))
-
-
-
-# dynamically create columns based on available_markers
-for (marker in available_markers) {
-  raw_sampleNames[[paste0("gene_", marker)]] <- paste0(toupper(marker), raw_sampleNames$mid)
-}
+# aggregate read extraction data
+source("../resources-src/functions/aggregate-illumina-extraction-qc-target.R")
 
 
 
-# merge sample names with read-extraction profile
-raw_sampleNamesProfile <- raw_sampleNames %>%
-  pivot_longer(                                    # transform: wide to long
-               cols = starts_with("gene_"),
-               names_to = "target",
-               values_to = "name"
-               ) %>%
-  left_join(
-            raw_extProfile,                        # merge with raw_extProfile 
-            by = c("inputName", "name")
-            ) %>% 
-  pivot_wider(                                     # transform: long to wide
-              id_cols = c(inputName, s_Sample),
-              names_from = "target",
-              values_from = "good"
-              ) %>%
-  mutate(across(.cols = starts_with("gene_"),      # add thousands separator and replace_na
-                ~ifelse(is.na(.x), "0", format(.x,
-                                               big.mark = ",",
-                                               decimal.mark = ".",
-                                               nsmall = 0)))); rm(marker)
-
-
-
-### save table
+# save table
 write_csv(raw_sampleNamesProfile, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/qc-read-ext-profile.csv"))
 
 
