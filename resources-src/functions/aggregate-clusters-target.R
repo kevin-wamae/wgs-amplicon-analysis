@@ -1,3 +1,33 @@
+# DESCRIPTION OF R SCRIPT
+# =============================================================================#
+# This R script is designed for extracting data from raw_selectedClustersInto matching
+# the target define in the object: STRING_TARGET
+#
+# 1. Generation of a Vector of Polymorphic Codons:
+#    This section of the script identifies specific polymorphic positions from
+#    genomic sequences that match predefined target strings in gene names and
+#    genome annotations. It extracts these positions to create a numeric vector
+#    representing the codons of interest. The process involves:
+#      - Filtering sequences by specific gene name and genome annotation patterns.
+#      - Extracting numeric codon positions from the sequences.
+#      - Cleansing and converting extracted data to a numeric format.
+#
+# 2. Filtering Variant Data and Extracting Codon Information:
+#    The second part of the script uses the vector of codon positions to filter
+#    and extract specific variant data from the sequences. It constructs new columns
+#    for each codon position, extracts the corresponding variant, and assembles a
+#    haplotype string for each sequence. Key steps include:
+#      - Mapping each codon position to extract specific variants using a dynamic
+#        pattern matching.
+#      - Collapsing extracted codon positions into a single string to form the haplotype.
+#      - Cleaning and formatting the final codon position and haplotype strings.
+#
+# The script utilizes the `dplyr`, `stringr`, and `purrr` libraries to handle data
+# manipulation, string operations, and functional programming techniques respectively,
+# ensuring efficient processing of genomic data.
+# =============================================================================#
+
+
 # generate a vector of polymorphic codons
 # -----------------------------------------------------------------------------#
 (
