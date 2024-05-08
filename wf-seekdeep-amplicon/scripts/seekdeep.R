@@ -1,5 +1,41 @@
 # *****************************************************************************#
-#     An R pipeline for aggregating allele frequency data from SeekDeep
+#     An R Pipeline for Aggregating Allele Frequency Data from SeekDeep
+# *****************************************************************************#
+# This script is part of a robust pipeline designed to aggregate and analyze allele frequency data 
+# from SeekDeep outputs, related to the genomic study of malaria parasites. It systematically processes 
+# multiple types of genomic data across several malaria genes. The pipeline includes data cleaning,
+# importing, processing, and saving allele and haplotype frequencies, enabling detailed genetic analysis.
+
+# Workflow Overview:
+
+# 1. Environment Setup:
+#    - Clears the current R environment to ensure a clean slate for data processing.
+#    - Loads necessary R packages from the tidyverse and data.table for efficient data manipulation.
+
+# 2. Directory and File Management:
+#    - Establishes directory paths for input and output data, ensuring all file paths terminate with `/`.
+#    - Creates an output directory to store generated reports and tables.
+
+# 3. Data Importation and Processing:
+#    - Imports quality control reports for Illumina and Nanopore data to assess read extraction efficiency.
+#    - Processes SeekDeep analysis data for targeted genetic clusters, adding sample source information
+#      and identifying samples without data.
+
+# 4. Gene-Specific Analysis:
+#    - Performs targeted aggregation of cluster data for specific malaria genes (e.g., PfAMA1, PfK13, PfMDR1, 
+#      PfDHPS, PfDHFR) including:
+#         * Importing raw cluster data and computing allele frequencies.
+#         * Aggregating clusters to extract wildtype sequences and compute haplotype frequencies.
+#    - Saves the processed data into CSV files for each gene, facilitating easy access and further analysis.
+
+# 5. Final Data Output:
+#    - Outputs include allele frequency tables and haplotype frequency tables for each gene studied, 
+#      categorized by overall data, source-specific, and sample-specific breakdowns.
+
+# This pipeline is essential for researchers studying genetic variations and drug resistance in malaria parasites,
+# providing a structured approach to handle and analyze high-throughput sequencing data.
+
+# Dependencies: R (>= 4.0), tidyverse, data.table
 # *****************************************************************************#
 
 
@@ -26,7 +62,7 @@ library(tidyverse, quietly = TRUE)
 
 # make sure file-paths terminate with `/`
 # -----------------------------------------------------------------------------#
-PATH_STUDY = "input/turkana_embatalk/"
+PATH_STUDY = "input/tes_busia-2018-2019/"
 PATH_RUN = "2024_04_12_nanopore_r10.4.1/"
 PATH_DATE = "2024_04_24-01-seekdeep/"
 
