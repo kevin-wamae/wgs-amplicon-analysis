@@ -27,8 +27,8 @@ library(tidyverse, quietly = TRUE)
 # make sure file-paths terminate with `/`
 # -----------------------------------------------------------------------------#
 PATH_STUDY = "input/ssurvey_2022 - western_kenya/"
-PATH_RUN = "2023_05_25_ilri_illumina_2x300/"
-PATH_DATE = "2024_04_12-01-seekdeep-dhfr/"
+PATH_RUN = "2024_02_23_ilri_illumina_2x300/"
+PATH_DATE = "2024_04_24-01-seekdeep/"
 
 
 
@@ -59,55 +59,16 @@ write_csv(raw_extProfileTarget, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/
 
 
 
-## __c. import analysis data ----
-# =============================================================================#
+# *****************************************************************************#
+# 3. import SeekDeep analysis data ----
+# *****************************************************************************#
 
-### ____i. one file ----
-# -----------------------------------------------------------------------------#
+# import
 
-raw_selectedClustersInfo <- read_tsv(paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "selectedClustersInfo.tab.txt.gz"),
-                     show_col_types = FALSE) %>%
-  mutate(source = "None") %>% # define source of samples
-  # filter untranslatable and show targets available for analysis
-  filter(h_AATyped != "Untranslatable")
+source("../resources-src/functions/import-target-clusters.R")
 
 
-
-# check what markers are available
-(
-  available_markers <- unique(raw_selectedClustersInfo$p_name)
-)
-
-
-
-### ____ii. multiple files ----
-# -----------------------------------------------------------------------------#
-
-# start by listing files with the specific prefix
-file_list <- list.files(path = paste0(PATH_STUDY, PATH_RUN, PATH_DATE),
-                    pattern = "^selectedClustersInfo_.*\\.gz$",
-                    full.names = TRUE)
-
-
-
-# read and bind the data frames
-raw_selectedClustersInfo <- file_list %>%
-  map_dfr(~ read_tsv(.x, col_types = cols())) %>%  # adjust col_types as needed
-  mutate(source = "None") %>% # define source of samples
-  # filter untranslatable and show targets available for analysis
-  filter(h_AATyped != "Untranslatable"); rm(file_list)
-
-
-
-# check what markers are available
-(
-  available_markers <- unique(raw_selectedClustersInfo$p_name)
-)
-
-
-
-## __d. add sample origin, if avaialable ----
-# =============================================================================#
+# add sample origin, if available
 
 source(paste0(PATH_STUDY, "scripts/add_sample_source.R"))
 
