@@ -1,8 +1,8 @@
 # generate a vector of polymorphic codons
 # -----------------------------------------------------------------------------#
 (
-  positions_K13 <- raw_selectedClustersInfo %>%
-    filter(str_detect(p_name, "^PFK13"), str_detect(h_AATyped, "^PF3D7")) %>%
+  positions_Target <- raw_selectedClustersInfo %>%
+    filter(str_detect(p_name, STRING_TARGET), str_detect(h_AATyped, STRING_GENOME)) %>%
     select(h_AATyped) %>%
     slice(1) %>%
     mutate(h_AATyped = str_replace(h_AATyped, "PF3D7_.+--", ""),
@@ -16,16 +16,16 @@
 
 # filter variant data
 # -----------------------------------------------------------------------------#
-df_clusters_K13 <- raw_selectedClustersInfo %>%
-  filter(str_detect(p_name, "^PFK13")) %>%
+df_clusters_Target <- raw_selectedClustersInfo %>%
+  filter(str_detect(p_name, STRING_TARGET)) %>%
   mutate(
-         purrr::map_dfc(
-                        set_names(positions_K13, paste0("pos", positions_K13)),
-                        ~ str_extract(string = h_AATyped, pattern = paste0(.x, "."))
-                        )) %>%
+        purrr::map_dfc(
+                      set_names(positions_Target, paste0("pos", positions_Target)),
+                      ~ str_extract(string = h_AATyped, pattern = paste0(.x, "."))
+                      )) %>%
   rowwise() %>%
   mutate(
-         codon_pos = paste(c_across(all_of(paste0("pos", positions_K13))), collapse = ", "),
+         codon_pos = paste(c_across(all_of(paste0("pos", positions_Target))), collapse = ", "),
          codon_pos = str_remove_all(string = codon_pos, pattern = "-."),
          haplotype = str_remove_all(string = codon_pos, pattern = "\\d+|,\\s")
          ) %>%
