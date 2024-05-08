@@ -26,8 +26,8 @@ library(tidyverse, quietly = TRUE)
 
 # make sure file-paths terminate with `/`
 # -----------------------------------------------------------------------------#
-PATH_STUDY = "input/ssurvey_2022 - western_kenya/"
-PATH_RUN = "2024_02_23_ilri_illumina_2x300/"
+PATH_STUDY = "input/turkana_embatalk/"
+PATH_RUN = "2024_04_12_nanopore_r10.4.1/"
 PATH_DATE = "2024_04_24-01-seekdeep/"
 
 
@@ -49,6 +49,12 @@ dir.create(paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/"),
 # -----------------------------------------------------------------------------#
 
 source("../resources-src/functions/aggregate-illumina-extraction-qc.R")
+
+
+## ___ii. nanopore ----
+# -----------------------------------------------------------------------------#
+
+source("../resources-src/functions/aggregate-nanopore-extraction-qc.R")
 
 
 
@@ -78,7 +84,7 @@ source(paste0(PATH_STUDY, "scripts/add_sample_source.R"))
 # 4. identify samples without data ----
 # *****************************************************************************#
 
-# aggregate read extraction data
+# aggregate read-extraction data
 source("../resources-src/functions/aggregate-illumina-extraction-qc-target.R")
 
 
@@ -137,14 +143,14 @@ write_csv(df_coi_sample, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/coi-by-
 
 
 
-# =============================================================================#
+ # =============================================================================#
 ## ___Clusters - PfK13 ----
 # =============================================================================#
 
 ### ____aggregate clusters ----
 # -----------------------------------------------------------------------------#
 
-STRING_TARGET = "^PFK13-469"
+STRING_TARGET = "^PFK13-675"
 STRING_GENOME = "^PF3D7"
 source("../resources-src/functions/aggregate-clusters-target.R")
 
