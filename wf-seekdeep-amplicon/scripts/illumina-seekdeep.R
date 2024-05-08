@@ -48,13 +48,13 @@ dir.create(paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/"),
 ## ___i. illumina ----
 # -----------------------------------------------------------------------------#
 
-source("../resources-src/functions/aggregate-illumina-extraction-qc.R")
+source("../resources-src/aggregate-illumina-extraction-qc.R")
 
 
 ## ___ii. nanopore ----
 # -----------------------------------------------------------------------------#
 
-source("../resources-src/functions/aggregate-nanopore-extraction-qc.R")
+source("../resources-src/aggregate-nanopore-extraction-qc.R")
 
 
 
@@ -71,7 +71,7 @@ write_csv(raw_extProfileTarget, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/
 
 # import
 
-source("../resources-src/functions/import-target-clusters.R")
+source("../resources-src/import-target-clusters.R")
 
 
 # add sample origin, if available
@@ -85,7 +85,7 @@ source(paste0(PATH_STUDY, "scripts/add_sample_source.R"))
 # *****************************************************************************#
 
 # aggregate read-extraction data
-source("../resources-src/functions/aggregate-illumina-extraction-qc-target.R")
+source("../resources-src/aggregate-illumina-extraction-qc-target.R")
 
 
 
@@ -103,7 +103,7 @@ write_csv(raw_sampleNamesProfile, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "outpu
 
 STRING_TARGET = "^PFAMA1"
 STRING_GENOME = "^PF3D7"
-source("../resources-src/functions/aggregate-clusters-target.R")
+source("../resources-src/aggregate-clusters-target.R")
 
 
 
@@ -152,7 +152,7 @@ write_csv(df_coi_sample, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/coi-by-
 
 STRING_TARGET = "^PFK13-675"
 STRING_GENOME = "^PF3D7"
-source("../resources-src/functions/aggregate-clusters-target.R")
+source("../resources-src/aggregate-clusters-target.R")
 
 
 
@@ -183,7 +183,7 @@ fasta_file <- read_lines("../resources-genome/fasta-cds/PfK13.txt")
 ### ____compute allele frequencies ----
 # -----------------------------------------------------------------------------#
 
-source("../resources-src/functions/compute-snpfreq-target.R")
+source("../resources-src/compute-snpfreq-target.R")
 
 
 
@@ -206,7 +206,7 @@ write_csv(df_freqSNP_Sample, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/fre
 
 STRING_TARGET = "^PFMDR1"
 STRING_GENOME = "^PF3D7"
-source("../resources-src/functions/aggregate-clusters-target.R")
+source("../resources-src/aggregate-clusters-target.R")
 
 
 
@@ -237,7 +237,7 @@ fasta_file <- read_lines("../resources-genome/fasta-cds/PfMDR1.txt")
 ### ____compute allele frequencies ----
 # -----------------------------------------------------------------------------#
 
-source("../resources-src/functions/compute-snpfreq-target.R")
+source("../resources-src/compute-snpfreq-target.R")
 
 
 
@@ -253,7 +253,7 @@ write_csv(df_freqSNP_Sample, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/fre
 ### ____compute haplotype frequencies ----
 # -----------------------------------------------------------------------------#
 
-source("../resources-src/functions/compute-hapfreq-target-clonal.R")
+source("../resources-src/compute-hapfreq-target-clonal.R")
 
 
 
@@ -272,8 +272,8 @@ write_csv(df_freqHap_MDR1_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "outpu
 
 STRING_TARGET = "^PFDHPS"
 STRING_GENOME = "^PF3D7"
-source("../resources-src/functions/aggregate-clusters-target.R")
-source("../resources-src/functions/functions-resistance-profile.R")
+source("../resources-src/aggregate-clusters-target.R")
+source("../resources-src/functions-resistance-profile.R")
 
 
 
@@ -304,7 +304,7 @@ fasta_file <- read_lines("../resources-genome/fasta-cds/PfDHPS.txt")
 ### ____compute allele frequencies ----
 # -----------------------------------------------------------------------------#
 
-source("../resources-src/functions/compute-snpfreq-target.R")
+source("../resources-src/compute-snpfreq-target.R")
 
 
 
@@ -320,7 +320,7 @@ write_csv(df_freqSNP_Sample, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/fre
 ### ____compute haplotype frequencies ----
 # -----------------------------------------------------------------------------#
 
-source("../resources-src/functions/compute-hapfreq-dhps-clonal.R")
+source("../resources-src/compute-hapfreq-dhps-clonal.R")
 
 
 
@@ -349,8 +349,8 @@ write_csv(df_freqHap_DHPS_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "outpu
 
 STRING_TARGET = "^PFDHFR"
 STRING_GENOME = "^PF3D7"
-source("../resources-src/functions/aggregate-clusters-target.R")
-source("../resources-src/functions/functions-resistance-profile.R")
+source("../resources-src/aggregate-clusters-target.R")
+source("../resources-src/functions-resistance-profile.R")
 
 
 
@@ -381,7 +381,7 @@ fasta_file <- read_lines("../resources-genome/fasta-cds/PfDHFR.txt")
 ### ____compute allele frequencies ----
 # -----------------------------------------------------------------------------#
 
-source("../resources-src/functions/compute-snpfreq-target.R")
+source("../resources-src/compute-snpfreq-target.R")
 
 
 
@@ -397,7 +397,7 @@ write_csv(df_freqSNP_Sample, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/fre
 ### ____compute haplotype frequencies ----
 # -----------------------------------------------------------------------------#
 
-source("../resources-src/functions/compute-hapfreq-dhfr-clonal.R")
+source("../resources-src/compute-hapfreq-dhfr-clonal.R")
 
 
 
