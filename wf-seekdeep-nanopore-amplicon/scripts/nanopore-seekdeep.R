@@ -23,9 +23,9 @@ library(tidyverse, quietly = TRUE)
 ## __a. specify input-dir path ----
 
 # make sure to end file paths with `/`
-PATH_STUDY = "input/multidrug_resistance_lab_kisumu/"
-PATH_RUN = "2024_04_19_nanopore_r10.4.1/"
-PATH_DATE = "2024_04_23-01-seekdeep/"
+PATH_STUDY = "input/tes_busia-2018-2019/"
+PATH_RUN = "2024_04_12_nanopore_r10.4.1/"
+PATH_DATE = "2024_04_24-01-seekdeep/"
 
 
 
@@ -52,7 +52,6 @@ raw_extProfile <- read_tsv(paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "reports/allE
 # -----------------------------------------------------------------------------#
 raw_extProfileTarget <- read_tsv(paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "reports/allExtractionProfile.tab.txt"),
                        show_col_types = FALSE) %>%
-  
   mutate(
          total = sum(count), .by = sample,
          freq = as.character(round(count / total, 2)),
@@ -211,14 +210,14 @@ write_csv(df_coi_sample, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/coi-by-
 ## __PfK13 ----
 # =============================================================================#
 
-##___import the wildtype sequence ----
+###___import the wildtype sequence ----
 # -----------------------------------------------------------------------------#
 
 fasta_file <- read_lines("../resources-genome/fasta-cds/PfK13.txt")
 
 
 
-##___extract the wildtype alleles/haplotypes ----
+###___extract the wildtype alleles/haplotypes ----
 # -----------------------------------------------------------------------------#
 
 # alleles
@@ -235,7 +234,7 @@ fasta_file <- read_lines("../resources-genome/fasta-cds/PfK13.txt")
 
 
 
-##___compute allele frequencies ----
+###___compute allele frequencies ----
 # -----------------------------------------------------------------------------#
 
 source("../resources-src/functions/compute-snpfreq-k13.R")
@@ -296,7 +295,7 @@ write_csv(df_freqSNP_MDR1_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "outpu
 ##___compute haplotype frequencies ----
 # -----------------------------------------------------------------------------#
 
-source("../resources-src/functions/compute-hapfreq-mdr1.R")
+source("../resources-src/functions/compute-hapfreq-mdr1-clonal.R")
 
 
 

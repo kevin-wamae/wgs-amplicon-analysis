@@ -36,16 +36,21 @@ library(tidyverse, quietly = TRUE)
 # 2. import data ----
 # *****************************************************************************#
 
-# specify the study dir name
-STUDY = "wf-bcftools-illumina-amplicon/input/turkana_embatalk/2024_02_23_illumina_2x300_fail/2024_04_21-bcftools/8_extracted_variants"
+## __a. specify input-dir path ----
+
+# make sure to end file paths with `/`
+PATH_STUDY = "input/turkana_embatalk/"
+PATH_RUN = "2024_02_23_illumina_2x300_fail/"
+PATH_DATE = "2024_04_21-bcftools/"
 
 
-## __a. import genome bed file ----
+
+## __b. import genome bed file ----
 # =============================================================================#
 
 # P. falciparum bed file
 genome_bed <- read_delim(
-                         "resources-genome/bed/Pf3D7_v51.bed",
+                         "../resources-genome/bed/Pf3D7_v51.bed",
                          delim = "\t",
                          col_names = c("chrom", "start", "end", "name", "score",
                                        "strand", "source", "feature_type",
@@ -54,132 +59,48 @@ genome_bed <- read_delim(
   mutate(description = str_remove(description, ".+description=")) %>%
   select(name, description)
 
-# 
-# 
-# ## __b. import sample names ----
-# # =============================================================================#
+
+
+## __c. import sample names ----
+# =============================================================================#
 # sample_ids <- read_csv(paste0(STUDY, "/study/sample_names.csv"),
 #                       show_col_types = FALSE)
 
 
-## __c. import TSVs (clair3 and medaka) ----
+## __d. import TSVs (clair3 and medaka) ----
 # =============================================================================#
 
 
-# -----------------------------------------------------------------------------#
 # define the folder paths
-fp2LD = tibble(source = file_list) %>%
+# -----------------------------------------------------------------------------#
+file_list <- dir(path = paste0(PATH_STUDY, PATH_RUN, PATH_DATE,
+                               "8_extracted_variants"),
+                 pattern = "*.tsv$",
+                 full.names = TRUE)
+
+
+
+# import data
+# -----------------------------------------------------------------------------#
+variants_v1 = tibble(source = file_list) %>%
   tidyr::extract(source, "file", "(8_extracted_variants.+)", remove = FALSE) %>%
   mutate(data = lapply(source, function(x) {
-    dt <- fread(x, skip=0, blank.lines.skip=TRUE, fill=TRUE)
+    dt <- fread(x, skip=0, blank.lines.skip=TRUE, fill=TRUE,sep="\t")
     dt[] <- lapply(dt, as.character)  # Convert all columns to character
     return(dt)
   })) %>%
   unnest(data) %>%
-  select(-source)
-
-
-
-# -----------------------------------------------------------------------------#
-# function to read files from a given path and add algorithm and barcode columns
-read_and_label <- function(path, algorithm) {
-  # -------------------------------------------#
-  # list all TSV files in the given path
-  files <- dir(path, pattern = "*.tsv$", full.names = TRUE)
-  # -------------------------------------------#
-  # read each TSV file and create a list of data frames
-  data_list <- lapply(files, function(file) {
-    data_frame <- read_tsv(file, col_types = cols(.default = col_character()))
-    data_frame$filename <- basename(file)  # Add the filename to each data frame
-    return(data_frame)
-  })
-  # -------------------------------------------#
-  # combine all data frames into one
-  data <- bind_rows(data_list)
-  # -------------------------------------------#
-  # add algorithm and barcode columns, then remove the filename column
-  data <- data %>%
-    mutate(
-      algorithm = algorithm,  # Add algorithm column
-      barcode = str_extract(filename, "barcode\\d+")  # Extract barcode (e.g., barcode17) from filename
-    ) %>%
-    select(-filename)  # Remove the filename column if not needed
-  return(data)
-}
-
-
-# -----------------------------------------------------------------------------#
-# apply the function to each path-algorithm pair and combine the results into one data frame
-variants_v1 <- paths_and_algorithms %>%
-  pmap_dfr(~ read_and_label(..1, ..2)) %>%
+  select(-source) %>%
+  mutate(file = str_remove_all(file, "8_extracted_variants/|.tsv")) %>%
   janitor::clean_names()
 
 
-# -----------------------------------------------------------------------------#
-# optionally, print the combined data to view
-glimpse(variants_v1, width = 3)
 
-
-## __d. import TSVs (freebayes) ----
+## __e. append target names ----
 # =============================================================================#
-
-
-# -----------------------------------------------------------------------------#
-# Set the data_path variable to the folder containing the TSV files
-data_path <- paste0(STUDY, "/vcf_to_tsv/freebayes/")
-
-
-
-# -----------------------------------------------------------------------------#
-# get a list of all TSV files in data_path
-files <- dir(data_path, pattern = "*.tsv$")
-
-
-# -----------------------------------------------------------------------------#
-# function to read TSV and rename columns
-read_and_rename <- function(filename, data_path) {
-  # -------------------------------------------#
-  # read the file
-  data <- fread(file.path(data_path, filename), colClasses = "character")
-  # -------------------------------------------#
-  # extract barcode from the filename
-  barcode <- str_extract(filename, "barcode\\d+")
-  # -------------------------------------------#
-  # rename columns based on barcode
-  colnames(data)[which(colnames(data) == paste0(barcode, ".GT"))] <- "sample.GT"
-  colnames(data)[which(colnames(data) == paste0(barcode, ".AD"))] <- "sample.AD"
-  colnames(data)[which(colnames(data) == paste0(barcode, ".DP"))] <- "sample.DP"
-  colnames(data)[which(colnames(data) == paste0(barcode, ".GQ"))] <- "sample.GQ"
-  colnames(data)[which(colnames(data) == paste0(barcode, ".PGT"))] <- "sample.PGT"
-  colnames(data)[which(colnames(data) == paste0(barcode, ".PID"))] <- "sample.PID"
-  colnames(data)[which(colnames(data) == paste0(barcode, ".PL"))] <- "sample.PL"
-  colnames(data)[which(colnames(data) == paste0(barcode, ".PS"))] <- "sample.PS"
-  
-  return(data)
-}
-
-
-# -----------------------------------------------------------------------------#
-# create a tibble with a column "filename" containing the file names
-variants_v2 <- tibble(barcode = files,
-                      algorithm = "freebayes") %>%
-  mutate(data = map(barcode, ~ read_and_rename(., data_path))) %>%  # read and rename columns for each file
-  unnest(cols = c(data)) %>%                                        # unnest the list column "data" into separate rows
-  mutate(barcode = str_remove(barcode, "-freebayes.tsv")) %>%
-  janitor::clean_names()
-
-
-# -----------------------------------------------------------------------------#
-# optionally, print the combined data to view
-glimpse(variants_v2)
-
-
-
-## __e. merge datasets ----
-# =============================================================================#
-variants_v3 <- bind_rows(variants_v1, variants_v2) %>%
-  inner_join(., genome_bed,               # merge with genome bed file
-             by = c("gene_id" = "name")) %>%
+variants_v2 <- variants_v1 %>%
+  left_join(., genome_bed,               # merge with genome bed file
+             by = c("geneid" = "name")) %>%
   mutate(description = case_when(description == "apical membrane antigen 1" ~ "ama1",
                                  description == "chloroquine resistance transporter" ~ "crt",
                                  description == "bifunctional dihydrofolate reductase-thymidylate synthase" ~ "dhfr",
@@ -187,8 +108,9 @@ variants_v3 <- bind_rows(variants_v1, variants_v2) %>%
                                  description == "multidrug resistance protein 1" ~ "mdr1",
                                  description == "kelch protein K13" ~ "k13",
                                  TRUE ~ description)) %>%
-  filter(description %in% c("crt", "dhps", "dhfr", "mdr1", "ama1")) %>%
-  inner_join(., sample_ids, by = "barcode")
+  filter(description %in% c("crt", "dhps", "dhfr", "mdr1", "ama1"))
+
+
 
 
 # *****************************************************************************#
@@ -205,48 +127,102 @@ AGREEMENT = 1  # minimum number of algorithms to retain variant
 
 # -----------------------------------------------------------------------------#
 # reshape from wide to long and filter based on algorithm-concordance
-variants_v4 <- variants_v3 %>%
-  select(barcode, sample_id, description, type, sample_dp, sample_ad, hgvs_c, hgvs_p, algorithm) %>%
-  separate(sample_ad,
+variants_v3 <- variants_v2 %>%
+  select(file, chrom, pos, geneid, description, hgvs_c, hgvs_p, cds_pos, aa_pos, gt, ad, af_ref, af_alt) %>%
+  separate(ad,
            into = c("coverage_wt", "coverage_alt"),
            sep = ",",
            remove = FALSE,
            extra = "merge") %>%
-  mutate_at(.vars = c("sample_dp", "coverage_wt", "coverage_alt"), .funs = as.numeric) %>%
+  mutate_at(.vars = c("ad", "coverage_wt", "coverage_alt"), .funs = as.numeric) %>%
   mutate(
-         freq_alt = coverage_alt/(coverage_wt + coverage_alt) * 100,
-         freq_alt = round(freq_alt, 2),
-         codon = as.numeric(str_extract(hgvs_p, "\\d+")),
          sample_dp = coverage_wt + coverage_alt,
-         freq_depth = paste0(coverage_alt, " [", freq_alt, "]")
-         ) %>%
-  filter(sample_dp >= READ_DEPTH & type == "SNP" & freq_alt >= 5) %>%
-  pivot_wider(
-              # removed sample_ad from id columns
-              id_cols = c(barcode, sample_id, description, codon, hgvs_p),
-              names_from = "algorithm",
-              values_from = "freq_depth",
-              # values_fill = list(sample_ad = list(NA_character_))  # fill missing values with NA
-              ) %>%
-  arrange(barcode, description, codon) %>%
-  rowwise() %>%             # apply the following operations to each row
-  mutate(concordance = sum(!is.na(c(
-                                    clair3,
-                                    medaka_variant,
-                                    medaka_haploid_variant
-                                    # freebayes
-                                    )))) %>%
-  ungroup() %>%             # remove the row-wise grouping
-  filter(concordance >= AGREEMENT)  # filter alleles detected by "x" programs
+         #freq_depth = paste0(coverage_alt, " [", freq_alt, "]")
+         ) #%>%
+  # filter(sample_dp >= READ_DEPTH & type == "SNP" & freq_alt >= 5) %>%
+  # pivot_wider(
+  #             # removed sample_ad from id columns
+  #             id_cols = c(barcode, sample_id, description, codon, hgvs_p),
+  #             names_from = "algorithm",
+  #             values_from = "freq_depth",
+  #             # values_fill = list(sample_ad = list(NA_character_))  # fill missing values with NA
+  #             ) %>%
+  # arrange(barcode, description, codon) %>%
+  # rowwise() %>%             # apply the following operations to each row
+  # mutate(concordance = sum(!is.na(c(
+  #                                   clair3,
+  #                                   medaka_variant,
+  #                                   medaka_haploid_variant
+  #                                   # freebayes
+  #                                   )))) %>%
+  # ungroup() %>%             # remove the row-wise grouping
+  # filter(concordance >= AGREEMENT)  # filter alleles detected by "x" programs
 
-
-# -----------------------------------------------------------------------------#
 # cleanup: remove variables to free memory
 rm(STUDY, data_path, files, read_and_label, read_and_rename, paths_and_algorithms)
 
+
 # *****************************************************************************#
-# 4 . allele frequencies ----
+# 4. allele frequencies ----
 # *****************************************************************************#
 
-df_allele_freq <- variants_v4 %>%
-  reframe(n=n(), .by = c(description, hgvs_p))
+## ____check list of available markers ----
+# -----------------------------------------------------------------------------#
+(
+  unique(variants_v3$description)
+)
+
+
+
+## __a. PFAMA1 ----
+# -----------------------------------------------------------------------------#
+
+clusters_AMA1 <- variants_v3 %>%
+  filter(description == "ama1") %>%
+  pivot_wider(id_cols = file, names_from = aa_pos, values_from = af_alt)
+
+
+
+## __b. PFCRT ----
+# -----------------------------------------------------------------------------#
+
+clusters_CRT <- variants_v3 %>%
+  filter(description == "crt") %>%
+  pivot_wider(id_cols = file, names_from = aa_pos, values_from = af_alt)
+
+
+
+## __c. PFMDR1 ----
+# -----------------------------------------------------------------------------#
+
+clusters_MDR1 <- variants_v3 %>%
+  filter(description == "crt") %>%
+  pivot_wider(id_cols = file, names_from = aa_pos, values_from = af_alt)
+
+
+
+## __d. PFDHPS ----
+# -----------------------------------------------------------------------------#
+
+clusters_DHPS <- variants_v3 %>%
+  filter(description == "dhps") %>%
+  pivot_wider(id_cols = file, names_from = aa_pos, values_from = af_alt)
+
+
+
+## __e. PFDHFR ----
+# -----------------------------------------------------------------------------#
+
+clusters_DHFR <- variants_v3 %>%
+  filter(description == "dhfr") %>%
+  pivot_wider(id_cols = file, names_from = aa_pos, values_from = af_alt)
+
+
+
+## __f. PFK13 ----
+# -----------------------------------------------------------------------------#
+
+clusters_K13 <- variants_v3 %>%
+  filter(description == "k13") %>%
+  pivot_wider(id_cols = file, names_from = aa_pos, values_from = af_alt)
+
