@@ -108,7 +108,7 @@ variants_v2 <- variants_v1 %>%
                                  description == "multidrug resistance protein 1" ~ "mdr1",
                                  description == "kelch protein K13" ~ "k13",
                                  TRUE ~ description)) %>%
-  filter(description %in% c("crt", "dhps", "dhfr", "mdr1", "ama1"))
+  filter(description %in% c("crt", "dhps", "dhfr", "mdr1", "ama1", "k13"))
 
 
 
