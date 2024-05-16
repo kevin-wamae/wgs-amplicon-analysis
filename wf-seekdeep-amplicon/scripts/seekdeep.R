@@ -62,9 +62,9 @@ library(tidyverse, quietly = TRUE)
 
 # make sure file-paths terminate with `/`
 # -----------------------------------------------------------------------------#
-PATH_STUDY = "input/tes_busia-2018-2019/"
-PATH_RUN = "2024_04_12_nanopore_r10.4.1/"
-PATH_DATE = "2024_04_24-01-seekdeep/"
+PATH_STUDY = "input/ssurvey_2022_western_kenya/"
+PATH_RUN = "2023_05_25_ilri_illumina_2x300/"
+PATH_DATE = "2024_04_12-01-seekdeep-dhps/"
 
 
 
@@ -179,7 +179,7 @@ write_csv(df_coi_sample, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/coi-by-
 
 
 
- # =============================================================================#
+# =============================================================================#
 ## ___Clusters - PfK13 ----
 # =============================================================================#
 
@@ -295,8 +295,8 @@ source("../resources-src/compute-hapfreq-target-clonal.R")
 
 ### ____save table ----
 # -----------------------------------------------------------------------------#
-write_csv(df_freqHap_MDR1_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-mdr1-all.csv"))
-write_csv(df_freqHap_MDR1_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-mdr1-source.csv"))
+write_csv(df_freqHap_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-mdr1-all.csv"))
+write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-mdr1-source.csv"))
 
 
 # =============================================================================#
