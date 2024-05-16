@@ -48,7 +48,7 @@ if (length(file_list) == 1) {
   raw_selectedClustersInfo <- file_list %>%
     map_dfr(~ read_tsv(.x, col_types = cols(), show_col_types = FALSE)) %>%
     mutate(source = "None") %>%
-    filter(h_AATyped != "Untranslatable" | is.na(h_AATyped) | !is.na(h_AATyped))
+    filter(h_AATyped != "Untranslatable" & (is.na(h_AATyped) | !is.na(h_AATyped)))
 }
 
 
