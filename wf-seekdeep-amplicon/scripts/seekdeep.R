@@ -63,8 +63,8 @@ library(tidyverse, quietly = TRUE)
 # make sure file-paths terminate with `/`
 # -----------------------------------------------------------------------------#
 PATH_STUDY = "input/ssurvey_2022_western_kenya/"
-PATH_RUN = "2024_02_23_ilri_illumina_2x300/"
-PATH_DATE = "2024_04_24-01-seekdeep/"
+PATH_RUN = "2023_05_25_ilri_illumina_2x300/"
+PATH_DATE = "2024_04_12-01-seekdeep-dhps/"
 
 
 
@@ -186,7 +186,7 @@ write_csv(df_coi_sample, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/coi-by-
 ### ____aggregate clusters ----
 # -----------------------------------------------------------------------------#
 
-STRING_TARGET = "^PFK13-469"
+STRING_TARGET = "^PFK13-675"
 STRING_GENOME = "^PF3D7"
 source("../resources-src/aggregate-clusters-target.R")
 
@@ -219,7 +219,7 @@ fasta_file <- read_lines("../resources-genome/fasta-cds/PfK13.txt")
 ### ____compute allele frequencies ----
 # -----------------------------------------------------------------------------#
 
-source("../resources-src/compute-snpfreq-target-clonal.R")
+source("../resources-src/compute-snpfreq-target.R")
 
 
 
@@ -273,7 +273,7 @@ fasta_file <- read_lines("../resources-genome/fasta-cds/PfMDR1.txt")
 ### ____compute allele frequencies ----
 # -----------------------------------------------------------------------------#
 
-source("../resources-src/compute-snpfreq-target-clonal.R")
+source("../resources-src/compute-snpfreq-target.R")
 
 
 
@@ -340,7 +340,7 @@ fasta_file <- read_lines("../resources-genome/fasta-cds/PfDHPS.txt")
 ### ____compute allele frequencies ----
 # -----------------------------------------------------------------------------#
 
-source("../resources-src/compute-snpfreq-target-clonal.R")
+source("../resources-src/compute-snpfreq-target.R")
 
 
 
@@ -417,7 +417,7 @@ fasta_file <- read_lines("../resources-genome/fasta-cds/PfDHFR.txt")
 ### ____compute allele frequencies ----
 # -----------------------------------------------------------------------------#
 
-source("../resources-src/compute-snpfreq-target-clonal.R")
+source("../resources-src/compute-snpfreq-target.R")
 
 
 
