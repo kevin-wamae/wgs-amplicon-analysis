@@ -363,8 +363,8 @@ source("../resources-src/compute-hapfreq-dhps-clonal.R")
 ### ____save table
 # -----------------------------------------------------------------------------#
 
-write_csv(df_freqHap_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-dhps-all-mixed.csv"))
-write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-dhps-source-mixed.csv"))
+write_csv(df_freqHap_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-dhps-all.csv"))
+write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-dhps-source.csv"))
 
 
 
