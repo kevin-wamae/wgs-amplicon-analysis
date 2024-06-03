@@ -186,7 +186,7 @@ write_csv(df_coi_sample, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/coi-by-
 ### ____aggregate clusters ----
 # -----------------------------------------------------------------------------#
 
-STRING_TARGET = "^PFK13-675"
+STRING_TARGET = "^PFK13-469"
 STRING_GENOME = "^PF3D7"
 source("../resources-src/aggregate-clusters-target.R")
 
@@ -363,16 +363,8 @@ source("../resources-src/compute-hapfreq-dhps-clonal.R")
 ### ____save table
 # -----------------------------------------------------------------------------#
 
-write_csv(df_freqHap_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-dhps-all.csv"))
-write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-dhps-source.csv"))
-
-
-
-### ____save table
-# -----------------------------------------------------------------------------#
-
-write_csv(df_freqHap_DHPS_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-dhps-all.csv"))
-write_csv(df_freqHap_DHPS_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-dhps-source.csv"))
+write_csv(df_freqHap_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-dhps-all-mixed.csv"))
+write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-dhps-source-mixed.csv"))
 
 
 
