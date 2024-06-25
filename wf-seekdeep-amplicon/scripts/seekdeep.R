@@ -1,8 +1,8 @@
 # *****************************************************************************#
 #     An R Pipeline for Aggregating Allele Frequency Data from SeekDeep
 # *****************************************************************************#
-# This script is part of a robust pipeline designed to aggregate and analyze allele frequency data 
-# from SeekDeep outputs, related to the genomic study of malaria parasites. It systematically processes 
+# This script is part of a robust pipeline designed to aggregate and analyze allele frequency data
+# from SeekDeep outputs, related to the genomic study of malaria parasites. It systematically processes
 # multiple types of genomic data across several malaria genes. The pipeline includes data cleaning,
 # importing, processing, and saving allele and haplotype frequencies, enabling detailed genetic analysis.
 
@@ -22,14 +22,14 @@
 #      and identifying samples without data.
 
 # 4. Gene-Specific Analysis:
-#    - Performs targeted aggregation of cluster data for specific malaria genes (e.g., PfAMA1, PfK13, PfMDR1, 
+#    - Performs targeted aggregation of cluster data for specific malaria genes (e.g., PfAMA1, PfK13, PfMDR1,
 #      PfDHPS, PfDHFR) including:
 #         * Importing raw cluster data and computing allele frequencies.
 #         * Aggregating clusters to extract wildtype sequences and compute haplotype frequencies.
 #    - Saves the processed data into CSV files for each gene, facilitating easy access and further analysis.
 
 # 5. Final Data Output:
-#    - Outputs include allele frequency tables and haplotype frequency tables for each gene studied, 
+#    - Outputs include allele frequency tables and haplotype frequency tables for each gene studied,
 #      categorized by overall data, source-specific, and sample-specific breakdowns.
 
 # This pipeline is essential for researchers studying genetic variations and drug resistance in malaria parasites,
@@ -50,7 +50,6 @@ rm(list = ls())
 # load packages
 # =============================================================================#
 
-library(data.table, quietly = TRUE)
 library(tidyverse, quietly = TRUE)
 
 
