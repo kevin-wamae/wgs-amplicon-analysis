@@ -208,13 +208,6 @@ fasta_file <- read_lines("../resources-genome/fasta-cds/PfK13.txt")
 
 
 
-# haplotypes
-(
-  wt_haplotype <- paste(wt_alleles, collapse = "")
-)
-
-
-
 ### ____compute allele frequencies ----
 # -----------------------------------------------------------------------------#
 
