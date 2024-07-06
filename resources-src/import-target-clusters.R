@@ -56,3 +56,9 @@ if (length(file_list) == 1) {
 # Check what markers are available
 # -----------------------------------------------------------------------------#
 available_markers <- unique(raw_selectedClustersInfo$p_name); print(available_markers)
+
+
+
+# remove temporary objects
+# -----------------------------------------------------------------------------#
+rm(file_list, full_path)
