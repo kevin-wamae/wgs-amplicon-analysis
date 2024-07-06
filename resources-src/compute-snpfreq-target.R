@@ -80,7 +80,21 @@ df_freqSNP_All <- df_clusters_Target %>%
   mutate_at(.vars = 3:5, replace_na, "0 [0]") %>%
   # drop alleles with 100% wildtype frequency or missing allele information (stop codons)
   # ---------------------------------#
-  filter(! str_detect(wildtype, "100 \\["))
+  filter(! str_detect(wildtype, "100 \\[")) %>%
+  # collapse aa_change to remove redundancy
+  # ---------------------------------#
+  mutate(
+         wt_allele = sapply(str_extract_all(aa_change, "(?<=, |^)[A-Z](?=[0-9])"), function(x) paste(unique(x), collapse = "/")),
+         mut_allele = sapply(seq_along(aa_change), function(i) {
+           wt <- unique(str_extract_all(aa_change[i], "(?<=, |^)[A-Z](?=[0-9])")[[1]])
+           all_alleles <- unique(unlist(str_extract_all(aa_change[i], "[A-Z]")))
+           mut <- setdiff(all_alleles, wt)
+           paste(mut, collapse = "/")}
+           ),
+         position = str_extract(aa_change, "[0-9]+"),
+         aa_change = paste0(wt_allele, position, mut_allele)
+         ) %>%
+  select(-c(wt_allele, position, mut_allele))
 
 
 
@@ -162,7 +176,21 @@ df_freqSNP_Source <- df_clusters_Target %>%
   mutate_at(.vars = 4:6, replace_na, "0 [0]") %>%
   # drop alleles with 100% wildtype frequency or missing allele information (stop codons)
   # ---------------------------------#
-  filter(! str_detect(wildtype, "100 \\["))
+  filter(! str_detect(wildtype, "100 \\[")) %>%
+    # collapse aa_change to remove redundancy
+  # ---------------------------------#
+  mutate(
+         wt_allele = sapply(str_extract_all(aa_change, "(?<=, |^)[A-Z](?=[0-9])"), function(x) paste(unique(x), collapse = "/")),
+         mut_allele = sapply(seq_along(aa_change), function(i) {
+           wt <- unique(str_extract_all(aa_change[i], "(?<=, |^)[A-Z](?=[0-9])")[[1]])
+           all_alleles <- unique(unlist(str_extract_all(aa_change[i], "[A-Z]")))
+           mut <- setdiff(all_alleles, wt)
+           paste(mut, collapse = "/")}
+           ),
+         position = str_extract(aa_change, "[0-9]+"),
+         aa_change = paste0(wt_allele, position, mut_allele)
+         ) %>%
+  select(-c(wt_allele, position, mut_allele))
 
 
 
