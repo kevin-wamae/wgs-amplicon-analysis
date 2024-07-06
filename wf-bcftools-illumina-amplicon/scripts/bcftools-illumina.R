@@ -39,9 +39,9 @@ library(tidyverse, quietly = TRUE)
 ## __a. specify input-dir path ----
 
 # make sure to end file paths with `/`
-PATH_STUDY = "input/turkana_embatalk/"
-PATH_RUN = "2024_02_23_illumina_2x300_fail/"
-PATH_DATE = "2024_04_21-bcftools/"
+PATH_STUDY = "input/multidrug_resistance_lab_kisumu/"
+PATH_RUN = "2024_05_29_iseq_2x150/"
+PATH_DATE = "2024_05_31-bcftools/"
 
 
 
@@ -74,7 +74,7 @@ genome_bed <- read_delim(
 # define the folder paths
 # -----------------------------------------------------------------------------#
 file_list <- dir(path = paste0(PATH_STUDY, PATH_RUN, PATH_DATE,
-                               "8_extracted_variants"),
+                               "extracted_variants"),
                  pattern = "*.tsv$",
                  full.names = TRUE)
 
@@ -83,7 +83,7 @@ file_list <- dir(path = paste0(PATH_STUDY, PATH_RUN, PATH_DATE,
 # import data
 # -----------------------------------------------------------------------------#
 variants_v1 = tibble(source = file_list) %>%
-  tidyr::extract(source, "file", "(8_extracted_variants.+)", remove = FALSE) %>%
+  tidyr::extract(source, "file", "(extracted_variants.+)", remove = FALSE) %>%
   mutate(data = lapply(source, function(x) {
     dt <- fread(x, skip=0, blank.lines.skip=TRUE, fill=TRUE,sep="\t")
     dt[] <- lapply(dt, as.character)  # Convert all columns to character
@@ -91,7 +91,7 @@ variants_v1 = tibble(source = file_list) %>%
   })) %>%
   unnest(data) %>%
   select(-source) %>%
-  mutate(file = str_remove_all(file, "8_extracted_variants/|.tsv")) %>%
+  mutate(file = str_remove_all(file, "extracted_variants/|.tsv")) %>%
   janitor::clean_names()
 
 
@@ -108,8 +108,50 @@ variants_v2 <- variants_v1 %>%
                                  description == "multidrug resistance protein 1" ~ "mdr1",
                                  description == "kelch protein K13" ~ "k13",
                                  TRUE ~ description)) %>%
-  filter(description %in% c("crt", "dhps", "dhfr", "mdr1", "ama1", "k13"))
+  filter(description %in% c("crt", "dhps", "dhfr", "mdr1", "ama1", "k13")) %>%
+  mutate(id = str_remove(file, "\\.allele")) %>%
+  select(-file) %>%
+  relocate(id, .before = chrom)
 
+
+
+## __e. append read-quality control stats ----
+# =============================================================================#
+
+
+# import raw number of reads
+# -----------------------------------------------------------------------------#
+df_stats_reads_raw <- read_tsv(paste0(PATH_STUDY, PATH_RUN, PATH_DATE,
+                                      "stats/stats_1_raw_fastq.tsv"),
+                               show_col_types = FALSE) %>%
+  select(id, reads_raw_total)
+
+
+
+# import number of reads after trimming
+# -----------------------------------------------------------------------------#
+df_stats_reads_trimmed <- read_tsv(paste0(PATH_STUDY, PATH_RUN, PATH_DATE,
+                                      "stats/stats_2_trimmed_fastq.tsv"),
+                               show_col_types = FALSE) %>%
+  mutate(id = basename(id)) %>%
+  select(id, reads_trim_total)
+  
+
+
+# import number of reads after mapping
+# -----------------------------------------------------------------------------#
+df_stats_reads_mapped <- read_tsv(paste0(PATH_STUDY, PATH_RUN, PATH_DATE,
+                                          "stats/stats_3_mapped_reads.tsv"),
+                                   show_col_types = FALSE) %>%
+  mutate(id = sample_id) %>%
+  select(id, reads_mapped_total)
+
+
+
+# merge df_stats_reads objects
+# -----------------------------------------------------------------------------#
+df_stats_qc <- list(df_stats_reads_raw, df_stats_reads_trimmed, df_stats_reads_mapped) %>%
+  reduce(full_join, by = "id"); rm(df_stats_reads_raw, df_stats_reads_trimmed, df_stats_reads_mapped)
 
 
 
@@ -120,7 +162,7 @@ variants_v2 <- variants_v1 %>%
 
 # -----------------------------------------------------------------------------#
 # variables
-READ_DEPTH = 250 # mininum read-depth to retain variant
+READ_DEPTH = 1 # mininum read-depth to retain variant
 AGREEMENT = 1  # minimum number of algorithms to retain variant
 
 
@@ -128,7 +170,7 @@ AGREEMENT = 1  # minimum number of algorithms to retain variant
 # -----------------------------------------------------------------------------#
 # reshape from wide to long and filter based on algorithm-concordance
 variants_v3 <- variants_v2 %>%
-  select(file, chrom, pos, geneid, description, hgvs_c, hgvs_p, cds_pos, aa_pos, gt, ad, af_ref, af_alt) %>%
+  select(id, chrom, pos, geneid, description, hgvs_c, hgvs_p, cds_pos, aa_pos, gt, ad, af_ref, af_alt) %>%
   separate(ad,
            into = c("coverage_wt", "coverage_alt"),
            sep = ",",
@@ -136,10 +178,10 @@ variants_v3 <- variants_v2 %>%
            extra = "merge") %>%
   mutate_at(.vars = c("ad", "coverage_wt", "coverage_alt"), .funs = as.numeric) %>%
   mutate(
-         sample_dp = coverage_wt + coverage_alt,
-         #freq_depth = paste0(coverage_alt, " [", freq_alt, "]")
-         ) #%>%
-  # filter(sample_dp >= READ_DEPTH & type == "SNP" & freq_alt >= 5) %>%
+         sample_dp = coverage_wt + coverage_alt
+         ) %>%
+  left_join(df_stats_qc, by = "id") 
+  # filter(sample_dp >= READ_DEPTH & freq_alt >= 5) 
   # pivot_wider(
   #             # removed sample_ad from id columns
   #             id_cols = c(barcode, sample_id, description, codon, hgvs_p),
