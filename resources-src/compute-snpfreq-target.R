@@ -1,37 +1,3 @@
-##___determine allele changes by codon-position ----
-# -----------------------------------------------------------------------------#
-df_WT_Alleles <- df_clusters_Target %>%
-  select(starts_with("pos")) %>%
-  # transform: wide to long format
-  # ---------------------------------#
-  pivot_longer(
-               cols = starts_with("pos"),
-               names_to = "codon",
-               values_to = "allele"
-               ) %>%
-  # remove duplicates to reduce redundancy
-  # ---------------------------------#
-  distinct(codon, allele, .keep_all = TRUE) %>%
-  # extract numerical part and letter part of allele into separate columns
-  # ---------------------------------#
-  mutate(
-         codon = as.numeric(str_extract(allele, "\\d+")),
-         allele = str_extract(allele, "[A-Z]"),
-         ) %>%
-  # merge with reference data to add wildtype allele information
-  # ---------------------------------#
-  left_join(
-            data.frame(position = positions_Target, wildtype = wt_alleles),
-            by = c("codon" = "position")
-            ) %>%
-  # apply filter based on group count: if more than one, filter by allele difference
-  # ---------------------------------#
-  filter(if (n() > 1) {allele != wildtype | is.na(wildtype)} else {TRUE}, .by = codon) %>%
-  mutate(aa_change = paste0(wildtype, codon, allele)) %>%
-  select(codon, aa_change)
-
-
-
 ##___compute allele frequencies, regardless source ----
 # -----------------------------------------------------------------------------#
 
@@ -217,9 +183,3 @@ df_freqSNP_Sample <- df_clusters_Target %>%
   # ---------------------------------#
   distinct(s_Sample, .keep_all = TRUE)
 
-
-
-##___remove temporary objects ----
-# -----------------------------------------------------------------------------#
-
-rm(df_WT_Alleles)
