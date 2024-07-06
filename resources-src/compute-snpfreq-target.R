@@ -1,37 +1,3 @@
-##___determine allele changes by codon-position ----
-# -----------------------------------------------------------------------------#
-df_WT_Alleles <- df_clusters_Target %>%
-  select(starts_with("pos")) %>%
-  # transform: wide to long format
-  # ---------------------------------#
-  pivot_longer(
-               cols = starts_with("pos"),
-               names_to = "codon",
-               values_to = "allele"
-               ) %>%
-  # remove duplicates to reduce redundancy
-  # ---------------------------------#
-  distinct(codon, allele, .keep_all = TRUE) %>%
-  # extract numerical part and letter part of allele into separate columns
-  # ---------------------------------#
-  mutate(
-         codon = as.numeric(str_extract(allele, "\\d+")),
-         allele = str_extract(allele, "[A-Z]"),
-         ) %>%
-  # merge with reference data to add wildtype allele information
-  # ---------------------------------#
-  left_join(
-            data.frame(position = positions_Target, wildtype = wt_alleles),
-            by = c("codon" = "position")
-            ) %>%
-  # apply filter based on group count: if more than one, filter by allele difference
-  # ---------------------------------#
-  filter(if (n() > 1) {allele != wildtype | is.na(wildtype)} else {TRUE}, .by = codon) %>%
-  mutate(codon_residue = paste0(wildtype, codon, allele)) %>%
-  select(codon, codon_residue)
-
-
-
 ##___compute allele frequencies, regardless source ----
 # -----------------------------------------------------------------------------#
 
@@ -75,7 +41,8 @@ df_freqSNP_All <- df_clusters_Target %>%
             by = c("codon" = "position")) %>%
   # code for infection-type
   # ---------------------------------#
-  mutate(codon_allele = paste0(wildtype, codon, allele),
+  mutate(
+         aa_change = paste0(wildtype, codon, allele),
          variant = case_when(
                              str_detect(allele, "\\,") ~ "mixed",
                              allele == wildtype ~ "wildtype",
@@ -84,35 +51,50 @@ df_freqSNP_All <- df_clusters_Target %>%
          ) %>%
   # transform: long to wide
   # ---------------------------------#
-  pivot_wider(id_cols = c(codon, codon_allele),
+  pivot_wider(
+              id_cols = c(codon, aa_change),
               names_from = "variant",
               values_from = "freq") %>%
   # ensure potentially missing columns are present
   # ---------------------------------#
-  mutate(wildtype = if ("wildtype" %in% names(.)) wildtype else NA_character_,
+  mutate(
+         wildtype = if ("wildtype" %in% names(.)) wildtype else NA_character_,
          mutant = if ("mutant" %in% names(.)) mutant else NA_character_,
          mixed = if ("mixed" %in% names(.)) mixed else NA_character_
          ) %>%
+  arrange(codon, str_length(aa_change)) %>%
   # collapse rows by source and codon position
   # ---------------------------------#
-  summarise(codon_allele = paste(codon_allele, collapse=", "),
-            wildtype = first(na.omit(wildtype)),
-            mutant = first(na.omit(mutant)),
-            mixed = first(na.omit(mixed)),
+  summarise(
+            aa_change = paste(aa_change, collapse=", "),
+            wildtype = ifelse(all(is.na(wildtype)), NA_character_,
+                              paste(wildtype[!is.na(wildtype)], collapse=", ")),
+            mutant = ifelse(all(is.na(mutant)), NA_character_,
+                            paste(mutant[!is.na(mutant)], collapse=", ")),
+            mixed = ifelse(all(is.na(mixed)), NA_character_,
+                           paste(mixed[!is.na(mixed)], collapse=", ")),
             .by = c(codon)
             ) %>%
   # replace na in allele frequencies with 0
   # ---------------------------------#
   mutate_at(.vars = 3:5, replace_na, "0 [0]") %>%
-  # replace codon allele
-  # ---------------------------------#
-  select(-codon_allele) %>%
-  left_join(df_WT_Alleles, by = "codon") %>%
   # drop alleles with 100% wildtype frequency or missing allele information (stop codons)
   # ---------------------------------#
-  filter(! str_detect(wildtype, "100 \\[") & ! is.na(codon_residue)) %>%
-  mutate(codon = codon_residue) %>%
-  select(-codon_residue)
+  filter(! str_detect(wildtype, "100 \\[")) %>%
+  # collapse aa_change to remove redundancy
+  # ---------------------------------#
+  mutate(
+         wt_allele = sapply(str_extract_all(aa_change, "(?<=, |^)[A-Z](?=[0-9])"), function(x) paste(unique(x), collapse = "/")),
+         mut_allele = sapply(seq_along(aa_change), function(i) {
+           wt <- unique(str_extract_all(aa_change[i], "(?<=, |^)[A-Z](?=[0-9])")[[1]])
+           all_alleles <- unique(unlist(str_extract_all(aa_change[i], "[A-Z]")))
+           mut <- setdiff(all_alleles, wt)
+           paste(mut, collapse = "/")}
+           ),
+         position = str_extract(aa_change, "[0-9]+"),
+         aa_change = paste0(wt_allele, position, mut_allele)
+         ) %>%
+  select(-c(wt_allele, position, mut_allele))
 
 
 
@@ -159,7 +141,7 @@ df_freqSNP_Source <- df_clusters_Target %>%
             by = c("codon" = "position")) %>%
   # code for infection-type
   # ---------------------------------#
-  mutate(codon_allele = paste0(wildtype, codon, allele),
+  mutate(aa_change = paste0(wildtype, codon, allele),
          variant = case_when(
                              str_detect(allele, "\\,") ~ "mixed",
                              allele == wildtype ~ "wildtype",
@@ -168,7 +150,7 @@ df_freqSNP_Source <- df_clusters_Target %>%
          ) %>%
   # transform: long to wide
   # ---------------------------------#
-  pivot_wider(id_cols = c(source, codon, codon_allele),
+  pivot_wider(id_cols = c(source, codon, aa_change),
               names_from = "variant",
               values_from = "freq") %>%
   # ensure potentially missing columns are present
@@ -179,24 +161,36 @@ df_freqSNP_Source <- df_clusters_Target %>%
          ) %>%
   # collapse rows by source and codon position
   # ---------------------------------#
-  summarise(codon_allele = paste(codon_allele, collapse=", "),
-            wildtype = first(na.omit(wildtype)),
-            mutant = first(na.omit(mutant)),
-            mixed = first(na.omit(mixed)),
+  summarise(
+            aa_change = paste(aa_change, collapse=", "),
+            wildtype = ifelse(all(is.na(wildtype)), NA_character_,
+                              paste(wildtype[!is.na(wildtype)], collapse=", ")),
+            mutant = ifelse(all(is.na(mutant)), NA_character_,
+                            paste(mutant[!is.na(mutant)], collapse=", ")),
+            mixed = ifelse(all(is.na(mixed)), NA_character_,
+                           paste(mixed[!is.na(mixed)], collapse=", ")),
             .by = c(source, codon)
             ) %>%
   # replace na in allele frequencies with 0
   # ---------------------------------#
   mutate_at(.vars = 4:6, replace_na, "0 [0]") %>%
-  # replace codon allele
-  # ---------------------------------#
-  select(-codon_allele) %>%
-  left_join(df_WT_Alleles, by = "codon") %>%
   # drop alleles with 100% wildtype frequency or missing allele information (stop codons)
   # ---------------------------------#
-  filter(! str_detect(wildtype, "100 \\[") & ! is.na(codon_residue)) %>%
-  mutate(codon = codon_residue) %>%
-  select(-codon_residue)
+  filter(! str_detect(wildtype, "100 \\[")) %>%
+    # collapse aa_change to remove redundancy
+  # ---------------------------------#
+  mutate(
+         wt_allele = sapply(str_extract_all(aa_change, "(?<=, |^)[A-Z](?=[0-9])"), function(x) paste(unique(x), collapse = "/")),
+         mut_allele = sapply(seq_along(aa_change), function(i) {
+           wt <- unique(str_extract_all(aa_change[i], "(?<=, |^)[A-Z](?=[0-9])")[[1]])
+           all_alleles <- unique(unlist(str_extract_all(aa_change[i], "[A-Z]")))
+           mut <- setdiff(all_alleles, wt)
+           paste(mut, collapse = "/")}
+           ),
+         position = str_extract(aa_change, "[0-9]+"),
+         aa_change = paste0(wt_allele, position, mut_allele)
+         ) %>%
+  select(-c(wt_allele, position, mut_allele))
 
 
 
@@ -217,9 +211,3 @@ df_freqSNP_Sample <- df_clusters_Target %>%
   # ---------------------------------#
   distinct(s_Sample, .keep_all = TRUE)
 
-
-
-##___remove temporary objects ----
-# -----------------------------------------------------------------------------#
-
-rm(df_WT_Alleles)
