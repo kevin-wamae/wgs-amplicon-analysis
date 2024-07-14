@@ -66,7 +66,9 @@ df_freqSNP_All <- df_clusters_Target %>%
   # collapse rows by source and codon position
   # ---------------------------------#
   summarise(
-            aa_change = paste(aa_change, collapse=", "),
+            aa_change_wildtype = paste(aa_change[!is.na(wildtype)], collapse=", "),
+            aa_change_mutant = paste(aa_change[!is.na(mutant)], collapse=", "),
+            aa_change_mixed = paste(aa_change[!is.na(mixed)], collapse=", "),
             wildtype = ifelse(all(is.na(wildtype)), NA_character_,
                               paste(wildtype[!is.na(wildtype)], collapse=", ")),
             mutant = ifelse(all(is.na(mutant)), NA_character_,
@@ -75,26 +77,25 @@ df_freqSNP_All <- df_clusters_Target %>%
                            paste(mixed[!is.na(mixed)], collapse=", ")),
             .by = c(codon)
             ) %>%
+    mutate(
+      aa_change = paste(
+                        ifelse(aa_change_wildtype != "", aa_change_wildtype, NA_character_),
+                        ifelse(aa_change_mutant != "", aa_change_mutant, NA_character_),
+                        ifelse(aa_change_mixed != "", aa_change_mixed, NA_character_),
+                        sep = " / "
+                        ) %>%
+        str_replace_all("NA / ", "") %>%
+        str_replace_all(" / NA", "") %>%
+        str_replace_all("NA", "")
+      ) %>%
+  select(-c(aa_change_wildtype, aa_change_mutant, aa_change_mixed)) %>%
+  relocate(aa_change, .after = codon) %>%
   # replace na in allele frequencies with 0
   # ---------------------------------#
   mutate_at(.vars = 3:5, replace_na, "0 [0]") %>%
   # drop alleles with 100% wildtype frequency or missing allele information (stop codons)
   # ---------------------------------#
-  filter(! str_detect(wildtype, "100 \\[")) %>%
-  # collapse aa_change to remove redundancy
-  # ---------------------------------#
-  mutate(
-         wt_allele = sapply(str_extract_all(aa_change, "(?<=, |^)[A-Z](?=[0-9])"), function(x) paste(unique(x), collapse = "/")),
-         mut_allele = sapply(seq_along(aa_change), function(i) {
-           wt <- unique(str_extract_all(aa_change[i], "(?<=, |^)[A-Z](?=[0-9])")[[1]])
-           all_alleles <- unique(unlist(str_extract_all(aa_change[i], "[A-Z]")))
-           mut <- setdiff(all_alleles, wt)
-           paste(mut, collapse = "/")}
-           ),
-         position = str_extract(aa_change, "[0-9]+"),
-         aa_change = paste0(wt_allele, position, mut_allele)
-         ) %>%
-  select(-c(wt_allele, position, mut_allele))
+  filter(! str_detect(wildtype, "100 \\["))
 
 
 
