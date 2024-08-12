@@ -178,7 +178,7 @@ df_freqSNP_Source <- df_clusters_Target %>%
   # drop alleles with 100% wildtype frequency or missing allele information (stop codons)
   # ---------------------------------#
   filter(! str_detect(wildtype, "100 \\[")) %>%
-    # collapse aa_change to remove redundancy
+  # collapse aa_change to remove redundancy
   # ---------------------------------#
   mutate(
          wt_allele = sapply(str_extract_all(aa_change, "(?<=, |^)[A-Z](?=[0-9])"), function(x) paste(unique(x), collapse = "/")),
