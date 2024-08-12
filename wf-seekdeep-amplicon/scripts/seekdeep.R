@@ -62,8 +62,8 @@ library(tidyverse, quietly = TRUE)
 # make sure file-paths terminate with `/`
 # -----------------------------------------------------------------------------#
 PATH_STUDY = "input/ssurvey_2022_western_kenya/"
-PATH_RUN = "2024_02_23_ilri_illumina_2x300/"
-PATH_DATE = "2024_04_24-01-seekdeep/"
+PATH_RUN = "2023_05_25_ilri_illumina_2x300/"
+PATH_DATE = "2024_04_12-01-seekdeep-dhfr/"
 
 
 
@@ -194,7 +194,7 @@ source("../resources-src/aggregate-clusters-target.R")
 ### ____import the wildtype sequence ----
 # -----------------------------------------------------------------------------#
 
-fasta_file <- read_lines("../resources-genome/fasta-cds/PfK13.txt")
+fasta_file <- read_lines("../resources-genome/fasta-protein/PfK13.txt")
 
 
 
@@ -208,7 +208,7 @@ fasta_file <- read_lines("../resources-genome/fasta-cds/PfK13.txt")
 
 
 
-### ____compute allele frequencies ----
+### ____compute allele frequencies (no weighting) ----
 # -----------------------------------------------------------------------------#
 
 source("../resources-src/compute-snpfreq-target.R")
@@ -222,6 +222,20 @@ write_csv(df_freqSNP_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-a
 write_csv(df_freqSNP_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-k13-source.csv"))
 write_csv(df_freqSNP_Sample, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-k13-sample.csv"))
 
+
+
+### ____compute allele frequencies (with weighting) ----
+# -----------------------------------------------------------------------------#
+
+source("../resources-src/compute-snpfreq-target-weighted.R")
+
+
+
+### ____save table
+# -----------------------------------------------------------------------------#
+
+write_csv(df_freqSNP_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-k13-all-weighted.csv"))
+write_csv(df_freqSNP_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-k13-source-weighted.csv"))
 
 
 
@@ -241,7 +255,7 @@ source("../resources-src/aggregate-clusters-target.R")
 ### ____import the wildtype sequence ----
 # -----------------------------------------------------------------------------#
 
-fasta_file <- read_lines("../resources-genome/fasta-cds/PfMDR1.txt")
+fasta_file <- read_lines("../resources-genome/fasta-protein/PfMDR1.txt")
 
 
 
@@ -262,7 +276,7 @@ fasta_file <- read_lines("../resources-genome/fasta-cds/PfMDR1.txt")
 
 
 
-### ____compute allele frequencies ----
+### ____compute allele frequencies (no weighting) ----
 # -----------------------------------------------------------------------------#
 
 source("../resources-src/compute-snpfreq-target.R")
@@ -275,6 +289,21 @@ source("../resources-src/compute-snpfreq-target.R")
 write_csv(df_freqSNP_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-mdr1-all.csv"))
 write_csv(df_freqSNP_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-mdr1-source.csv"))
 write_csv(df_freqSNP_Sample, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-mdr1-sample.csv"))
+
+
+
+### ____compute allele frequencies (with weighting) ----
+# -----------------------------------------------------------------------------#
+
+source("../resources-src/compute-snpfreq-target-weighted.R")
+
+
+
+### ____save table
+# -----------------------------------------------------------------------------#
+
+write_csv(df_freqSNP_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-mdr1-all-weighted.csv"))
+write_csv(df_freqSNP_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-mdr1-source-weighted.csv"))
 
 
 
@@ -308,7 +337,7 @@ source("../resources-src/functions-resistance-profile.R")
 ### ____import the wildtype sequence ----
 # -----------------------------------------------------------------------------#
 
-fasta_file <- read_lines("../resources-genome/fasta-cds/PfDHPS.txt")
+fasta_file <- read_lines("../resources-genome/fasta-protein/PfDHPS.txt")
 
 
 
@@ -329,7 +358,7 @@ fasta_file <- read_lines("../resources-genome/fasta-cds/PfDHPS.txt")
 
 
 
-### ____compute allele frequencies ----
+### ____compute allele frequencies (no weighting) ----
 # -----------------------------------------------------------------------------#
 
 source("../resources-src/compute-snpfreq-target.R")
@@ -342,6 +371,21 @@ source("../resources-src/compute-snpfreq-target.R")
 write_csv(df_freqSNP_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-dhps-all.csv"))
 write_csv(df_freqSNP_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-dhps-source.csv"))
 write_csv(df_freqSNP_Sample, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-dhps-sample.csv"))
+
+
+
+### ____compute allele frequencies (with weighting) ----
+# -----------------------------------------------------------------------------#
+
+source("../resources-src/compute-snpfreq-target-weighted.R")
+
+
+
+### ____save table
+# -----------------------------------------------------------------------------#
+
+write_csv(df_freqSNP_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-dhps-all-weighted.csv"))
+write_csv(df_freqSNP_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-dhps-source-weighted.csv"))
 
 
 
@@ -377,7 +421,7 @@ source("../resources-src/functions-resistance-profile.R")
 ### ____import the wildtype sequence ----
 # -----------------------------------------------------------------------------#
 
-fasta_file <- read_lines("../resources-genome/fasta-cds/PfDHFR.txt")
+fasta_file <- read_lines("../resources-genome/fasta-protein/PfDHFR.txt")
 
 
 
@@ -398,7 +442,7 @@ fasta_file <- read_lines("../resources-genome/fasta-cds/PfDHFR.txt")
 
 
 
-### ____compute allele frequencies ----
+### ____compute allele frequencies (no weighting) ----
 # -----------------------------------------------------------------------------#
 
 source("../resources-src/compute-snpfreq-target.R")
@@ -411,6 +455,21 @@ source("../resources-src/compute-snpfreq-target.R")
 write_csv(df_freqSNP_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-dhfr-all.csv"))
 write_csv(df_freqSNP_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-dhfr-source.csv"))
 write_csv(df_freqSNP_Sample, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-dhfr-sample.csv"))
+
+
+
+### ____compute allele frequencies (with weighting) ----
+# -----------------------------------------------------------------------------#
+
+source("../resources-src/compute-snpfreq-target-weighted.R")
+
+
+
+### ____save table
+# -----------------------------------------------------------------------------#
+
+write_csv(df_freqSNP_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-dhfr-all-weighted.csv"))
+write_csv(df_freqSNP_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-dhfr-source-weighted.csv"))
 
 
 
