@@ -249,6 +249,34 @@ write_csv(df_freqSNP_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/fre
 
 
 
+### ____compute haplotype frequencies (no weighting) ----
+# -----------------------------------------------------------------------------#
+
+source("../resources-src/compute-hapfreq-target-clonal.R")
+
+
+
+### ____save table ----
+# -----------------------------------------------------------------------------#
+write_csv(df_freqHap_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-k13-all.csv"))
+write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-k13-source.csv"))
+
+
+
+### ____compute haplotype frequencies (with weighting) ----
+# -----------------------------------------------------------------------------#
+
+source("../resources-src/compute-hapfreq-target-clonal-weighted.R")
+
+
+
+### ____save table ----
+# -----------------------------------------------------------------------------#
+write_csv(df_freqHap_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-k13-all-weighted.csv"))
+write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-k13-source-weighted.csv"))
+
+
+
 # =============================================================================#
 ## ___Clusters - PfMDR1 ----
 # =============================================================================#
@@ -317,7 +345,7 @@ write_csv(df_freqSNP_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/fre
 
 
 
-### ____compute haplotype frequencies ----
+### ____compute haplotype frequencies (no weighting) ----
 # -----------------------------------------------------------------------------#
 
 source("../resources-src/compute-hapfreq-target-clonal.R")
@@ -328,6 +356,21 @@ source("../resources-src/compute-hapfreq-target-clonal.R")
 # -----------------------------------------------------------------------------#
 write_csv(df_freqHap_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-mdr1-all.csv"))
 write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-mdr1-source.csv"))
+
+
+
+### ____compute haplotype frequencies (with weighting) ----
+# -----------------------------------------------------------------------------#
+
+source("../resources-src/compute-hapfreq-target-clonal-weighted.R")
+
+
+
+### ____save table ----
+# -----------------------------------------------------------------------------#
+write_csv(df_freqHap_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-mdr1-all-weighted.csv"))
+write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-mdr1-source-weighted.csv"))
+
 
 
 # =============================================================================#
@@ -399,7 +442,7 @@ write_csv(df_freqSNP_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/fre
 
 
 
-### ____compute haplotype frequencies ----
+### ____compute haplotype frequencies (no weighting) ----
 # -----------------------------------------------------------------------------#
 
 source("../resources-src/compute-hapfreq-dhps-clonal.R")
@@ -411,6 +454,20 @@ source("../resources-src/compute-hapfreq-dhps-clonal.R")
 
 write_csv(df_freqHap_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-dhps-all.csv"))
 write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-dhps-source.csv"))
+
+
+
+### ____compute haplotype frequencies (with weighting) ----
+# -----------------------------------------------------------------------------#
+
+source("../resources-src/compute-hapfreq-target-clonal-weighted.R")
+
+
+
+### ____save table ----
+# -----------------------------------------------------------------------------#
+write_csv(df_freqHap_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-dhps-all-weighted.csv"))
+write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-dhps-source-weighted.csv"))
 
 
 
@@ -483,7 +540,7 @@ write_csv(df_freqSNP_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/fre
 
 
 
-### ____compute haplotype frequencies ----
+### ____compute haplotype frequencies (no weighting) ----
 # -----------------------------------------------------------------------------#
 
 source("../resources-src/compute-hapfreq-dhfr-clonal.R")
@@ -495,3 +552,17 @@ source("../resources-src/compute-hapfreq-dhfr-clonal.R")
 
 write_csv(df_freqHap_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-dhfr-all.csv"))
 write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-dhfr-source.csv"))
+
+
+
+### ____compute haplotype frequencies (with weighting) ----
+# -----------------------------------------------------------------------------#
+
+source("../resources-src/compute-hapfreq-target-clonal-weighted.R")
+
+
+
+### ____save table ----
+# -----------------------------------------------------------------------------#
+write_csv(df_freqHap_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-dhfr-all-weighted.csv"))
+write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-dhfr-source-weighted.csv"))
