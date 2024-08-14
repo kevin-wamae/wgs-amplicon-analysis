@@ -62,8 +62,8 @@ library(tidyverse, quietly = TRUE)
 # make sure file-paths terminate with `/`
 # -----------------------------------------------------------------------------#
 PATH_STUDY = "input/ssurvey_2022_western_kenya/"
-PATH_RUN = "2024_02_23_ilri_illumina_2x300/"
-PATH_DATE = "2024_04_24-01-seekdeep/"
+PATH_RUN = "2023_05_25_ilri_illumina_2x300/"
+PATH_DATE = "2024_04_12-01-seekdeep-dhfr/"
 
 
 
@@ -195,6 +195,7 @@ source("../resources-src/aggregate-clusters-target.R")
 # -----------------------------------------------------------------------------#
 
 fasta_file <- read_lines("../resources-genome/fasta-protein/PfK13.txt")
+fasta_file <- read_lines("../resources-genome/fasta-protein/PfK13.txt")
 
 
 
@@ -294,6 +295,7 @@ source("../resources-src/aggregate-clusters-target.R")
 # -----------------------------------------------------------------------------#
 
 fasta_file <- read_lines("../resources-genome/fasta-protein/PfMDR1.txt")
+fasta_file <- read_lines("../resources-genome/fasta-protein/PfMDR1.txt")
 
 
 
@@ -314,6 +316,7 @@ fasta_file <- read_lines("../resources-genome/fasta-protein/PfMDR1.txt")
 
 
 
+### ____compute allele frequencies (no weighting) ----
 ### ____compute allele frequencies (no weighting) ----
 # -----------------------------------------------------------------------------#
 
@@ -391,6 +394,7 @@ source("../resources-src/functions-resistance-profile.R")
 # -----------------------------------------------------------------------------#
 
 fasta_file <- read_lines("../resources-genome/fasta-protein/PfDHPS.txt")
+fasta_file <- read_lines("../resources-genome/fasta-protein/PfDHPS.txt")
 
 
 
@@ -411,6 +415,7 @@ fasta_file <- read_lines("../resources-genome/fasta-protein/PfDHPS.txt")
 
 
 
+### ____compute allele frequencies (no weighting) ----
 ### ____compute allele frequencies (no weighting) ----
 # -----------------------------------------------------------------------------#
 
@@ -489,6 +494,7 @@ source("../resources-src/functions-resistance-profile.R")
 # -----------------------------------------------------------------------------#
 
 fasta_file <- read_lines("../resources-genome/fasta-protein/PfDHFR.txt")
+fasta_file <- read_lines("../resources-genome/fasta-protein/PfDHFR.txt")
 
 
 
@@ -509,6 +515,7 @@ fasta_file <- read_lines("../resources-genome/fasta-protein/PfDHFR.txt")
 
 
 
+### ____compute allele frequencies (no weighting) ----
 ### ____compute allele frequencies (no weighting) ----
 # -----------------------------------------------------------------------------#
 
