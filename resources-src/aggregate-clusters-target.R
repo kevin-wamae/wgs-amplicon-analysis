@@ -48,7 +48,7 @@
 
 
 
-# filter variant data
+# filter variant data for all reported alleles
 # -----------------------------------------------------------------------------#
 df_clusters_Target <- raw_selectedClustersInfo %>%
   filter(str_detect(p_name, STRING_TARGET)) %>%
@@ -72,9 +72,33 @@ df_clusters_Target <- raw_selectedClustersInfo %>%
 # extract columns related to codon positions from the dataframe
 df_filtered <- df_clusters_Target %>% select(starts_with("pos"))
 
+
+
 # identify columns that have more than one unique value (indicating polymorphism)
 positions_Segrating <- names(df_filtered)[sapply(df_filtered, function(col) length(unique(col)) > 1)]
+
+
 
 # Remove the 'pos' prefix and convert the result to a numeric vector representing
 # polymorphic codon positions
 positions_Segrating <- as.numeric(gsub("pos", "", positions_Segrating))
+
+
+
+# filter variant data at segregating alleles, only
+# -----------------------------------------------------------------------------#
+df_clusters_Segragating <- raw_selectedClustersInfo %>%
+  filter(str_detect(p_name, STRING_TARGET)) %>%
+  mutate(
+    purrr::map_dfc(
+      set_names(positions_Segrating, paste0("pos", positions_Segrating)),
+      ~ str_extract(string = h_AATyped, pattern = paste0(.x, "."))
+    )) %>%
+  rowwise() %>%
+  mutate(
+    codon_pos = paste(c_across(all_of(paste0("pos", positions_Segrating))), collapse = ", "),
+    codon_pos = str_remove_all(string = codon_pos, pattern = "-."),
+    haplotype = str_remove_all(string = codon_pos, pattern = "\\d+|,\\s")
+  ) %>%
+  ungroup()
+
