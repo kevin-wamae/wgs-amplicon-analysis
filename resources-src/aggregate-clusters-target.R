@@ -28,7 +28,11 @@
 # =============================================================================#
 
 
-# generate a vector of polymorphic codons
+
+# generate a vector of polymorphic codons reported by SeekDeep
+#  - note that SeekDeep may also report user-supplied alleles for positions that
+#    are not truly segregating, which could result in some positions appearing
+#    without variation
 # -----------------------------------------------------------------------------#
 (
   positions_Target <- raw_selectedClustersInfo %>%
@@ -60,3 +64,17 @@ df_clusters_Target <- raw_selectedClustersInfo %>%
          haplotype = str_remove_all(string = codon_pos, pattern = "\\d+|,\\s")
          ) %>%
   ungroup()
+
+
+
+# generate a vector of polymorphic codons that are truly segregating
+# -----------------------------------------------------------------------------#
+# extract columns related to codon positions from the dataframe
+df_filtered <- df_clusters_Target %>% select(starts_with("pos"))
+
+# identify columns that have more than one unique value (indicating polymorphism)
+positions_Segrating <- names(df_filtered)[sapply(df_filtered, function(col) length(unique(col)) > 1)]
+
+# Remove the 'pos' prefix and convert the result to a numeric vector representing
+# polymorphic codon positions
+positions_Segrating <- as.numeric(gsub("pos", "", positions_Segrating))

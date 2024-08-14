@@ -62,8 +62,8 @@ library(tidyverse, quietly = TRUE)
 # make sure file-paths terminate with `/`
 # -----------------------------------------------------------------------------#
 PATH_STUDY = "input/ssurvey_2022_western_kenya/"
-PATH_RUN = "2023_05_25_ilri_illumina_2x300/"
-PATH_DATE = "2024_04_12-01-seekdeep-dhfr/"
+PATH_RUN = "2024_02_23_ilri_illumina_2x300/"
+PATH_DATE = "2024_04_24-01-seekdeep/"
 
 
 
@@ -201,9 +201,19 @@ fasta_file <- read_lines("../resources-genome/fasta-protein/PfK13.txt")
 ### ____extract the wildtype alleles/haplotypes ----
 # -----------------------------------------------------------------------------#
 
-# alleles
+# alleles, replace positions_Target with positions_Segrating to get only truly
+# segregating sites since SeekDeep can also report user-supplied alleles for positions
+# that are not truly segregating, which could result in some positions appearing
+# without variation
 (
   wt_alleles <- sapply(positions_Target, function(pos) substr(fasta_file, pos, pos))
+)
+
+
+
+# haplotypes
+(
+  wt_haplotype <- paste(wt_alleles, collapse = "")
 )
 
 
