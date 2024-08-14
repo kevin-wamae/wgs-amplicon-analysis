@@ -1,4 +1,4 @@
-##___compute allele frequencies, regardless source ----
+##___compute allele frequencies, regardless of source ----
 # -----------------------------------------------------------------------------#
 
 df_freqSNP_All <- df_clusters_Target %>%
