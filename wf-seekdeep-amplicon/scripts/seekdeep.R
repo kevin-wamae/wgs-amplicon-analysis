@@ -195,7 +195,6 @@ source("../resources-src/aggregate-clusters-target.R")
 # -----------------------------------------------------------------------------#
 
 fasta_file <- read_lines("../resources-genome/fasta-protein/PfK13.txt")
-fasta_file <- read_lines("../resources-genome/fasta-protein/PfK13.txt")
 
 
 
@@ -295,7 +294,6 @@ source("../resources-src/aggregate-clusters-target.R")
 # -----------------------------------------------------------------------------#
 
 fasta_file <- read_lines("../resources-genome/fasta-protein/PfMDR1.txt")
-fasta_file <- read_lines("../resources-genome/fasta-protein/PfMDR1.txt")
 
 
 
@@ -316,7 +314,6 @@ fasta_file <- read_lines("../resources-genome/fasta-protein/PfMDR1.txt")
 
 
 
-### ____compute allele frequencies (no weighting) ----
 ### ____compute allele frequencies (no weighting) ----
 # -----------------------------------------------------------------------------#
 
@@ -394,7 +391,6 @@ source("../resources-src/functions-resistance-profile.R")
 # -----------------------------------------------------------------------------#
 
 fasta_file <- read_lines("../resources-genome/fasta-protein/PfDHPS.txt")
-fasta_file <- read_lines("../resources-genome/fasta-protein/PfDHPS.txt")
 
 
 
@@ -415,7 +411,6 @@ fasta_file <- read_lines("../resources-genome/fasta-protein/PfDHPS.txt")
 
 
 
-### ____compute allele frequencies (no weighting) ----
 ### ____compute allele frequencies (no weighting) ----
 # -----------------------------------------------------------------------------#
 
@@ -494,7 +489,6 @@ source("../resources-src/functions-resistance-profile.R")
 # -----------------------------------------------------------------------------#
 
 fasta_file <- read_lines("../resources-genome/fasta-protein/PfDHFR.txt")
-fasta_file <- read_lines("../resources-genome/fasta-protein/PfDHFR.txt")
 
 
 
@@ -515,7 +509,6 @@ fasta_file <- read_lines("../resources-genome/fasta-protein/PfDHFR.txt")
 
 
 
-### ____compute allele frequencies (no weighting) ----
 ### ____compute allele frequencies (no weighting) ----
 # -----------------------------------------------------------------------------#
 
