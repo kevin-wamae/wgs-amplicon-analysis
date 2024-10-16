@@ -40,16 +40,19 @@ file_list <- list.files(path = full_path, pattern = "^selectedClustersInfo.*\\.g
 if (length(file_list) == 1) {
   # Processing a single file
   raw_selectedClustersInfo <- read_tsv(file_list, col_types = cols(), show_col_types = FALSE) %>%
+    mutate_all(as.character) %>%  # Convert all columns to character
     mutate(source = "None") %>%
     filter(! str_detect(h_AATyped, "Untranslatable|\\*") | c(is.na(h_AATyped) & !is.na(h_AATyped)))
 
 } else if (length(file_list) > 1) {
   # Processing multiple files
   raw_selectedClustersInfo <- file_list %>%
-    map_dfr(~ read_tsv(.x, col_types = cols(), show_col_types = FALSE)) %>%
+    map_dfr(~ read_tsv(.x, col_types = cols(), show_col_types = FALSE) %>%
+              mutate_all(as.character)) %>%  # Convert all columns to character
     mutate(source = "None") %>%
     filter(! str_detect(h_AATyped, "Untranslatable|\\*") | c(is.na(h_AATyped) & !is.na(h_AATyped)))
 }
+
 
 
 
