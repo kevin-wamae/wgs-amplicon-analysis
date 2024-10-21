@@ -25,7 +25,7 @@
 
 # Construct the full path for file checking
 # -----------------------------------------------------------------------------#
-full_path <- paste0(PATH_STUDY, PATH_RUN, PATH_DATE)
+full_path <- paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS)
 
 
 

@@ -32,53 +32,23 @@
 
 # i. extraction reports by FASTQ
 # -----------------------------------------------------------------------------#
-
-raw_extProfile <- read_tsv(paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "reports/allExtractionProfile.tab.txt"),
-                       show_col_types = FALSE) %>%
-  mutate_all(list(~str_replace(., "\\(.+\\)", ""))) %>%       # remove all characters in braces
-  mutate_at(.vars = 3:ncol(.), .funs = as.numeric) %>%        # to numeric
-  mutate(inputName = str_remove(inputName, "_R1|_S.+_L.+"))   # drop read or miseq-lane suffix
+raw_extProfile <- read_tsv(paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "reports/allExtractionStats.tab.txt"),
+                     show_col_types = FALSE) %>%
+  mutate_at(.vars = 2:ncol(.), .funs = as.numeric) # to numeric, from "totalReadsProcessed" to "passedFrac"
 
 
 
 # ii. extraction reports by FASTQ and gene
 # -----------------------------------------------------------------------------#
-
-raw_extProfileTarget <- raw_extProfile %>%
-  mutate(name = str_remove(name, pattern = "MID.+")) %>% # drop MID substring
-  summarise(
-            # generate sum across all columns by fastq and target
-            across(totalMatching:last_col(), ~sum(.x, na.rm = TRUE)),
-            .by = c(inputName, name)
-            ) %>%
-  # select relevant columns
-  select(inputName, name, totalMatching, good) %>%
-  # summary of totals, all data
+raw_extProfileTarget <- read_tsv(paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "reports/allExtractionProfile.tab.txt"),
+                       show_col_types = FALSE) %>%
   mutate(
-         totalAll = sum(totalMatching),
-         totalAllGood = sum(good),
-         totalAllGoodPerc = round(totalAllGood / totalAll, 2),
-         totalAllGood = base::format(totalAllGood, big.mark = ","),
-         totalAllGoodPerc = paste0(totalAllGood, " [", totalAllGoodPerc, "]"),
+         total = sum(count), .by = sample,
+         freq = as.character(round(count / total, 2)),
+         freq = paste0(count, " [", freq, "]")
          ) %>%
-  # summary of totals by fastq
-  mutate(
-         totalByFastq = sum(totalMatching),
-         totalByFastqGood = sum(good),
-         totalByFastqGoodPerc = round(totalByFastqGood / totalByFastq, 2),
-         totalByFastq = base::format(totalByFastq, big.mark = ","),
-         totalByFastqGoodPerc = paste0(totalByFastq, " [", totalByFastqGoodPerc, "]"),
-         .by = inputName
-         ) %>%
-  # summary of totals by fastq and target
-  mutate(
-         totalTargetGoodPerc = round(good / totalMatching, 2),
-         totalTargetMatching = base::format(totalMatching, big.mark = ","),
-         totalTargetGoodPerc = paste0(totalTargetMatching, " [", totalTargetGoodPerc, "]"),
-         ) %>%
-  # format: long to wide
-  pivot_wider(
-              id_cols = c(inputName, totalAllGoodPerc, totalByFastqGoodPerc),
-              names_from = "name",
-              values_from = "totalTargetGoodPerc"
+  pivot_wider(id_cols = sample,
+              names_from = target,
+              values_from = freq,
+              names_sep = "_"
               )

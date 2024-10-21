@@ -35,7 +35,7 @@
 
 
 # import sample names
-raw_sampleNames <- read_tsv(paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "/info/sampNames.tab.txt"),
+raw_sampleNames <- read_tsv(paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "/info/sampNames.tab.txt"),
                         show_col_types = FALSE,
                         col_names = c("inputName", "s_Sample", "mid"))
 
@@ -49,7 +49,7 @@ for (marker in available_markers) {
 
 
 # merge sample names with read-extraction profile
-raw_sampleNamesProfile <- raw_sampleNames %>%
+df_missingDataSamples <- raw_sampleNames %>%
   pivot_longer(                                    # transform: wide to long
                cols = starts_with("gene_"),
                names_to = "target",
@@ -69,3 +69,8 @@ raw_sampleNamesProfile <- raw_sampleNames %>%
                                                big.mark = ",",
                                                decimal.mark = ".",
                                                nsmall = 0)))); rm(marker)
+
+
+
+# remove temporary objects
+rm(raw_sampleNames)

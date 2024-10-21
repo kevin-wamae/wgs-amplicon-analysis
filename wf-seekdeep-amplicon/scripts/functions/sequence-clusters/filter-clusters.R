@@ -102,3 +102,7 @@ df_clusters_Segragating <- raw_selectedClustersInfo %>%
   ) %>%
   ungroup()
 
+
+
+# remove temporary objects
+rm(df_filtered)

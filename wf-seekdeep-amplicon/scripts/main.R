@@ -62,14 +62,14 @@ library(tidyverse, quietly = TRUE)
 # make sure file-paths terminate with `/`
 # -----------------------------------------------------------------------------#
 PATH_STUDY = "input/ssurvey_2022_western_kenya/"
-PATH_RUN = "2023_05_25_ilri_illumina_2x300/"
-PATH_DATE = "2024_04_12-01-seekdeep-dhfr/"
+PATH_RUN = "2024_02_23_ilri_illumina_2x300/"
+PATH_ANALYSIS = "2024_04_24-01-seekdeep/"
 
 
 
 # create the output directory for generated reports/tables
 # -----------------------------------------------------------------------------#
-dir.create(paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/"),
+dir.create(paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/"),
            recursive = TRUE,
            showWarnings = FALSE)
 
@@ -83,34 +83,33 @@ dir.create(paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/"),
 ## ___i. illumina ----
 # -----------------------------------------------------------------------------#
 
-source("../resources-src/aggregate-illumina-extraction-qc.R")
+source("scripts/functions/quality-control/qc-extraction-illumina.R")
 
 
 ## ___ii. nanopore ----
 # -----------------------------------------------------------------------------#
 
-source("../resources-src/aggregate-nanopore-extraction-qc.R")
+source("scripts/functions/quality-control/qc-extraction-nanopore.R")
 
 
 
 ## ___save table
 # -----------------------------------------------------------------------------#
 
-write_csv(raw_extProfileTarget, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/qc-target-read-depth.csv"))
+write_csv(raw_extProfileTarget,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/qc-target-read-depth.csv"))
 
 
 
 # *****************************************************************************#
-# 3. import SeekDeep analysis data ----
+# 3. import SeekDeep Clusters Data ----
 # *****************************************************************************#
 
 # import
-
-source("../resources-src/import-target-clusters.R")
+source("scripts/functions/sequence-clusters/aggregate-clusters.R")
 
 
 # add sample origin, if available
-
 source(paste0(PATH_STUDY, "scripts/add_sample_source.R"))
 
 
@@ -120,12 +119,18 @@ source(paste0(PATH_STUDY, "scripts/add_sample_source.R"))
 # *****************************************************************************#
 
 # aggregate read-extraction data
-source("../resources-src/aggregate-illumina-extraction-qc-target.R")
+source("scripts/functions/quality-control/samples-missing-data.R"); head(df_missingDataSamples)
 
 
 
 # save table
-write_csv(raw_sampleNamesProfile, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/qc-read-ext-profile.csv"))
+write_csv(df_missingDataSamples,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/qc-read-ext-profile.csv"))
+
+
+
+# remove temporary objects
+rm(df_missingDataSamples)
 
 
 
@@ -138,7 +143,7 @@ write_csv(raw_sampleNamesProfile, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "outpu
 
 STRING_TARGET = "^PFAMA1"
 STRING_GENOME = "^PF3D7"
-source("../resources-src/aggregate-clusters-target.R")
+source("scripts/functions/sequence-clusters/filter-clusters.R")
 
 
 
@@ -148,19 +153,21 @@ source("../resources-src/aggregate-clusters-target.R")
 (
   df_coi_source <- df_clusters_Target %>%
     distinct(s_Sample, .keep_all = TRUE) %>%  # de-duplicate sample entries
+    mutate(s_COI = as.numeric(s_COI)) %>%
     summarise(
-      sample_size=n(),                # determine sample size
-      min = min(s_COI),
+      sample_size=n(),       # determine sample size
+      min = min(s_COI),      # compute mean, median and max COI
       mean = median(s_COI),
       max = max(s_COI),
-      .by = source                    # group by sample-origin
+      .by = source           # group by sample-origin
     )
 )
 
 
 
 ### save table
-write_csv(df_coi_source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/coi-by-souce.csv"))
+write_csv(df_coi_source,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/coi-by-souce.csv"))
 
 
 
@@ -174,8 +181,13 @@ df_coi_sample <- df_clusters_Target %>%
 
 
 ### save table
-write_csv(df_coi_sample, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/coi-by-sample.csv"))
+write_csv(df_coi_sample,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/coi-by-sample.csv"))
 
+
+
+# remove temporary objects
+rm(df_clusters_Target, df_clusters_Segragating, df_coi_source, df_coi_sample)
 
 
 # =============================================================================#
@@ -187,7 +199,7 @@ write_csv(df_coi_sample, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/coi-by-
 
 STRING_TARGET = "^PFK13-469"
 STRING_GENOME = "^PF3D7"
-source("../resources-src/aggregate-clusters-target.R")
+source("scripts/functions/sequence-clusters/filter-clusters.R")
 
 
 
@@ -228,9 +240,9 @@ source("../resources-src/compute-snpfreq-target.R")
 ### ____save table
 # -----------------------------------------------------------------------------#
 
-write_csv(df_freqSNP_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-k13-all.csv"))
-write_csv(df_freqSNP_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-k13-source.csv"))
-write_csv(df_freqSNP_Sample, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-k13-sample.csv"))
+write_csv(df_freqSNP_All, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-k13-all.csv"))
+write_csv(df_freqSNP_Source, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-k13-source.csv"))
+write_csv(df_freqSNP_Sample, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-k13-sample.csv"))
 
 
 
@@ -244,8 +256,8 @@ source("../resources-src/compute-snpfreq-target-weighted.R")
 ### ____save table
 # -----------------------------------------------------------------------------#
 
-write_csv(df_freqSNP_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-k13-all-weighted.csv"))
-write_csv(df_freqSNP_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-k13-source-weighted.csv"))
+write_csv(df_freqSNP_All, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-k13-all-weighted.csv"))
+write_csv(df_freqSNP_Source, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-k13-source-weighted.csv"))
 
 
 
@@ -258,8 +270,8 @@ source("../resources-src/compute-hapfreq-target-clonal.R")
 
 ### ____save table ----
 # -----------------------------------------------------------------------------#
-write_csv(df_freqHap_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-k13-all.csv"))
-write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-k13-source.csv"))
+write_csv(df_freqHap_All, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-k13-all.csv"))
+write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-k13-source.csv"))
 
 
 
@@ -272,8 +284,8 @@ source("../resources-src/compute-hapfreq-target-clonal-weighted.R")
 
 ### ____save table ----
 # -----------------------------------------------------------------------------#
-write_csv(df_freqHap_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-k13-all-weighted.csv"))
-write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-k13-source-weighted.csv"))
+write_csv(df_freqHap_All, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-k13-all-weighted.csv"))
+write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-k13-source-weighted.csv"))
 
 
 
@@ -286,7 +298,7 @@ write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/fre
 
 STRING_TARGET = "^PFMDR1"
 STRING_GENOME = "^PF3D7"
-source("../resources-src/aggregate-clusters-target.R")
+source("scripts/functions/sequence-clusters/filter-clusters.R")
 
 
 
@@ -324,9 +336,9 @@ source("../resources-src/compute-snpfreq-target.R")
 ### ____save table
 # -----------------------------------------------------------------------------#
 
-write_csv(df_freqSNP_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-mdr1-all.csv"))
-write_csv(df_freqSNP_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-mdr1-source.csv"))
-write_csv(df_freqSNP_Sample, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-mdr1-sample.csv"))
+write_csv(df_freqSNP_All, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-mdr1-all.csv"))
+write_csv(df_freqSNP_Source, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-mdr1-source.csv"))
+write_csv(df_freqSNP_Sample, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-mdr1-sample.csv"))
 
 
 
@@ -340,8 +352,8 @@ source("../resources-src/compute-snpfreq-target-weighted.R")
 ### ____save table
 # -----------------------------------------------------------------------------#
 
-write_csv(df_freqSNP_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-mdr1-all-weighted.csv"))
-write_csv(df_freqSNP_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-mdr1-source-weighted.csv"))
+write_csv(df_freqSNP_All, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-mdr1-all-weighted.csv"))
+write_csv(df_freqSNP_Source, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-mdr1-source-weighted.csv"))
 
 
 
@@ -354,8 +366,8 @@ source("../resources-src/compute-hapfreq-target-clonal.R")
 
 ### ____save table ----
 # -----------------------------------------------------------------------------#
-write_csv(df_freqHap_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-mdr1-all.csv"))
-write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-mdr1-source.csv"))
+write_csv(df_freqHap_All, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-mdr1-all.csv"))
+write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-mdr1-source.csv"))
 
 
 
@@ -368,8 +380,8 @@ source("../resources-src/compute-hapfreq-target-clonal-weighted.R")
 
 ### ____save table ----
 # -----------------------------------------------------------------------------#
-write_csv(df_freqHap_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-mdr1-all-weighted.csv"))
-write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-mdr1-source-weighted.csv"))
+write_csv(df_freqHap_All, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-mdr1-all-weighted.csv"))
+write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-mdr1-source-weighted.csv"))
 
 
 
@@ -382,7 +394,7 @@ write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/fre
 
 STRING_TARGET = "^PFDHPS"
 STRING_GENOME = "^PF3D7"
-source("../resources-src/aggregate-clusters-target.R")
+source("scripts/functions/sequence-clusters/filter-clusters.R")
 source("../resources-src/functions-resistance-profile.R")
 
 
@@ -421,9 +433,9 @@ source("../resources-src/compute-snpfreq-target.R")
 ### ____save table
 # -----------------------------------------------------------------------------#
 
-write_csv(df_freqSNP_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-dhps-all.csv"))
-write_csv(df_freqSNP_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-dhps-source.csv"))
-write_csv(df_freqSNP_Sample, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-dhps-sample.csv"))
+write_csv(df_freqSNP_All, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-dhps-all.csv"))
+write_csv(df_freqSNP_Source, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-dhps-source.csv"))
+write_csv(df_freqSNP_Sample, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-dhps-sample.csv"))
 
 
 
@@ -437,8 +449,8 @@ source("../resources-src/compute-snpfreq-target-weighted.R")
 ### ____save table
 # -----------------------------------------------------------------------------#
 
-write_csv(df_freqSNP_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-dhps-all-weighted.csv"))
-write_csv(df_freqSNP_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-dhps-source-weighted.csv"))
+write_csv(df_freqSNP_All, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-dhps-all-weighted.csv"))
+write_csv(df_freqSNP_Source, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-dhps-source-weighted.csv"))
 
 
 
@@ -452,8 +464,8 @@ source("../resources-src/compute-hapfreq-dhps-clonal.R")
 ### ____save table
 # -----------------------------------------------------------------------------#
 
-write_csv(df_freqHap_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-dhps-all.csv"))
-write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-dhps-source.csv"))
+write_csv(df_freqHap_All, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-dhps-all.csv"))
+write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-dhps-source.csv"))
 
 
 
@@ -466,8 +478,8 @@ source("../resources-src/compute-hapfreq-target-clonal-weighted.R")
 
 ### ____save table ----
 # -----------------------------------------------------------------------------#
-write_csv(df_freqHap_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-dhps-all-weighted.csv"))
-write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-dhps-source-weighted.csv"))
+write_csv(df_freqHap_All, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-dhps-all-weighted.csv"))
+write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-dhps-source-weighted.csv"))
 
 
 
@@ -480,7 +492,7 @@ write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/fre
 
 STRING_TARGET = "^PFDHFR"
 STRING_GENOME = "^PF3D7"
-source("../resources-src/aggregate-clusters-target.R")
+source("scripts/functions/sequence-clusters/filter-clusters.R")
 source("../resources-src/functions-resistance-profile.R")
 
 
@@ -519,9 +531,9 @@ source("../resources-src/compute-snpfreq-target.R")
 ### ____save table
 # -----------------------------------------------------------------------------#
 
-write_csv(df_freqSNP_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-dhfr-all.csv"))
-write_csv(df_freqSNP_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-dhfr-source.csv"))
-write_csv(df_freqSNP_Sample, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-dhfr-sample.csv"))
+write_csv(df_freqSNP_All, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-dhfr-all.csv"))
+write_csv(df_freqSNP_Source, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-dhfr-source.csv"))
+write_csv(df_freqSNP_Sample, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-dhfr-sample.csv"))
 
 
 
@@ -535,8 +547,8 @@ source("../resources-src/compute-snpfreq-target-weighted.R")
 ### ____save table
 # -----------------------------------------------------------------------------#
 
-write_csv(df_freqSNP_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-dhfr-all-weighted.csv"))
-write_csv(df_freqSNP_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-allele-dhfr-source-weighted.csv"))
+write_csv(df_freqSNP_All, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-dhfr-all-weighted.csv"))
+write_csv(df_freqSNP_Source, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-dhfr-source-weighted.csv"))
 
 
 
@@ -550,8 +562,8 @@ source("../resources-src/compute-hapfreq-dhfr-clonal.R")
 ### ____save table
 # -----------------------------------------------------------------------------#
 
-write_csv(df_freqHap_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-dhfr-all.csv"))
-write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-dhfr-source.csv"))
+write_csv(df_freqHap_All, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-dhfr-all.csv"))
+write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-dhfr-source.csv"))
 
 
 
@@ -564,5 +576,5 @@ source("../resources-src/compute-hapfreq-target-clonal-weighted.R")
 
 ### ____save table ----
 # -----------------------------------------------------------------------------#
-write_csv(df_freqHap_All, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-dhfr-all-weighted.csv"))
-write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "output/freq-haplotype-dhfr-source-weighted.csv"))
+write_csv(df_freqHap_All, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-dhfr-all-weighted.csv"))
+write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-dhfr-source-weighted.csv"))
