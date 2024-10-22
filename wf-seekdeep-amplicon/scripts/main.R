@@ -55,15 +55,15 @@ library(tidyverse, quietly = TRUE)
 
 
 # *****************************************************************************#
-# 1. define directory paths ----
+# 1. DEFINE DIRECTORY PATHS ----
 # *****************************************************************************#
 
 
 # make sure file-paths terminate with `/`
 # -----------------------------------------------------------------------------#
 PATH_STUDY = "input/ssurvey_2022_western_kenya/"
-PATH_RUN = "2024_02_23_ilri_illumina_2x300/"
-PATH_ANALYSIS = "2024_04_24-01-seekdeep/"
+PATH_RUN = "2023_05_25_ilri_illumina_2x300/"
+PATH_ANALYSIS = "2024_04_12-01-seekdeep-dhfr/"
 
 
 
@@ -76,7 +76,7 @@ dir.create(paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/"),
 
 
 # *****************************************************************************#
-# 2. import read-extraction qc reports ----
+# 2. IMPORT READ-EXTRACTION QC REPORTS ----
 # *****************************************************************************#
 
 
@@ -102,7 +102,7 @@ write_csv(raw_extProfileTarget,
 
 
 # *****************************************************************************#
-# 3. import SeekDeep Clusters Data ----
+# 3. IMPORT SEEKDEEP CLUSTERS DATA ----
 # *****************************************************************************#
 
 # import
@@ -115,7 +115,7 @@ source(paste0(PATH_STUDY, "scripts/add_sample_source.R"))
 
 
 # *****************************************************************************#
-# 4. identify samples without data ----
+# 4. IDENTIFY SAMPLES WITHOUT DATA ----
 # *****************************************************************************#
 
 # aggregate read-extraction data
@@ -135,10 +135,10 @@ rm(df_missingDataSamples)
 
 
 # =============================================================================#
-## ___Clusters - PfAMA1 ----
+## __CLUSTERS - PfAMA1 ----
 # =============================================================================#
 
-### ____aggregate clusters ----
+### ___aggregate clusters ----
 # -----------------------------------------------------------------------------#
 
 STRING_TARGET = "^PFAMA1"
@@ -147,7 +147,7 @@ source("scripts/functions/sequence-clusters/filter-clusters.R")
 
 
 
-### ____coi by source ----
+### ___coi by source ----
 # -----------------------------------------------------------------------------#
 
 (
@@ -171,7 +171,7 @@ write_csv(df_coi_source,
 
 
 
-### ____coi by sample ----
+### ___coi by sample ----
 # -----------------------------------------------------------------------------#
 
 df_coi_sample <- df_clusters_Target %>%
@@ -191,10 +191,10 @@ rm(df_clusters_Target, df_clusters_Segragating, df_coi_source, df_coi_sample)
 
 
 # =============================================================================#
-## ___Clusters - PfK13 ----
+## __CLUSTERS - PfK13 ----
 # =============================================================================#
 
-### ____aggregate clusters ----
+### ___aggregate clusters ----
 # -----------------------------------------------------------------------------#
 
 STRING_TARGET = "^PFK13-469"
@@ -203,14 +203,14 @@ source("scripts/functions/sequence-clusters/filter-clusters.R")
 
 
 
-### ____import the wildtype sequence ----
+### ___import the wildtype sequence ----
 # -----------------------------------------------------------------------------#
 
 fasta_file <- read_lines("../resources-genome/fasta-protein/PfK13.txt")
 
 
 
-### ____extract the wildtype alleles/haplotypes ----
+### ___extract the wildtype alleles/haplotypes ----
 # -----------------------------------------------------------------------------#
 
 # NOTE: replace positions_Target with positions_Segregating to get only truly
@@ -229,14 +229,14 @@ fasta_file <- read_lines("../resources-genome/fasta-protein/PfK13.txt")
 
 
 
-### ____compute allele frequencies (no weighting) ----
+#### ____compute allele frequencies (no weighting) ----
 # -----------------------------------------------------------------------------#
 
 source("scripts/functions/var-snps/compute-snpfreq-target.R")
 
 
 
-### ____save table
+#### ____save table
 # -----------------------------------------------------------------------------#
 
 write_csv(df_freqSNP_All,
@@ -248,54 +248,60 @@ write_csv(df_freqSNP_Sample,
 
 
 
-### ____compute allele frequencies (with weighting) ----
+#### ____compute allele frequencies (with weighting) ----
 # -----------------------------------------------------------------------------#
 
 source("scripts/functions/var-snps/compute-snpfreq-target-weighted.R")
 
 
 
-### ____save table
+#### ____save table
 # -----------------------------------------------------------------------------#
 
-write_csv(df_freqSNP_All, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-k13-all-weighted.csv"))
-write_csv(df_freqSNP_Source, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-k13-source-weighted.csv"))
+write_csv(df_freqSNP_All,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-k13-all-weighted.csv"))
+write_csv(df_freqSNP_Source,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-k13-source-weighted.csv"))
 
 
 
-### ____compute haplotype frequencies (no weighting) ----
+#### ____compute haplotype frequencies (no weighting) ----
 # -----------------------------------------------------------------------------#
 
 source("scripts/functions/var-haplotype/compute-hapfreq-target-clonal.R")
 
 
 
-### ____save table ----
+#### ____save table
 # -----------------------------------------------------------------------------#
-write_csv(df_freqHap_All, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-k13-all.csv"))
-write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-k13-source.csv"))
+write_csv(df_freqHap_All,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-k13-all.csv"))
+write_csv(df_freqHap_Source,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-k13-source.csv"))
 
 
 
-### ____compute haplotype frequencies (with weighting) ----
+#### ____compute haplotype frequencies (with weighting) ----
 # -----------------------------------------------------------------------------#
 
 source("scripts/functions/var-haplotype/compute-hapfreq-target-clonal-weighted.R")
 
 
 
-### ____save table ----
+#### ____save table
 # -----------------------------------------------------------------------------#
-write_csv(df_freqHap_All, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-k13-all-weighted.csv"))
-write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-k13-source-weighted.csv"))
+write_csv(df_freqHap_All,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-k13-all-weighted.csv"))
+write_csv(df_freqHap_Source,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-k13-source-weighted.csv"))
 
 
 
 # =============================================================================#
-## ___Clusters - PfMDR1 ----
+## __CLUSTERS - PfMDR1 ----
 # =============================================================================#
 
-### ____aggregate clusters ----
+### ___aggregate clusters ----
 # -----------------------------------------------------------------------------#
 
 STRING_TARGET = "^PFMDR1"
@@ -304,14 +310,14 @@ source("scripts/functions/sequence-clusters/filter-clusters.R")
 
 
 
-### ____import the wildtype sequence ----
+### ___import the wildtype sequence ----
 # -----------------------------------------------------------------------------#
 
 fasta_file <- read_lines("../resources-genome/fasta-protein/PfMDR1.txt")
 
 
 
-### ____extract the wildtype alleles/haplotypes ----
+### ___extract the wildtype alleles/haplotypes ----
 # -----------------------------------------------------------------------------#
 
 # alleles
@@ -328,87 +334,96 @@ fasta_file <- read_lines("../resources-genome/fasta-protein/PfMDR1.txt")
 
 
 
-### ____compute allele frequencies (no weighting) ----
+#### ____compute allele frequencies (no weighting) ----
 # -----------------------------------------------------------------------------#
 
 source("scripts/functions/var-snps/compute-snpfreq-target.R")
 
 
 
-### ____save table
+#### ____save table
 # -----------------------------------------------------------------------------#
 
-write_csv(df_freqSNP_All, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-mdr1-all.csv"))
-write_csv(df_freqSNP_Source, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-mdr1-source.csv"))
-write_csv(df_freqSNP_Sample, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-mdr1-sample.csv"))
+write_csv(df_freqSNP_All,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-mdr1-all.csv"))
+write_csv(df_freqSNP_Source,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-mdr1-source.csv"))
+write_csv(df_freqSNP_Sample,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-mdr1-sample.csv"))
 
 
 
-### ____compute allele frequencies (with weighting) ----
+#### ____compute allele frequencies (with weighting) ----
 # -----------------------------------------------------------------------------#
 
 source("scripts/functions/var-snps/compute-snpfreq-target-weighted.R")
 
 
 
-### ____save table
+#### ____save table
 # -----------------------------------------------------------------------------#
 
-write_csv(df_freqSNP_All, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-mdr1-all-weighted.csv"))
-write_csv(df_freqSNP_Source, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-mdr1-source-weighted.csv"))
+write_csv(df_freqSNP_All,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-mdr1-all-weighted.csv"))
+write_csv(df_freqSNP_Source,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-mdr1-source-weighted.csv"))
 
 
 
-### ____compute haplotype frequencies (no weighting) ----
+#### ____compute haplotype frequencies (no weighting) ----
 # -----------------------------------------------------------------------------#
 
 source("scripts/functions/var-haplotype/compute-hapfreq-target-clonal.R")
 
 
 
-### ____save table ----
+#### ____save table
 # -----------------------------------------------------------------------------#
-write_csv(df_freqHap_All, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-mdr1-all.csv"))
-write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-mdr1-source.csv"))
+write_csv(df_freqHap_All,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-mdr1-all.csv"))
+write_csv(df_freqHap_Source,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-mdr1-source.csv"))
 
 
 
-### ____compute haplotype frequencies (with weighting) ----
+#### ____compute haplotype frequencies (with weighting) ----
 # -----------------------------------------------------------------------------#
 
 source("scripts/functions/var-haplotype/compute-hapfreq-target-clonal-weighted.R")
 
 
 
-### ____save table ----
+#### ____save table
 # -----------------------------------------------------------------------------#
-write_csv(df_freqHap_All, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-mdr1-all-weighted.csv"))
-write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-mdr1-source-weighted.csv"))
+write_csv(df_freqHap_All,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-mdr1-all-weighted.csv"))
+write_csv(df_freqHap_Source,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-mdr1-source-weighted.csv"))
 
 
 
 # =============================================================================#
-## ___Clusters - PfDHPS ----
+## __CLUSTERS - PfDHPS ----
 # =============================================================================#
 
-### ____aggregate clusters ----
+### ___aggregate clusters ----
 # -----------------------------------------------------------------------------#
 
 STRING_TARGET = "^PFDHPS"
 STRING_GENOME = "^PF3D7"
 source("scripts/functions/sequence-clusters/filter-clusters.R")
-source("../resources-src/functions-resistance-profile.R")
+source("scripts/functions/var-snps/functions-resistance-profile.R")
 
 
 
-### ____import the wildtype sequence ----
+### ___import the wildtype sequence ----
 # -----------------------------------------------------------------------------#
 
 fasta_file <- read_lines("../resources-genome/fasta-protein/PfDHPS.txt")
 
 
 
-### ____extract the wildtype alleles/haplotypes ----
+### ___extract the wildtype alleles/haplotypes ----
 # -----------------------------------------------------------------------------#
 
 # alleles
@@ -425,88 +440,97 @@ fasta_file <- read_lines("../resources-genome/fasta-protein/PfDHPS.txt")
 
 
 
-### ____compute allele frequencies (no weighting) ----
+#### ____compute allele frequencies (no weighting) ----
 # -----------------------------------------------------------------------------#
 
 source("scripts/functions/var-snps/compute-snpfreq-target.R")
 
 
 
-### ____save table
+#### ____save table
 # -----------------------------------------------------------------------------#
 
-write_csv(df_freqSNP_All, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-dhps-all.csv"))
-write_csv(df_freqSNP_Source, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-dhps-source.csv"))
-write_csv(df_freqSNP_Sample, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-dhps-sample.csv"))
+write_csv(df_freqSNP_All,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-dhps-all.csv"))
+write_csv(df_freqSNP_Source,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-dhps-source.csv"))
+write_csv(df_freqSNP_Sample,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-dhps-sample.csv"))
 
 
 
-### ____compute allele frequencies (with weighting) ----
+#### ____compute allele frequencies (with weighting) ----
 # -----------------------------------------------------------------------------#
 
 source("scripts/functions/var-snps/compute-snpfreq-target-weighted.R")
 
 
 
-### ____save table
+#### ____save table
 # -----------------------------------------------------------------------------#
 
-write_csv(df_freqSNP_All, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-dhps-all-weighted.csv"))
-write_csv(df_freqSNP_Source, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-dhps-source-weighted.csv"))
+write_csv(df_freqSNP_All,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-dhps-all-weighted.csv"))
+write_csv(df_freqSNP_Source,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-dhps-source-weighted.csv"))
 
 
 
-### ____compute haplotype frequencies (no weighting) ----
+#### ____compute haplotype frequencies (no weighting) ----
 # -----------------------------------------------------------------------------#
 
-source("../resources-src/compute-hapfreq-dhps-clonal.R")
+source("scripts/functions/var-haplotype/compute-hapfreq-dhps-clonal.R")
 
 
 
-### ____save table
+#### ____save table
 # -----------------------------------------------------------------------------#
 
-write_csv(df_freqHap_All, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-dhps-all.csv"))
-write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-dhps-source.csv"))
+write_csv(df_freqHap_All,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-dhps-all.csv"))
+write_csv(df_freqHap_Source,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-dhps-source.csv"))
 
 
 
-### ____compute haplotype frequencies (with weighting) ----
+#### ____compute haplotype frequencies (with weighting) ----
 # -----------------------------------------------------------------------------#
 
 source("scripts/functions/var-haplotype/compute-hapfreq-target-clonal-weighted.R")
 
 
 
-### ____save table ----
+#### ____save table
 # -----------------------------------------------------------------------------#
-write_csv(df_freqHap_All, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-dhps-all-weighted.csv"))
-write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-dhps-source-weighted.csv"))
+write_csv(df_freqHap_All,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-dhps-all-weighted.csv"))
+write_csv(df_freqHap_Source,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-dhps-source-weighted.csv"))
 
 
 
 # =============================================================================#
-## ___Clusters - PfDHFR ----
+## __CLUSTERS - PfDHFR ----
 # =============================================================================#
 
-### ____aggregate clusters ----
+### ___aggregate clusters ----
 # -----------------------------------------------------------------------------#
 
 STRING_TARGET = "^PFDHFR"
 STRING_GENOME = "^PF3D7"
 source("scripts/functions/sequence-clusters/filter-clusters.R")
-source("../resources-src/functions-resistance-profile.R")
+source("scripts/functions/var-snps/functions-resistance-profile.R")
 
 
 
-### ____import the wildtype sequence ----
+### ___import the wildtype sequence ----
 # -----------------------------------------------------------------------------#
 
 fasta_file <- read_lines("../resources-genome/fasta-protein/PfDHFR.txt")
 
 
 
-### ____extract the wildtype alleles/haplotypes ----
+### ___extract the wildtype alleles/haplotypes ----
 # -----------------------------------------------------------------------------#
 
 # alleles
@@ -523,60 +547,71 @@ fasta_file <- read_lines("../resources-genome/fasta-protein/PfDHFR.txt")
 
 
 
-### ____compute allele frequencies (no weighting) ----
+#### ____compute allele frequencies (no weighting) ----
 # -----------------------------------------------------------------------------#
 
 source("scripts/functions/var-snps/compute-snpfreq-target.R")
 
 
 
-### ____save table
+#### ____save table
 # -----------------------------------------------------------------------------#
 
-write_csv(df_freqSNP_All, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-dhfr-all.csv"))
-write_csv(df_freqSNP_Source, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-dhfr-source.csv"))
-write_csv(df_freqSNP_Sample, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-dhfr-sample.csv"))
+write_csv(df_freqSNP_All,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-dhfr-all.csv"))
+write_csv(df_freqSNP_Source,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-dhfr-source.csv"))
+write_csv(df_freqSNP_Sample,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-dhfr-sample.csv"))
 
 
 
-### ____compute allele frequencies (with weighting) ----
+#### ____compute allele frequencies (with weighting) ----
 # -----------------------------------------------------------------------------#
 
 source("scripts/functions/var-snps/compute-snpfreq-target-weighted.R")
 
 
 
-### ____save table
+#### ____save table
 # -----------------------------------------------------------------------------#
 
-write_csv(df_freqSNP_All, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-dhfr-all-weighted.csv"))
-write_csv(df_freqSNP_Source, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-dhfr-source-weighted.csv"))
+write_csv(df_freqSNP_All,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-dhfr-all-weighted.csv"))
+write_csv(df_freqSNP_Source,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-dhfr-source-weighted.csv"))
 
 
 
-### ____compute haplotype frequencies (no weighting) ----
+#### ____compute haplotype frequencies (no weighting) ----
 # -----------------------------------------------------------------------------#
 
-source("../resources-src/compute-hapfreq-dhfr-clonal.R")
+source("scripts/functions/var-haplotype/compute-hapfreq-dhfr-clonal.R")
 
 
 
-### ____save table
+#### ____save table
 # -----------------------------------------------------------------------------#
 
-write_csv(df_freqHap_All, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-dhfr-all.csv"))
-write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-dhfr-source.csv"))
+write_csv(df_freqHap_All,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-dhfr-all.csv"))
+write_csv(df_freqHap_Source,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-dhfr-source.csv"))
 
 
 
-### ____compute haplotype frequencies (with weighting) ----
+#### ____compute haplotype frequencies (with weighting) ----
 # -----------------------------------------------------------------------------#
 
 source("scripts/functions/var-haplotype/compute-hapfreq-target-clonal-weighted.R")
 
 
 
-### ____save table ----
+#### ____save table
 # -----------------------------------------------------------------------------#
-write_csv(df_freqHap_All, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-dhfr-all-weighted.csv"))
-write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-dhfr-source-weighted.csv"))
+write_csv(df_freqHap_All,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-dhfr-all-weighted.csv"))
+write_csv(df_freqHap_Source,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-haplotype-dhfr-source-weighted.csv"))
+
+
