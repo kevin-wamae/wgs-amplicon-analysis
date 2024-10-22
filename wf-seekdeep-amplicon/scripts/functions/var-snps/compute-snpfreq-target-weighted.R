@@ -172,3 +172,16 @@ df_freqSNP_Source <- df_clusters_Target %>%
          aa_change = paste0(wt_allele, position, mut_allele)
          ) %>%
   select(-c(wt_allele, position, mut_allele))
+
+
+
+##___print a message in the console ----
+# -----------------------------------------------------------------------------#
+
+cat("\033[1m", "\n##############################################################", "\033[0m")
+
+cat("\033[1m", "\n1. df_freqSNP_All    - This table shows the aggregated SNP frequencies across all geographical regions", "\033[0m")
+
+cat("\033[1m", "\n2. df_freqSNP_Source - This table shows the SNP frequencies by geographical region", "\033[0m")  # No newline before last line
+
+cat("\033[1m", "\n##############################################################\n", "\033[0m")

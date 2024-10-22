@@ -212,3 +212,17 @@ df_freqSNP_Sample <- df_clusters_Target %>%
   # ---------------------------------#
   distinct(s_Sample, .keep_all = TRUE)
 
+
+
+##___print a message in the console ----
+# -----------------------------------------------------------------------------#
+
+cat("\033[1m", "\n##############################################################", "\033[0m")
+
+cat("\033[1m", "\n1. df_freqSNP_All    - This table shows the aggregated SNP frequencies across all geographical regions", "\033[0m")
+
+cat("\033[1m", "\n2. df_freqSNP_Source - This table shows the SNP frequencies by geographical region", "\033[0m")  # No newline before last line
+
+cat("\033[1m", "\n3. df_freqSNP_Sample - This table shows the SNP frequencies per sample", "\033[0m")  # No newline before last line
+
+cat("\033[1m", "\n##############################################################\n", "\033[0m")
