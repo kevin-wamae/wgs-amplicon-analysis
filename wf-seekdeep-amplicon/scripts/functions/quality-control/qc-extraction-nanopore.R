@@ -32,7 +32,7 @@
 
 # i. extraction reports by FASTQ
 # -----------------------------------------------------------------------------#
-raw_extProfile <- read_tsv(paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "reports/allExtractionStats.tab.txt"),
+raw_extractionTarget <- read_tsv(paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "reports/allExtractionStats.tab.txt"),
                      show_col_types = FALSE) %>%
   mutate_at(.vars = 2:ncol(.), .funs = as.numeric) # to numeric, from "totalReadsProcessed" to "passedFrac"
 
@@ -40,7 +40,7 @@ raw_extProfile <- read_tsv(paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "reports/
 
 # ii. extraction reports by FASTQ and gene
 # -----------------------------------------------------------------------------#
-raw_extProfileTarget <- read_tsv(paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "reports/allExtractionProfile.tab.txt"),
+raw_extractionFastq <- read_tsv(paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "reports/allExtractionProfile.tab.txt"),
                        show_col_types = FALSE) %>%
   mutate(
          total = sum(count), .by = sample,
@@ -52,3 +52,16 @@ raw_extProfileTarget <- read_tsv(paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "re
               values_from = freq,
               names_sep = "_"
               )
+
+
+
+##___print a message in the console ----
+# -----------------------------------------------------------------------------#
+
+cat("\033[1m", "\n##############################################################", "\033[0m")
+
+cat("\033[1m", "\n1. raw_extractionFastq  - This table reports stats on the extraction per FASTQ file", "\033[0m")
+
+cat("\033[1m", "\n2. raw_extractionTarget - This table reports stats on the extraction per target/marker", "\033[0m")  # No newline before last line
+
+cat("\033[1m", "\n##############################################################\n", "\033[0m")
