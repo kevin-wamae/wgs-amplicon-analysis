@@ -3,6 +3,7 @@
 df_freqHap_All <- df_clusters_Target %>%
   select(s_Sample, codon_pos, haplotype, c_AveragedFrac, s_COI, source) %>%
   # sum c_AveragedFrac for identical haplotypes within each sample
+  mutate(across(c(c_AveragedFrac, s_COI), as.numeric)) %>%
   group_by(s_Sample, haplotype) %>%
   mutate(c_AveragedFrac = sum(c_AveragedFrac)) %>%
   distinct(haplotype, .keep_all = TRUE) %>%
@@ -20,6 +21,7 @@ df_freqHap_All <- df_clusters_Target %>%
 df_freqHap_Source <- df_clusters_Target %>%
   select(s_Sample, codon_pos, haplotype, c_AveragedFrac, s_COI, source) %>%
   # sum c_AveragedFrac for identical haplotypes
+  mutate(across(c(c_AveragedFrac, s_COI), as.numeric)) %>%
   mutate(c_AveragedFrac = sum(c_AveragedFrac), .by = c(s_Sample, haplotype)) %>%
   # drop duplicate haplotypes, within samples
   group_by(s_Sample, haplotype) %>% distinct(haplotype, .keep_all = TRUE) %>% ungroup() %>%
