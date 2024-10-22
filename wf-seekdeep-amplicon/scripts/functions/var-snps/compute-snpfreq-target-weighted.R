@@ -22,7 +22,7 @@ df_freqSNP_All <- df_clusters_Target %>%
                        .nest_data = allele_data,
                        allele) %>%
   nplyr::nest_mutate(.nest_data = allele_data, # allele frequency calculation
-                     freq = round(sum(c_AveragedFrac/pop_size),2)
+                     freq = round(sum(as.numeric(c_AveragedFrac)/pop_size),2)
                      ) %>%
   tidyr::unnest(cols = c(allele_data)) %>%
   # remove duplicates
@@ -110,7 +110,7 @@ df_freqSNP_Source <- df_clusters_Target %>%
                        .nest_data = allele_data,
                        allele) %>%
   nplyr::nest_mutate(.nest_data = allele_data, # allele frequency calculation
-                     freq = round(sum(c_AveragedFrac/pop_size),2)
+                     freq = round(sum(as.numeric(c_AveragedFrac)/pop_size),2)
                      ) %>%
   tidyr::unnest(cols = c(allele_data)) %>%
   # remove duplicates
