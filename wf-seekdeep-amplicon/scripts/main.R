@@ -213,10 +213,9 @@ fasta_file <- read_lines("../resources-genome/fasta-protein/PfK13.txt")
 ### ____extract the wildtype alleles/haplotypes ----
 # -----------------------------------------------------------------------------#
 
-# alleles, replace positions_Target with positions_Segrating to get only truly
+# NOTE: replace positions_Target with positions_Segregating to get only truly
 # segregating sites since SeekDeep can also report user-supplied alleles for positions
-# that are not truly segregating, which could result in some positions appearing
-# without variation
+# that are not variable, resulting in some codons appearing without variation
 (
   wt_alleles <- sapply(positions_Target, function(pos) substr(fasta_file, pos, pos))
 )
@@ -233,23 +232,26 @@ fasta_file <- read_lines("../resources-genome/fasta-protein/PfK13.txt")
 ### ____compute allele frequencies (no weighting) ----
 # -----------------------------------------------------------------------------#
 
-source("../resources-src/compute-snpfreq-target.R")
+source("scripts/functions/var-snps/compute-snpfreq-target.R")
 
 
 
 ### ____save table
 # -----------------------------------------------------------------------------#
 
-write_csv(df_freqSNP_All, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-k13-all.csv"))
-write_csv(df_freqSNP_Source, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-k13-source.csv"))
-write_csv(df_freqSNP_Sample, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-k13-sample.csv"))
+write_csv(df_freqSNP_All,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-k13-all.csv"))
+write_csv(df_freqSNP_Source,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-k13-source.csv"))
+write_csv(df_freqSNP_Sample,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/freq-allele-k13-sample.csv"))
 
 
 
 ### ____compute allele frequencies (with weighting) ----
 # -----------------------------------------------------------------------------#
 
-source("../resources-src/compute-snpfreq-target-weighted.R")
+source("scripts/functions/var-snps/compute-snpfreq-target-weighted.R")
 
 
 
@@ -264,7 +266,7 @@ write_csv(df_freqSNP_Source, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output
 ### ____compute haplotype frequencies (no weighting) ----
 # -----------------------------------------------------------------------------#
 
-source("../resources-src/compute-hapfreq-target-clonal.R")
+source("scripts/functions/var-haplotype/compute-hapfreq-target-clonal.R")
 
 
 
@@ -278,7 +280,7 @@ write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output
 ### ____compute haplotype frequencies (with weighting) ----
 # -----------------------------------------------------------------------------#
 
-source("../resources-src/compute-hapfreq-target-clonal-weighted.R")
+source("scripts/functions/var-haplotype/compute-hapfreq-target-clonal-weighted.R")
 
 
 
@@ -329,7 +331,7 @@ fasta_file <- read_lines("../resources-genome/fasta-protein/PfMDR1.txt")
 ### ____compute allele frequencies (no weighting) ----
 # -----------------------------------------------------------------------------#
 
-source("../resources-src/compute-snpfreq-target.R")
+source("scripts/functions/var-snps/compute-snpfreq-target.R")
 
 
 
@@ -345,7 +347,7 @@ write_csv(df_freqSNP_Sample, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output
 ### ____compute allele frequencies (with weighting) ----
 # -----------------------------------------------------------------------------#
 
-source("../resources-src/compute-snpfreq-target-weighted.R")
+source("scripts/functions/var-snps/compute-snpfreq-target-weighted.R")
 
 
 
@@ -360,7 +362,7 @@ write_csv(df_freqSNP_Source, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output
 ### ____compute haplotype frequencies (no weighting) ----
 # -----------------------------------------------------------------------------#
 
-source("../resources-src/compute-hapfreq-target-clonal.R")
+source("scripts/functions/var-haplotype/compute-hapfreq-target-clonal.R")
 
 
 
@@ -374,7 +376,7 @@ write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output
 ### ____compute haplotype frequencies (with weighting) ----
 # -----------------------------------------------------------------------------#
 
-source("../resources-src/compute-hapfreq-target-clonal-weighted.R")
+source("scripts/functions/var-haplotype/compute-hapfreq-target-clonal-weighted.R")
 
 
 
@@ -426,7 +428,7 @@ fasta_file <- read_lines("../resources-genome/fasta-protein/PfDHPS.txt")
 ### ____compute allele frequencies (no weighting) ----
 # -----------------------------------------------------------------------------#
 
-source("../resources-src/compute-snpfreq-target.R")
+source("scripts/functions/var-snps/compute-snpfreq-target.R")
 
 
 
@@ -442,7 +444,7 @@ write_csv(df_freqSNP_Sample, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output
 ### ____compute allele frequencies (with weighting) ----
 # -----------------------------------------------------------------------------#
 
-source("../resources-src/compute-snpfreq-target-weighted.R")
+source("scripts/functions/var-snps/compute-snpfreq-target-weighted.R")
 
 
 
@@ -472,7 +474,7 @@ write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output
 ### ____compute haplotype frequencies (with weighting) ----
 # -----------------------------------------------------------------------------#
 
-source("../resources-src/compute-hapfreq-target-clonal-weighted.R")
+source("scripts/functions/var-haplotype/compute-hapfreq-target-clonal-weighted.R")
 
 
 
@@ -524,7 +526,7 @@ fasta_file <- read_lines("../resources-genome/fasta-protein/PfDHFR.txt")
 ### ____compute allele frequencies (no weighting) ----
 # -----------------------------------------------------------------------------#
 
-source("../resources-src/compute-snpfreq-target.R")
+source("scripts/functions/var-snps/compute-snpfreq-target.R")
 
 
 
@@ -540,7 +542,7 @@ write_csv(df_freqSNP_Sample, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output
 ### ____compute allele frequencies (with weighting) ----
 # -----------------------------------------------------------------------------#
 
-source("../resources-src/compute-snpfreq-target-weighted.R")
+source("scripts/functions/var-snps/compute-snpfreq-target-weighted.R")
 
 
 
@@ -570,7 +572,7 @@ write_csv(df_freqHap_Source, paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output
 ### ____compute haplotype frequencies (with weighting) ----
 # -----------------------------------------------------------------------------#
 
-source("../resources-src/compute-hapfreq-target-clonal-weighted.R")
+source("scripts/functions/var-haplotype/compute-hapfreq-target-clonal-weighted.R")
 
 
 
