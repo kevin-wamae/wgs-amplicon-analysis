@@ -62,8 +62,8 @@ library(tidyverse, quietly = TRUE)
 # make sure file-paths terminate with `/`
 # -----------------------------------------------------------------------------#
 PATH_STUDY = "input/ssurvey_2022_western_kenya/"
-PATH_RUN = "2024_02_23_ilri_illumina_2x300/"
-PATH_ANALYSIS = "2024_04_24-01-seekdeep/"
+PATH_RUN = "2023_05_25_ilri_illumina_2x300/"
+PATH_ANALYSIS = "2024_04_12-01-seekdeep-dhps/"
 
 
 
@@ -176,7 +176,7 @@ write_csv(df_coi_source,
 
 df_coi_sample <- df_clusters_Target %>%
   distinct(s_Sample, .keep_all = TRUE) %>%
-  select(source, s_Sample, s_COI)
+  select(source, s_Sample, s_COI); head(df_coi_sample)
 
 
 
@@ -210,7 +210,7 @@ fasta_file <- read_lines("../resources-genome/fasta-protein/PfK13.txt")
 
 
 
-### ___extract the wildtype alleles/haplotypes ----
+### ___extract the wildtype alleles and haplotypes ----
 # -----------------------------------------------------------------------------#
 
 # NOTE: replace positions_Target with positions_Segregating to get only truly
@@ -317,7 +317,7 @@ fasta_file <- read_lines("../resources-genome/fasta-protein/PfMDR1.txt")
 
 
 
-### ___extract the wildtype alleles/haplotypes ----
+### ___extract the wildtype alleles and haplotypes ----
 # -----------------------------------------------------------------------------#
 
 # alleles
@@ -423,7 +423,7 @@ fasta_file <- read_lines("../resources-genome/fasta-protein/PfDHPS.txt")
 
 
 
-### ___extract the wildtype alleles/haplotypes ----
+### ___extract the wildtype alleles and haplotypes ----
 # -----------------------------------------------------------------------------#
 
 # alleles
@@ -530,7 +530,7 @@ fasta_file <- read_lines("../resources-genome/fasta-protein/PfDHFR.txt")
 
 
 
-### ___extract the wildtype alleles/haplotypes ----
+### ___extract the wildtype alleles and haplotypes ----
 # -----------------------------------------------------------------------------#
 
 # alleles
