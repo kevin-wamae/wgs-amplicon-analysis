@@ -58,10 +58,15 @@ raw_extractionFastq <- read_tsv(paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "rep
 ##___print a message in the console ----
 # -----------------------------------------------------------------------------#
 
-cat("\033[1m", "\n##############################################################", "\033[0m")
+# Using yellow for the border
+cat("\033[1m\033[33m", "\n##############################################################", "\033[0m")
 
-cat("\033[1m", "\n1. raw_extractionFastq  - This table reports stats on the extraction per FASTQ file", "\033[0m")
+# Using magenta for the "NOTE TO USER" heading
+cat("\033[1m\033[35m", "\nNOTE TO USER:", "\033[0m")
 
-cat("\033[1m", "\n2. raw_extractionTarget - This table reports stats on the extraction per target/marker", "\033[0m")  # No newline before last line
+# Using green for the table descriptions
+cat("\033[1m\033[32m", "\n1. raw_extractionFastq  - This table reports stats on sequence-reads extraction per FASTQ file", "\033[0m")
+cat("\033[1m\033[32m", "\n2. raw_extractionTarget - This table reports stats on sequence-reads extraction per target/marker", "\033[0m")
 
-cat("\033[1m", "\n##############################################################\n", "\033[0m")
+# Yellow for the border again
+cat("\033[1m\033[33m", "\n##############################################################\n", "\033[0m")
