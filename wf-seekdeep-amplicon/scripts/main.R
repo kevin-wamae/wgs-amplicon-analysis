@@ -62,8 +62,8 @@ library(tidyverse, quietly = TRUE)
 # make sure file-paths terminate with `/`
 # -----------------------------------------------------------------------------#
 PATH_STUDY = "input/ssurvey_2022_western_kenya/"
-PATH_RUN = "2023_05_25_ilri_illumina_2x300/"
-PATH_ANALYSIS = "2024_04_12-01-seekdeep-dhfr/"
+PATH_RUN = "2024_02_23_ilri_illumina_2x300/"
+PATH_ANALYSIS = "2024_04_24-01-seekdeep/"
 
 
 
@@ -80,13 +80,13 @@ dir.create(paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/"),
 # *****************************************************************************#
 
 
-## ___i. illumina ----
+## __i. illumina ----
 # -----------------------------------------------------------------------------#
 
 source("scripts/functions/quality-control/qc-extraction-illumina.R")
 
 
-## ___ii. nanopore ----
+## __ii. nanopore ----
 # -----------------------------------------------------------------------------#
 
 source("scripts/functions/quality-control/qc-extraction-nanopore.R")
@@ -96,7 +96,7 @@ source("scripts/functions/quality-control/qc-extraction-nanopore.R")
 ## ___save table
 # -----------------------------------------------------------------------------#
 
-write_csv(raw_extProfileTarget,
+write_csv(raw_extractionFastq,
           paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/qc-target-read-depth.csv"))
 
 
@@ -106,7 +106,7 @@ write_csv(raw_extProfileTarget,
 # *****************************************************************************#
 
 # import
-source("scripts/functions/sequence-clusters/aggregate-clusters.R")
+source("scripts/functions/sequence-clusters/clusters-aggregate.R")
 
 
 # add sample origin, if available
@@ -119,7 +119,7 @@ source(paste0(PATH_STUDY, "scripts/add_sample_source.R"))
 # *****************************************************************************#
 
 # aggregate read-extraction data
-source("scripts/functions/quality-control/samples-missing-data.R"); head(df_missingDataSamples)
+source("scripts/functions/quality-control/qc-samples-missing-data.R"); head(df_missingDataSamples)
 
 
 
@@ -143,7 +143,7 @@ rm(df_missingDataSamples)
 
 STRING_TARGET = "^PFAMA1"
 STRING_GENOME = "^PF3D7"
-source("scripts/functions/sequence-clusters/filter-clusters.R")
+source("scripts/functions/sequence-clusters/clusters-filter.R")
 
 
 
@@ -199,7 +199,7 @@ rm(df_clusters_Target, df_clusters_Segragating, df_coi_source, df_coi_sample)
 
 STRING_TARGET = "^PFK13-469"
 STRING_GENOME = "^PF3D7"
-source("scripts/functions/sequence-clusters/filter-clusters.R")
+source("scripts/functions/sequence-clusters/clusters-filter.R")
 
 
 
@@ -232,7 +232,7 @@ fasta_file <- read_lines("../resources-genome/fasta-protein/PfK13.txt")
 #### ____compute allele frequencies (no weighting) ----
 # -----------------------------------------------------------------------------#
 
-source("scripts/functions/var-snps/compute-snpfreq-target.R")
+source("scripts/functions/var-snps/snpfreq-target.R")
 
 
 
@@ -251,7 +251,7 @@ write_csv(df_freqSNP_Sample,
 #### ____compute allele frequencies (with weighting) ----
 # -----------------------------------------------------------------------------#
 
-source("scripts/functions/var-snps/compute-snpfreq-target-weighted.R")
+source("scripts/functions/var-snps/snpfreq-target-weighted.R")
 
 
 
@@ -268,7 +268,7 @@ write_csv(df_freqSNP_Source,
 #### ____compute haplotype frequencies (no weighting) ----
 # -----------------------------------------------------------------------------#
 
-source("scripts/functions/var-haplotype/compute-hapfreq-target-clonal.R")
+source("scripts/functions/var-haplotype/hapfreq-target-clonal.R")
 
 
 
@@ -284,7 +284,7 @@ write_csv(df_freqHap_Source,
 #### ____compute haplotype frequencies (with weighting) ----
 # -----------------------------------------------------------------------------#
 
-source("scripts/functions/var-haplotype/compute-hapfreq-target-clonal-weighted.R")
+source("scripts/functions/var-haplotype/hapfreq-target-clonal-weighted.R")
 
 
 
@@ -306,7 +306,7 @@ write_csv(df_freqHap_Source,
 
 STRING_TARGET = "^PFMDR1"
 STRING_GENOME = "^PF3D7"
-source("scripts/functions/sequence-clusters/filter-clusters.R")
+source("scripts/functions/sequence-clusters/clusters-filter.R")
 
 
 
@@ -337,7 +337,7 @@ fasta_file <- read_lines("../resources-genome/fasta-protein/PfMDR1.txt")
 #### ____compute allele frequencies (no weighting) ----
 # -----------------------------------------------------------------------------#
 
-source("scripts/functions/var-snps/compute-snpfreq-target.R")
+source("scripts/functions/var-snps/snpfreq-target.R")
 
 
 
@@ -356,7 +356,7 @@ write_csv(df_freqSNP_Sample,
 #### ____compute allele frequencies (with weighting) ----
 # -----------------------------------------------------------------------------#
 
-source("scripts/functions/var-snps/compute-snpfreq-target-weighted.R")
+source("scripts/functions/var-snps/snpfreq-target-weighted.R")
 
 
 
@@ -373,7 +373,7 @@ write_csv(df_freqSNP_Source,
 #### ____compute haplotype frequencies (no weighting) ----
 # -----------------------------------------------------------------------------#
 
-source("scripts/functions/var-haplotype/compute-hapfreq-target-clonal.R")
+source("scripts/functions/var-haplotype/hapfreq-target-clonal.R")
 
 
 
@@ -389,7 +389,7 @@ write_csv(df_freqHap_Source,
 #### ____compute haplotype frequencies (with weighting) ----
 # -----------------------------------------------------------------------------#
 
-source("scripts/functions/var-haplotype/compute-hapfreq-target-clonal-weighted.R")
+source("scripts/functions/var-haplotype/hapfreq-target-clonal-weighted.R")
 
 
 
@@ -411,8 +411,8 @@ write_csv(df_freqHap_Source,
 
 STRING_TARGET = "^PFDHPS"
 STRING_GENOME = "^PF3D7"
-source("scripts/functions/sequence-clusters/filter-clusters.R")
-source("scripts/functions/var-snps/functions-resistance-profile.R")
+source("scripts/functions/sequence-clusters/clusters-filter.R")
+source("scripts/functions/var-snps/sp-resistance-profile.R")
 
 
 
@@ -443,7 +443,7 @@ fasta_file <- read_lines("../resources-genome/fasta-protein/PfDHPS.txt")
 #### ____compute allele frequencies (no weighting) ----
 # -----------------------------------------------------------------------------#
 
-source("scripts/functions/var-snps/compute-snpfreq-target.R")
+source("scripts/functions/var-snps/snpfreq-target.R")
 
 
 
@@ -462,7 +462,7 @@ write_csv(df_freqSNP_Sample,
 #### ____compute allele frequencies (with weighting) ----
 # -----------------------------------------------------------------------------#
 
-source("scripts/functions/var-snps/compute-snpfreq-target-weighted.R")
+source("scripts/functions/var-snps/snpfreq-target-weighted.R")
 
 
 
@@ -479,7 +479,7 @@ write_csv(df_freqSNP_Source,
 #### ____compute haplotype frequencies (no weighting) ----
 # -----------------------------------------------------------------------------#
 
-source("scripts/functions/var-haplotype/compute-hapfreq-dhps-clonal.R")
+source("scripts/functions/var-haplotype/hapfreq-dhps-clonal.R")
 
 
 
@@ -496,7 +496,7 @@ write_csv(df_freqHap_Source,
 #### ____compute haplotype frequencies (with weighting) ----
 # -----------------------------------------------------------------------------#
 
-source("scripts/functions/var-haplotype/compute-hapfreq-target-clonal-weighted.R")
+source("scripts/functions/var-haplotype/hapfreq-target-clonal-weighted.R")
 
 
 
@@ -518,8 +518,8 @@ write_csv(df_freqHap_Source,
 
 STRING_TARGET = "^PFDHFR"
 STRING_GENOME = "^PF3D7"
-source("scripts/functions/sequence-clusters/filter-clusters.R")
-source("scripts/functions/var-snps/functions-resistance-profile.R")
+source("scripts/functions/sequence-clusters/clusters-filter.R")
+source("scripts/functions/var-snps/sp-resistance-profile.R")
 
 
 
@@ -550,7 +550,7 @@ fasta_file <- read_lines("../resources-genome/fasta-protein/PfDHFR.txt")
 #### ____compute allele frequencies (no weighting) ----
 # -----------------------------------------------------------------------------#
 
-source("scripts/functions/var-snps/compute-snpfreq-target.R")
+source("scripts/functions/var-snps/snpfreq-target.R")
 
 
 
@@ -569,7 +569,7 @@ write_csv(df_freqSNP_Sample,
 #### ____compute allele frequencies (with weighting) ----
 # -----------------------------------------------------------------------------#
 
-source("scripts/functions/var-snps/compute-snpfreq-target-weighted.R")
+source("scripts/functions/var-snps/snpfreq-target-weighted.R")
 
 
 
@@ -586,7 +586,7 @@ write_csv(df_freqSNP_Source,
 #### ____compute haplotype frequencies (no weighting) ----
 # -----------------------------------------------------------------------------#
 
-source("scripts/functions/var-haplotype/compute-hapfreq-dhfr-clonal.R")
+source("scripts/functions/var-haplotype/hapfreq-dhfr-clonal.R")
 
 
 
@@ -603,7 +603,7 @@ write_csv(df_freqHap_Source,
 #### ____compute haplotype frequencies (with weighting) ----
 # -----------------------------------------------------------------------------#
 
-source("scripts/functions/var-haplotype/compute-hapfreq-target-clonal-weighted.R")
+source("scripts/functions/var-haplotype/hapfreq-target-clonal-weighted.R")
 
 
 
