@@ -58,10 +58,30 @@ if (length(file_list) == 1) {
 
 # Check what markers are available
 # -----------------------------------------------------------------------------#
-available_markers <- unique(raw_selectedClustersInfo$p_name); print(available_markers)
+available_markers <- unique(raw_selectedClustersInfo$p_name)
 
 
 
 # remove temporary objects
 # -----------------------------------------------------------------------------#
 rm(file_list, full_path)
+
+
+
+##___print a message in the console ----
+# -----------------------------------------------------------------------------#
+
+# Using yellow for the border
+cat("\033[1m\033[33m", "\n##############################################################", "\033[0m")
+
+# Using purple (magenta) for the data availability message
+cat("\033[1m\033[35m", "\nData from the following targets is available for analysis:", "\033[0m")
+
+# Using green for the available markers
+cat("\033[1m\033[32m", "\n", paste(available_markers, collapse = ", "), "\033[0m")
+
+# Yellow for the border again
+cat("\033[1m\033[33m", "\n##############################################################\n", "\033[0m")
+
+
+
