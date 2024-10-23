@@ -56,7 +56,7 @@ df_missingDataSamples <- raw_sampleNames %>%
                values_to = "name"
                ) %>%
   left_join(
-            raw_extProfile,                        # merge with raw_extProfile 
+            raw_extractionTarget,                        # merge with raw_extractionTarget 
             by = c("inputName", "name")
             ) %>% 
   pivot_wider(                                     # transform: long to wide
