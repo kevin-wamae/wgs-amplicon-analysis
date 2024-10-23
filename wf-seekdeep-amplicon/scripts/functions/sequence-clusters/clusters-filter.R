@@ -106,3 +106,25 @@ df_clusters_Segragating <- raw_selectedClustersInfo %>%
 
 # remove temporary objects
 rm(df_filtered)
+
+
+
+##___print a message in the console ----
+# -----------------------------------------------------------------------------#
+
+# Using yellow for the border
+cat("\033[1m\033[33m", "\n##############################################################", "\033[0m")
+
+# Using magenta for the table descriptions
+cat("\033[1m\033[35m", "\nData Summary:", "\033[0m")
+
+# Using cyan for the first table description
+cat("\033[1m\033[36m", "\n1. df_clusters_Segragating  - This table contains only the segregating codons, i.e., positions with true variation.", "\033[0m")
+
+# Using cyan for the second table description
+cat("\033[1m\033[36m", "\n2. df_clusters_Target - This table may includes all initial variants identified. It may include both segragating and
+                        non-segregating positions true variation but were requested for by the user.", "\033[0m")
+
+# Yellow for the border again
+cat("\033[1m\033[33m", "\n##############################################################\n", "\033[0m")
+
