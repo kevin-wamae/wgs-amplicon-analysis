@@ -83,4 +83,3 @@ cat("\033[1m\033[32m", "\n", paste(available_markers, collapse = ", "), "\033[0m
 # Yellow for the border again
 cat("\033[1m\033[33m", "\n##############################################################\n", "\033[0m")
 
-
