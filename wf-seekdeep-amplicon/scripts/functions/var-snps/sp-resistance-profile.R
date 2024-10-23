@@ -16,6 +16,7 @@ get_resistance_profile <- function(count, n) {
 
 
 # function to convert number to word ----
+# -------------------------------------------#
 number_to_word <- function(num) {
   words <- c("zero", "single", "double", "triple", "quadruple", "quintuple",
              "sextuple", "septuple", "octuple", "nonuple", "decuple")
