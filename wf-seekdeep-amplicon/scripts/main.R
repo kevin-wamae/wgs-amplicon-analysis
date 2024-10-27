@@ -110,7 +110,7 @@ source("scripts/functions/sequence-clusters/clusters-aggregate.R")
 
 
 # add sample origin, if available
-source(paste0(PATH_STUDY, "scripts/add_sample_source.R"))
+source("scripts/functions/study-related/add_samples_source.R")
 
 
 
