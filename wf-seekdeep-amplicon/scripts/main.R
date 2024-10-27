@@ -63,7 +63,7 @@ library(tidyverse, quietly = TRUE)
 # -----------------------------------------------------------------------------#
 PATH_STUDY = "input/ssurvey_2022_western_kenya/"
 PATH_RUN = "2023_05_25_ilri_illumina_2x300/"
-PATH_ANALYSIS = "2024_04_12-01-seekdeep-dhps/"
+PATH_ANALYSIS = "2024_04_12-01-seekdeep-dhfr/"
 
 
 
@@ -187,7 +187,7 @@ write_csv(df_coi_sample,
 
 
 # remove temporary objects
-rm(df_clusters_Target, df_clusters_Segragating, df_coi_source, df_coi_sample)
+rm(df_clusters_Target, df_clusters_Segregating, df_coi_source, df_coi_sample)
 
 
 # =============================================================================#
@@ -210,14 +210,17 @@ fasta_file <- read_lines("../resources-genome/fasta-protein/PfK13.txt")
 
 
 
-### ___extract the wildtype alleles and haplotypes ----
+### ___define alleles/haplotypes by extracting alleles at specified positions ----
 # -----------------------------------------------------------------------------#
 
-# NOTE: replace positions_Target with positions_Segregating to get only truly
-# segregating sites since SeekDeep can also report user-supplied alleles for positions
-# that are not variable, resulting in some codons appearing without variation
+# alleles
 (
-  wt_alleles <- sapply(positions_Target, function(pos) substr(fasta_file, pos, pos))
+  wt_alleles <- sapply(
+    # get unique numeric positions for polymorphic sites
+    unique(as.numeric(positions_df$position)),
+    # extract a single character (allele) from fasta_file at each position
+    function(pos) substr(fasta_file, pos, pos)
+  )
 )
 
 
@@ -317,12 +320,17 @@ fasta_file <- read_lines("../resources-genome/fasta-protein/PfMDR1.txt")
 
 
 
-### ___extract the wildtype alleles and haplotypes ----
+### ___define alleles/haplotypes by extracting alleles at specified positions ----
 # -----------------------------------------------------------------------------#
 
 # alleles
 (
-  wt_alleles <- sapply(positions_Target, function(pos) substr(fasta_file, pos, pos))
+  wt_alleles <- sapply(
+    # get unique numeric positions for polymorphic sites
+    unique(as.numeric(positions_df$position)),
+    # extract a single character (allele) from fasta_file at each position
+    function(pos) substr(fasta_file, pos, pos)
+  )
 )
 
 
@@ -423,12 +431,17 @@ fasta_file <- read_lines("../resources-genome/fasta-protein/PfDHPS.txt")
 
 
 
-### ___extract the wildtype alleles and haplotypes ----
+### ___define alleles/haplotypes by extracting alleles at specified positions ----
 # -----------------------------------------------------------------------------#
 
 # alleles
 (
-  wt_alleles <- sapply(positions_Target, function(pos) substr(fasta_file, pos, pos))
+  wt_alleles <- sapply(
+    # get unique numeric positions for polymorphic sites
+    unique(as.numeric(positions_df$position)),
+    # extract a single character (allele) from fasta_file at each position
+    function(pos) substr(fasta_file, pos, pos)
+  )
 )
 
 
@@ -530,12 +543,17 @@ fasta_file <- read_lines("../resources-genome/fasta-protein/PfDHFR.txt")
 
 
 
-### ___extract the wildtype alleles and haplotypes ----
+### ___define alleles/haplotypes by extracting alleles at specified positions ----
 # -----------------------------------------------------------------------------#
 
 # alleles
 (
-  wt_alleles <- sapply(positions_Target, function(pos) substr(fasta_file, pos, pos))
+  wt_alleles <- sapply(
+    # get unique numeric positions for polymorphic sites
+    unique(as.numeric(positions_df$position)),
+    # extract a single character (allele) from fasta_file at each position
+    function(pos) substr(fasta_file, pos, pos)
+  )
 )
 
 
