@@ -109,7 +109,7 @@ write_csv(raw_extractionFastq,
 source("scripts/functions/sequence-clusters/clusters-aggregate.R")
 
 
-# add sample origin, if available
+# add samples' geographical origin (if available), otherwise a warning will be displayed
 source("scripts/functions/study-related/add_samples_source.R")
 
 
