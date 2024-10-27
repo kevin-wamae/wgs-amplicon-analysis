@@ -36,6 +36,13 @@
 # -----------------------------------------------------------------------------#
 
 
+# generate a vector of polymorphic codons reported by SeekDeep
+#  - note that SeekDeep may also report user-supplied alleles for positions that
+#    are not truly segregating, which could result in some positions appearing
+#    without variation
+# -----------------------------------------------------------------------------#
+
+
 # Define a function to parse each entry
 # -----------------------------------------#
 parse_entry <- function(entry) {
@@ -113,32 +120,28 @@ df_clusters_Target <- raw_selectedClustersInfo %>%
 df_filtered <- df_clusters_Target %>% select(starts_with("pos"))
 
 
-
 # identify columns that have more than one unique value (indicating polymorphism)
 positions_Segregating <- names(df_filtered)[sapply(df_filtered, function(col) length(unique(col)) > 1)]
 
 
 
-# Remove the 'pos' prefix and convert the result to a numeric vector representing
-# polymorphic codon positions
-positions_Segregating <- as.numeric(gsub("pos", "", positions_Segregating))
+# filter df_clusters_Target to only include columns corresponding to positions_Segregating
+df_clusters_Segregating <- df_clusters_Target %>%
+  select(
+    everything(),
+    -c(codon_pos, haplotype),
+    -starts_with("pos"),
+    all_of(positions_Segregating),
+  )
 
 
 
-# filter variant data at segregating alleles, only
-# -----------------------------------------------------------------------------#
-df_clusters_Segregating <- raw_selectedClustersInfo %>%
-  filter(str_detect(p_name, STRING_TARGET)) %>%
-  mutate(
-    purrr::map_dfc(
-      set_names(positions_Segregating, paste0("pos", positions_Segregating)),
-      ~ str_extract(string = h_AATyped, pattern = paste0(.x, "."))
-    )) %>%
+# reconstruct codon_pos and haplotype using only the segregating positions
+df_clusters_Segregating <- df_clusters_Segregating %>%
   rowwise() %>%
   mutate(
-    codon_pos = paste(c_across(all_of(paste0("pos", positions_Segregating))), collapse = ", "),
-    codon_pos = str_remove_all(string = codon_pos, pattern = "-."),
-    haplotype = str_remove_all(string = codon_pos, pattern = "\\d+|,\\s")
+    codon_pos = paste(c_across(all_of(positions_Segregating)), collapse = ", "),
+    haplotype = paste(c_across(all_of(positions_Segregating)), collapse = "")
   ) %>%
   ungroup()
 
