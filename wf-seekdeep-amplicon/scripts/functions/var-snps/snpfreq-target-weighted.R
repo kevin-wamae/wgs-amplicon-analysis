@@ -38,7 +38,9 @@ df_freqSNP_All <- df_clusters_Target %>%
   # merge with wildtype alleles
   # ---------------------------------#
   left_join(
-            data.frame(position = positions_Target, wildtype = wt_alleles),
+            data.frame(
+                       position = unique(as.numeric(positions_df$position)),
+                       wildtype = wt_alleles),
             by = c("codon" = "position")) %>%
     # code for infection-type
   # ---------------------------------#
@@ -126,7 +128,9 @@ df_freqSNP_Source <- df_clusters_Target %>%
   # merge with wildtype alleles
   # ---------------------------------#
   left_join(
-            data.frame(position = positions_Target, wildtype = wt_alleles),
+            data.frame(
+                       position = unique(as.numeric(positions_df$position)),
+                       wildtype = wt_alleles),
             by = c("codon" = "position")) %>%
   # code for infection-type
   # ---------------------------------#
