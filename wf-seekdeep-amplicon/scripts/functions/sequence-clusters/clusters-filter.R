@@ -81,6 +81,7 @@ parse_entry <- function(entry) {
 # process the h_AATyped data
 # -----------------------------------------#
 positions_df <- raw_selectedClustersInfo %>%
+  filter(str_detect(p_name, STRING_TARGET), str_detect(h_AATyped, STRING_GENOME)) %>%
   mutate(id = row_number(),
          h_AATyped = str_replace(h_AATyped, "PF3D7_.+--", "")) %>%
   select(id, h_AATyped) %>%
@@ -103,6 +104,7 @@ positions_df_wide <- positions_df %>%
 # join back to the original data and create haplotype
 # -----------------------------------------#
 df_clusters_Target <- raw_selectedClustersInfo %>%
+  filter(str_detect(p_name, STRING_TARGET), str_detect(h_AATyped, STRING_GENOME)) %>%
   mutate(id = row_number()) %>%
   left_join(positions_df_wide, by = "id") %>%
   rowwise() %>%
