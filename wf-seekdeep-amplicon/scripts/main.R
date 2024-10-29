@@ -105,11 +105,15 @@ write_csv(raw_extractionFastq,
 # 3. IMPORT SEEKDEEP CLUSTERS DATA ----
 # *****************************************************************************#
 
-# import
+## __i. import ----
+# -----------------------------------------------------------------------------#
 source("scripts/functions/sequence-clusters/clusters-aggregate.R")
 
 
-# add samples' geographical origin (if available), otherwise a warning will be displayed
+
+## __ii. add samples' geographical origin (if available) ----
+## otherwise a warning will be displayed
+# -----------------------------------------------------------------------------#
 source("scripts/functions/study-related/add_samples_source.R")
 
 
@@ -135,10 +139,10 @@ rm(df_missingDataSamples)
 
 
 # =============================================================================#
-## __CLUSTERS - PfAMA1 ----
+## __A) CLUSTERS - PfAMA1 ----
 # =============================================================================#
 
-### ___aggregate clusters ----
+### ___aggregate/filter clusters ----
 # -----------------------------------------------------------------------------#
 
 STRING_TARGET = "^PFAMA1"
@@ -191,13 +195,13 @@ rm(df_clusters_Target, df_clusters_Segregating, df_coi_source, df_coi_sample)
 
 
 # =============================================================================#
-## __CLUSTERS - PfK13 ----
+## __B) CLUSTERS - PfK13 ----
 # =============================================================================#
 
-### ___aggregate clusters ----
+### ___aggregate/filter clusters ----
 # -----------------------------------------------------------------------------#
 
-STRING_TARGET = "^PFK13-469"
+STRING_TARGET = "^PFK13-675"
 STRING_GENOME = "^PF3D7"
 source("scripts/functions/sequence-clusters/clusters-filter.R")
 
@@ -301,10 +305,10 @@ write_csv(df_freqHap_Source,
 
 
 # =============================================================================#
-## __CLUSTERS - PfMDR1 ----
+## __C) CLUSTERS - PfMDR1 ----
 # =============================================================================#
 
-### ___aggregate clusters ----
+### ___aggregate/filter clusters ----
 # -----------------------------------------------------------------------------#
 
 STRING_TARGET = "^PFMDR1"
@@ -411,10 +415,10 @@ write_csv(df_freqHap_Source,
 
 
 # =============================================================================#
-## __CLUSTERS - PfDHPS ----
+## __D) CLUSTERS - PfDHPS ----
 # =============================================================================#
 
-### ___aggregate clusters ----
+### ___aggregate/filter clusters ----
 # -----------------------------------------------------------------------------#
 
 STRING_TARGET = "^PFDHPS"
@@ -523,10 +527,10 @@ write_csv(df_freqHap_Source,
 
 
 # =============================================================================#
-## __CLUSTERS - PfDHFR ----
+## __E) CLUSTERS - PfDHFR ----
 # =============================================================================#
 
-### ___aggregate clusters ----
+### ___aggregate/filter clusters ----
 # -----------------------------------------------------------------------------#
 
 STRING_TARGET = "^PFDHFR"
