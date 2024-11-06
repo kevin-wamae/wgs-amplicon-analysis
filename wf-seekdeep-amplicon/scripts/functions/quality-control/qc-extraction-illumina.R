@@ -33,7 +33,7 @@
 # i. extraction reports by FASTQ
 # -----------------------------------------------------------------------------#
 
-raw_extProfile <- read_tsv(paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "reports/allExtractionProfile.tab.txt"),
+raw_extractionTarget <- read_tsv(paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "reports/allExtractionProfile.tab.txt"),
                        show_col_types = FALSE) %>%
   mutate_all(list(~str_replace(., "\\(.+\\)", ""))) %>%       # remove all characters in braces
   mutate_at(.vars = 3:ncol(.), .funs = as.numeric) %>%        # to numeric
@@ -44,7 +44,7 @@ raw_extProfile <- read_tsv(paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "reports/allE
 # ii. extraction reports by FASTQ and gene
 # -----------------------------------------------------------------------------#
 
-raw_extProfileTarget <- raw_extProfile %>%
+raw_extractionFastq <- raw_extractionTarget %>%
   mutate(name = str_remove(name, pattern = "MID.+")) %>% # drop MID substring
   summarise(
             # generate sum across all columns by fastq and target
@@ -82,3 +82,21 @@ raw_extProfileTarget <- raw_extProfile %>%
               names_from = "name",
               values_from = "totalTargetGoodPerc"
               )
+
+
+
+##___print a message in the console ----
+# -----------------------------------------------------------------------------#
+
+# Using yellow for the border
+cat("\033[1m\033[33m", "\n##############################################################", "\033[0m")
+
+# Using magenta for the "NOTE TO USER" heading
+cat("\033[1m\033[35m", "\nNOTE TO USER:", "\033[0m")
+
+# Using green for the table descriptions
+cat("\033[1m\033[32m", "\n1. raw_extractionFastq  - This table reports stats on sequence-reads extraction per FASTQ file", "\033[0m")
+cat("\033[1m\033[32m", "\n2. raw_extractionTarget - This table reports stats on sequence-reads extraction per target/marker", "\033[0m")
+
+# Yellow for the border again
+cat("\033[1m\033[33m", "\n##############################################################\n", "\033[0m")

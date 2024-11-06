@@ -19,7 +19,8 @@ df_freqHap_All <- df_clusters_Target %>%
   ungroup() %>%
   reframe(
           dhfr_resistance,
-          haplotype,
+          haplotype = paste(sort(unique(haplotype)), collapse = ","),
+          dhfr_resistance = paste(unique(sort(dhfr_resistance)), collapse = ","),
           .by = c(s_Sample)
           ) %>%
   distinct(s_Sample, .keep_all = TRUE) %>%
@@ -32,7 +33,8 @@ df_freqHap_All <- df_clusters_Target %>%
                              haplotype == wt_haplotype ~ "wildtype",
                              str_detect(haplotype, ",") ~ "mixed",
                              TRUE ~ "mutant",
-                             )
+                             ),
+         total = sum(count)
          ) %>%
   select(-count) %>%
   arrange(desc(freq))
@@ -60,7 +62,8 @@ df_freqHap_Source <- df_clusters_Target %>%
   ungroup() %>%
   reframe(
           source, dhfr_resistance,
-          haplotype,
+          haplotype = paste(sort(unique(haplotype)), collapse = ","),
+          dhfr_resistance = paste(unique(sort(dhfr_resistance)), collapse = ","),
           .by = c(s_Sample)
           ) %>%
   distinct(s_Sample, .keep_all = TRUE) %>%
@@ -73,9 +76,29 @@ df_freqHap_Source <- df_clusters_Target %>%
                              haplotype == wt_haplotype ~ "wildtype",
                              str_detect(haplotype, ",") ~ "mixed",
                              TRUE ~ "mutant",
-                             )
+                             ),
+         total = sum(count)
          ) %>%
   select(-count) %>%
   arrange(source, desc(freq))
 
+
+
+##___print a message in the console ----
+# -----------------------------------------------------------------------------#
+
+# Using yellow for the border
+cat("\033[1m\033[33m", "\n##############################################################", "\033[0m")
+
+# Using magenta for the table descriptions
+cat("\033[1m\033[35m", "\nData Summary:", "\033[0m")
+
+# Using cyan for the first table description
+cat("\033[1m\033[36m", "\n1. df_freqHap_All - This table shows the aggregated haplotype-frequencies across all geographical regions", "\033[0m")
+
+# Using cyan for the second table description
+cat("\033[1m\033[36m", "\n2. df_freqHap_Source - This table shows the haplotype-frequencies by geographical region", "\033[0m")
+
+# Yellow for the border again
+cat("\033[1m\033[33m", "\n##############################################################\n", "\033[0m")
 

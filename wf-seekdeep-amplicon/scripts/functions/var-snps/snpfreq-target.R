@@ -37,7 +37,9 @@ df_freqSNP_All <- df_clusters_Target %>%
   # merge with wildtype alleles
   # ---------------------------------#
   left_join(
-            data.frame(position = positions_Target, wildtype = wt_alleles),
+            data.frame(
+                       position = unique(as.numeric(positions_df$position)),
+                       wildtype = wt_alleles),
             by = c("codon" = "position")) %>%
   # code for infection-type
   # ---------------------------------#
@@ -138,7 +140,9 @@ df_freqSNP_Source <- df_clusters_Target %>%
   # merge with wildtype alleles
   # ---------------------------------#
   left_join(
-            data.frame(position = positions_Target, wildtype = wt_alleles),
+            data.frame(
+                       position = unique(as.numeric(positions_df$position)),
+                       wildtype = wt_alleles),
             by = c("codon" = "position")) %>%
   # code for infection-type
   # ---------------------------------#
@@ -211,4 +215,28 @@ df_freqSNP_Sample <- df_clusters_Target %>%
   # remove duplicates
   # ---------------------------------#
   distinct(s_Sample, .keep_all = TRUE)
+
+
+
+##___print a message in the console ----
+# -----------------------------------------------------------------------------#
+
+# Using yellow for the border
+cat("\033[1m\033[33m", "\n##############################################################", "\033[0m")
+
+# Using magenta for the table descriptions
+cat("\033[1m\033[35m", "\nData Summary:", "\033[0m")
+
+# Using cyan for the first table description
+cat("\033[1m\033[36m", "\n1. df_freqSNP_All    - This table shows the aggregated SNP frequencies across all geographical regions", "\033[0m")
+
+# Using cyan for the second table description
+cat("\033[1m\033[36m", "\n2. df_freqSNP_Source - This table shows the SNP frequencies by geographical region", "\033[0m")
+
+# Using cyan for the third table description
+cat("\033[1m\033[36m", "\n3. df_freqSNP_Sample - This table shows the SNP frequencies per sample", "\033[0m")
+
+# Yellow for the border again
+cat("\033[1m\033[33m", "\n##############################################################\n", "\033[0m")
+
 

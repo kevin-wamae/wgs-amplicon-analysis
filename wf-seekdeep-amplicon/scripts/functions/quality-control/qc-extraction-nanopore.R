@@ -32,7 +32,7 @@
 
 # i. extraction reports by FASTQ
 # -----------------------------------------------------------------------------#
-raw_extProfile <- read_tsv(paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "reports/allExtractionStats.tab.txt"),
+raw_extractionTarget <- read_tsv(paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "reports/allExtractionStats.tab.txt"),
                      show_col_types = FALSE) %>%
   mutate_at(.vars = 2:ncol(.), .funs = as.numeric) # to numeric, from "totalReadsProcessed" to "passedFrac"
 
@@ -40,7 +40,7 @@ raw_extProfile <- read_tsv(paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "reports/allE
 
 # ii. extraction reports by FASTQ and gene
 # -----------------------------------------------------------------------------#
-raw_extProfileTarget <- read_tsv(paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "reports/allExtractionProfile.tab.txt"),
+raw_extractionFastq <- read_tsv(paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "reports/allExtractionProfile.tab.txt"),
                        show_col_types = FALSE) %>%
   mutate(
          total = sum(count), .by = sample,
@@ -52,3 +52,21 @@ raw_extProfileTarget <- read_tsv(paste0(PATH_STUDY, PATH_RUN, PATH_DATE, "report
               values_from = freq,
               names_sep = "_"
               )
+
+
+
+##___print a message in the console ----
+# -----------------------------------------------------------------------------#
+
+# Using yellow for the border
+cat("\033[1m\033[33m", "\n##############################################################", "\033[0m")
+
+# Using magenta for the "NOTE TO USER" heading
+cat("\033[1m\033[35m", "\nNOTE TO USER:", "\033[0m")
+
+# Using green for the table descriptions
+cat("\033[1m\033[32m", "\n1. raw_extractionFastq  - This table reports stats on sequence-reads extraction per FASTQ file", "\033[0m")
+cat("\033[1m\033[32m", "\n2. raw_extractionTarget - This table reports stats on sequence-reads extraction per target/marker", "\033[0m")
+
+# Yellow for the border again
+cat("\033[1m\033[33m", "\n##############################################################\n", "\033[0m")

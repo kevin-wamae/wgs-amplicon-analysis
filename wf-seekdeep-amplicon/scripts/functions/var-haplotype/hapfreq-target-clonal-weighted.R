@@ -3,6 +3,7 @@
 df_freqHap_All <- df_clusters_Target %>%
   select(s_Sample, codon_pos, haplotype, c_AveragedFrac, s_COI, source) %>%
   # sum c_AveragedFrac for identical haplotypes within each sample
+  mutate(across(c(c_AveragedFrac, s_COI), as.numeric)) %>%
   group_by(s_Sample, haplotype) %>%
   mutate(c_AveragedFrac = sum(c_AveragedFrac)) %>%
   distinct(haplotype, .keep_all = TRUE) %>%
@@ -20,6 +21,7 @@ df_freqHap_All <- df_clusters_Target %>%
 df_freqHap_Source <- df_clusters_Target %>%
   select(s_Sample, codon_pos, haplotype, c_AveragedFrac, s_COI, source) %>%
   # sum c_AveragedFrac for identical haplotypes
+  mutate(across(c(c_AveragedFrac, s_COI), as.numeric)) %>%
   mutate(c_AveragedFrac = sum(c_AveragedFrac), .by = c(s_Sample, haplotype)) %>%
   # drop duplicate haplotypes, within samples
   group_by(s_Sample, haplotype) %>% distinct(haplotype, .keep_all = TRUE) %>% ungroup() %>%
@@ -36,4 +38,24 @@ df_freqHap_Source <- df_clusters_Target %>%
   tidyr::unnest(cols = c(country_data)) %>%
   # retain allele frequencies
   distinct(source, haplotype, freq)
+
+
+
+##___print a message in the console ----
+# -----------------------------------------------------------------------------#
+
+# Using yellow for the border
+cat("\033[1m\033[33m", "\n##############################################################", "\033[0m")
+
+# Using magenta for the table descriptions
+cat("\033[1m\033[35m", "\nData Summary:", "\033[0m")
+
+# Using cyan for the first table description
+cat("\033[1m\033[36m", "\n1. df_freqHap_All - This table shows the aggregated haplotype-frequencies across all geographical regions", "\033[0m")
+
+# Using cyan for the second table description
+cat("\033[1m\033[36m", "\n2. df_freqHap_Source - This table shows the haplotype-frequencies by geographical region", "\033[0m")
+
+# Yellow for the border again
+cat("\033[1m\033[33m", "\n##############################################################\n", "\033[0m")
 
