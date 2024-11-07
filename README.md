@@ -48,7 +48,7 @@ The scripts in this repository require R (version 4.0.0 or higher) and several R
 
 Contributions to this project are welcome. Please fork the repository and submit a pull request with your changes.
 
-Additionally, report any issues or bugs by openning an issue [here](https://github.com/kkariuki/wgs-amplicon-analysis/issues) or contact me via email at **wamaekevin[at]gmail[dot]com**
+Additionally, report any issues or bugs by openning an issue [here](https://github.com/kevin-wamae/wgs-amplicon-analysis/issues) or contact me via email at **wamaekevin[at]gmail[dot]com**
 
 ## License
 
