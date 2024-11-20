@@ -114,12 +114,10 @@ df_clusters_Target <- raw_selectedClustersInfo %>%
   filter(str_detect(p_name, STRING_TARGET), str_detect(h_AATyped, STRING_GENOME)) %>%
   mutate(id = row_number()) %>%
   left_join(positions_df_wide, by = "id") %>%
-  rowwise() %>%
   mutate(
-    codon_pos = paste(c_across(starts_with("pos")), collapse = ", "),
-    haplotype = paste(c_across(starts_with("pos")), collapse = "")
-  ) %>%
-  ungroup()
+    codon_pos = do.call(paste, c(select(., starts_with("pos")), sep = ", ")),
+    haplotype = do.call(paste0, select(., starts_with("pos")))
+  )
 
 
 
