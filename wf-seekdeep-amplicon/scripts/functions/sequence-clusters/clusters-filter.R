@@ -82,14 +82,21 @@ parse_entry <- function(entry) {
 # -----------------------------------------#
 positions_df <- raw_selectedClustersInfo %>%
   filter(str_detect(p_name, STRING_TARGET), str_detect(h_AATyped, STRING_GENOME)) %>%
-  mutate(id = row_number(),
-         h_AATyped = str_replace(h_AATyped, "PF3D7_.+--", "")) %>%
+  mutate(
+    id = row_number(),
+    h_AATyped = str_replace(h_AATyped, "PF3D7_.+--", "")
+  ) %>%
   select(id, h_AATyped) %>%
-  mutate(entries = str_split(h_AATyped, ":", simplify = FALSE)) %>%
-  unnest(entries) %>%
-  mutate(parsed = map(entries, parse_entry)) %>%
-  unnest_wider(parsed) %>%
-  mutate(allele_to_use = ifelse(mutation, mut_allele, ref_allele))
+  separate_rows(h_AATyped, sep = ":") %>%
+  mutate(
+    position = as.numeric(str_extract(h_AATyped, "\\d+")),
+    letters = str_extract_all(h_AATyped, "[A-Z]+"),
+    ref_allele = map_chr(letters, ~ .x[1]),
+    mut_allele = map_chr(letters, ~ ifelse(length(.x) > 1, .x[2], NA_character_)),
+    mutation = !is.na(mut_allele),
+    allele_to_use = if_else(mutation, mut_allele, ref_allele)
+  ) %>%
+  select(id, position, ref_allele, mut_allele, mutation, allele_to_use)
 
 
 
