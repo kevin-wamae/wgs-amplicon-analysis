@@ -145,12 +145,8 @@ df_clusters_Segregating <- df_clusters_Target %>%
 
 # reconstruct codon_pos and haplotype using only the segregating positions
 df_clusters_Segregating <- df_clusters_Segregating %>%
-  rowwise() %>%
-  mutate(
-    codon_pos = paste(c_across(all_of(positions_Segregating)), collapse = ", "),
-    haplotype = paste(c_across(all_of(positions_Segregating)), collapse = "")
-  ) %>%
-  ungroup()
+  unite("codon_pos", all_of(positions_Segregating), sep = ", ", remove = FALSE) %>%
+  unite("haplotype", all_of(positions_Segregating), sep = "", remove = FALSE)
 
 
 
