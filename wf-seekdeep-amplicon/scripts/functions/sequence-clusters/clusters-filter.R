@@ -107,6 +107,7 @@ df_clusters_Target <- raw_selectedClustersInfo %>%
 df_filtered <- df_clusters_Target %>% select(starts_with("pos"))
 
 
+
 # identify columns that have more than one unique value (indicating polymorphism)
 positions_Segregating <- names(df_filtered)[sapply(df_filtered, function(col) length(unique(col)) > 1)]
 
@@ -125,8 +126,12 @@ df_clusters_Segregating <- df_clusters_Target %>%
 
 # reconstruct codon_pos and haplotype using only the segregating positions
 df_clusters_Segregating <- df_clusters_Segregating %>%
-  unite("codon_pos", all_of(positions_Segregating), sep = ", ", remove = FALSE) %>%
-  unite("haplotype", all_of(positions_Segregating), sep = "", remove = FALSE)
+  rowwise() %>%
+  mutate(
+    codon_pos = paste(c_across(all_of(positions_Segregating)), collapse = ", "),
+    haplotype = paste(c_across(all_of(positions_Segregating)), collapse = "")
+  ) %>%
+  ungroup()
 
 
 
