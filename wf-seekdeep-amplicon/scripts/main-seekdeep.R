@@ -111,8 +111,17 @@ source("scripts/functions/sequence-clusters/clusters-aggregate.R")
 
 
 
-## __ii. add samples' geographical origin (if available) ----
-## otherwise a warning will be displayed
+## __ii. add samples' geographical origin (IF AVAILABLE) ----
+# -----------------------------------------------------------------------------#
+# NOTE: Before proceeding, please:
+# 1. Create a samples/ directory in your PATH_STUDY location
+# 2. samples_source.csv with the following columns:
+#     - s_Sample: Unique sample identifier matching s_Sample in sequence data
+#     - source: Geographical origin or sampling location
+#
+# Place this file at: PATH_STUDY/samples/samples_source.csv
+
+# If the file does not exist, downstream analysis will proceed without sample source info.
 # -----------------------------------------------------------------------------#
 source("scripts/functions/study-related/add_samples_source.R")
 
