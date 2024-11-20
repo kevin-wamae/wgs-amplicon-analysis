@@ -1,46 +1,26 @@
 # DESCRIPTION OF R SCRIPT
 # =============================================================================#
-# This R script is designed for extracting data from raw_selectedClustersInto matching
-# the target define in the object: STRING_TARGET
+# This R script is designed for extracting data from `raw_selectedClustersInfo` matching
+# the target defined in the object `STRING_TARGET`.
 #
-# 1. Generation of a Vector of Polymorphic Codons:
-#    This section of the script identifies specific polymorphic positions from
-#    genomic sequences that match predefined target strings in gene names and
-#    genome annotations. It extracts these positions to create a numeric vector
-#    representing the codons of interest. The process involves:
-#      - Filtering sequences by specific gene name and genome annotation patterns.
-#      - Extracting numeric codon positions from the sequences.
-#      - Cleansing and converting extracted data to a numeric format.
+# The script processes the `h_AATyped` data to parse and extract polymorphic positions,
+# and constructs haplotypes based on segregating codons.
 #
-# 2. Filtering Variant Data and Extracting Codon Information:
-#    The second part of the script uses the vector of codon positions to filter
-#    and extract specific variant data from the sequences. It constructs new columns
-#    for each codon position, extracts the corresponding variant, and assembles a
-#    haplotype string for each sequence. Key steps include:
-#      - Mapping each codon position to extract specific variants using a dynamic
-#        pattern matching.
-#      - Collapsing extracted codon positions into a single string to form the haplotype.
-#      - Cleaning and formatting the final codon position and haplotype strings.
+# Key steps include:
+# 1. Parsing entries in `h_AATyped` to extract position, reference allele, and mutant allele.
+# 2. Converting the data to wide format with each position as a separate column.
+# 3. Joining back to the original data and creating haplotypes based on allele combinations.
+# 4. Identifying truly segregating positions and reconstructing haplotypes using only these positions.
 #
-# The script utilizes the `dplyr`, `stringr`, and `purrr` libraries to handle data
-# manipulation, string operations, and functional programming techniques respectively,
-# ensuring efficient processing of genomic data.
+# The script utilizes the `dplyr`, `stringr`, `tidyr`, and `purrr` libraries for data manipulation.
 # =============================================================================#
 
-
-
-# Note that SeekDeep may also report user-supplied alleles for positions that
+# Note that SeekDeep may report user-supplied alleles for positions that
 # are not truly segregating, which could result in some positions appearing
-# without variation, so we'll generate df_clusters_Target to include all and
-# df_clusters_Segregating to include only segregating positions.
+# without variation. We'll generate `df_clusters_Target` to include all positions
+# and `df_clusters_Segregating` to include only segregating positions.
 # -----------------------------------------------------------------------------#
 
-
-# generate a vector of polymorphic codons reported by SeekDeep
-#  - note that SeekDeep may also report user-supplied alleles for positions that
-#    are not truly segregating, which could result in some positions appearing
-#    without variation
-# -----------------------------------------------------------------------------#
 
 
 # Define a function to parse each entry
