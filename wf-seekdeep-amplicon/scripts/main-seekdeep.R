@@ -77,8 +77,10 @@ dir.create(paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/"),
 
 # *****************************************************************************#
 # 2. IMPORT READ-EXTRACTION QC REPORTS ----
-# *****************************************************************************#
 
+# NOTE: Before proceeding, ensure you run either the Illumina or Nanopore script
+# below depending on your sequencing data type.
+# *****************************************************************************#
 
 ## __i. illumina ----
 # -----------------------------------------------------------------------------#
@@ -201,6 +203,7 @@ write_csv(df_coi_sample,
 
 # remove temporary objects
 rm(df_clusters_Target, df_clusters_Segregating, df_coi_source, df_coi_sample)
+
 
 
 # =============================================================================#
