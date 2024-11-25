@@ -10,7 +10,7 @@
 
 # 1. Environment Setup:
 #    - Clears the current R environment to ensure a clean slate for data processing.
-#    - Loads necessary R packages from the tidyverse and data.table for efficient data manipulation.
+#    - Loads necessary R packages from the tidyverse for efficient data manipulation.
 
 # 2. Directory and File Management:
 #    - Establishes directory paths for input and output data, ensuring all file paths terminate with `/`.
@@ -35,7 +35,7 @@
 # This pipeline is essential for researchers studying genetic variations and drug resistance in malaria parasites,
 # providing a structured approach to handle and analyze high-throughput sequencing data.
 
-# Dependencies: R (>= 4.0), tidyverse, data.table
+# Dependencies: R (>= 4.0), tidyverse
 # *****************************************************************************#
 
 
