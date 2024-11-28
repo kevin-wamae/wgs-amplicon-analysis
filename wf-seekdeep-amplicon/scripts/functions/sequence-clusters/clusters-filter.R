@@ -1,46 +1,26 @@
 # DESCRIPTION OF R SCRIPT
 # =============================================================================#
-# This R script is designed for extracting data from raw_selectedClustersInto matching
-# the target define in the object: STRING_TARGET
+# This R script is designed for extracting data from `raw_selectedClustersInfo` matching
+# the target defined in the object `STRING_TARGET`.
 #
-# 1. Generation of a Vector of Polymorphic Codons:
-#    This section of the script identifies specific polymorphic positions from
-#    genomic sequences that match predefined target strings in gene names and
-#    genome annotations. It extracts these positions to create a numeric vector
-#    representing the codons of interest. The process involves:
-#      - Filtering sequences by specific gene name and genome annotation patterns.
-#      - Extracting numeric codon positions from the sequences.
-#      - Cleansing and converting extracted data to a numeric format.
+# The script processes the `h_AATyped` data to parse and extract polymorphic positions,
+# and constructs haplotypes based on segregating codons.
 #
-# 2. Filtering Variant Data and Extracting Codon Information:
-#    The second part of the script uses the vector of codon positions to filter
-#    and extract specific variant data from the sequences. It constructs new columns
-#    for each codon position, extracts the corresponding variant, and assembles a
-#    haplotype string for each sequence. Key steps include:
-#      - Mapping each codon position to extract specific variants using a dynamic
-#        pattern matching.
-#      - Collapsing extracted codon positions into a single string to form the haplotype.
-#      - Cleaning and formatting the final codon position and haplotype strings.
+# Key steps include:
+# 1. Parsing entries in `h_AATyped` to extract position, reference allele, and mutant allele.
+# 2. Converting the data to wide format with each position as a separate column.
+# 3. Joining back to the original data and creating haplotypes based on allele combinations.
+# 4. Identifying truly segregating positions and reconstructing haplotypes using only these positions.
 #
-# The script utilizes the `dplyr`, `stringr`, and `purrr` libraries to handle data
-# manipulation, string operations, and functional programming techniques respectively,
-# ensuring efficient processing of genomic data.
+# The script utilizes the `dplyr`, `stringr`, `tidyr`, and `purrr` libraries for data manipulation.
 # =============================================================================#
 
-
-
-# Note that SeekDeep may also report user-supplied alleles for positions that
+# Note that SeekDeep may report user-supplied alleles for positions that
 # are not truly segregating, which could result in some positions appearing
-# without variation, so we'll generate df_clusters_Target to include all and
-# df_clusters_Segregating to include only segregating positions.
+# without variation. We'll generate `df_clusters_Target` to include all positions
+# and `df_clusters_Segregating` to include only segregating positions.
 # -----------------------------------------------------------------------------#
 
-
-# generate a vector of polymorphic codons reported by SeekDeep
-#  - note that SeekDeep may also report user-supplied alleles for positions that
-#    are not truly segregating, which could result in some positions appearing
-#    without variation
-# -----------------------------------------------------------------------------#
 
 
 # Define a function to parse each entry
@@ -82,14 +62,21 @@ parse_entry <- function(entry) {
 # -----------------------------------------#
 positions_df <- raw_selectedClustersInfo %>%
   filter(str_detect(p_name, STRING_TARGET), str_detect(h_AATyped, STRING_GENOME)) %>%
-  mutate(id = row_number(),
-         h_AATyped = str_replace(h_AATyped, "PF3D7_.+--", "")) %>%
+  mutate(
+    id = row_number(),
+    h_AATyped = str_replace(h_AATyped, "PF3D7_.+--", "")
+  ) %>%
   select(id, h_AATyped) %>%
-  mutate(entries = str_split(h_AATyped, ":", simplify = FALSE)) %>%
-  unnest(entries) %>%
-  mutate(parsed = map(entries, parse_entry)) %>%
-  unnest_wider(parsed) %>%
-  mutate(allele_to_use = ifelse(mutation, mut_allele, ref_allele))
+  separate_rows(h_AATyped, sep = ":") %>%
+  mutate(
+    position = as.numeric(str_extract(h_AATyped, "\\d+")),
+    letters = str_extract_all(h_AATyped, "[A-Z]+"),
+    ref_allele = map_chr(letters, ~ .x[1]),
+    mut_allele = map_chr(letters, ~ ifelse(length(.x) > 1, .x[2], NA_character_)),
+    mutation = !is.na(mut_allele),
+    allele_to_use = if_else(mutation, mut_allele, ref_allele)
+  ) %>%
+  select(id, position, ref_allele, mut_allele, mutation, allele_to_use)
 
 
 
@@ -107,12 +94,10 @@ df_clusters_Target <- raw_selectedClustersInfo %>%
   filter(str_detect(p_name, STRING_TARGET), str_detect(h_AATyped, STRING_GENOME)) %>%
   mutate(id = row_number()) %>%
   left_join(positions_df_wide, by = "id") %>%
-  rowwise() %>%
   mutate(
-    codon_pos = paste(c_across(starts_with("pos")), collapse = ", "),
-    haplotype = paste(c_across(starts_with("pos")), collapse = "")
-  ) %>%
-  ungroup()
+    codon_pos = do.call(paste, c(select(., starts_with("pos")), sep = ", ")),
+    haplotype = do.call(paste0, select(., starts_with("pos")))
+  )
 
 
 
@@ -120,6 +105,7 @@ df_clusters_Target <- raw_selectedClustersInfo %>%
 # -----------------------------------------------------------------------------#
 # extract columns related to codon positions from the dataframe
 df_filtered <- df_clusters_Target %>% select(starts_with("pos"))
+
 
 
 # identify columns that have more than one unique value (indicating polymorphism)

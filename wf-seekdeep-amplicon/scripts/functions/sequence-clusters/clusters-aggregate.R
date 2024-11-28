@@ -29,9 +29,14 @@ full_path <- paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS)
 
 
 
-# List all files that match the pattern
+# List all files that match these patterns:
+# - selectedClustersInfo*.tab.txt.gz: Regular selected clusters info files
+# - allSelectedClustersInfo*.tab.txt.gz: Combined selected clusters info files
+# Both are tab-separated files compressed with gzip
 # -----------------------------------------------------------------------------#
-file_list <- list.files(path = full_path, pattern = "^selectedClustersInfo.*\\.gz$", full.names = TRUE)
+file_list <- list.files(path = full_path,
+                        pattern = "^(allSelectedClustersInfo|selectedClustersInfo).*\\.tab\\.txt\\.gz$",
+                        full.names = TRUE)
 
 
 
