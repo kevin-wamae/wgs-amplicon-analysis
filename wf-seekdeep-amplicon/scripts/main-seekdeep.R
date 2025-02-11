@@ -63,9 +63,9 @@ library(tidyverse, quietly = TRUE)
 
 # make sure file-paths terminate with `/`
 # -----------------------------------------------------------------------------#
-PATH_STUDY = "input/dir1/"  # e.g. "input/ssurvey_western_kenya/"
-PATH_RUN = "dir2/"          # e.g. "2025_01_01_illumina_2x300/"
-PATH_ANALYSIS = "dir3/"     # e.g. "2024_04_12-01-seekdeep-dhps/"
+PATH_STUDY = "input/dir_1/"  # e.g. "input/ssurvey_western_kenya/"
+PATH_RUN = "dir_2/"          # e.g. "2025_01_01_illumina_2x300/"
+PATH_ANALYSIS = "dir_3/"     # e.g. "2024_04_12-01-seekdeep-dhps/"
 
 
 
