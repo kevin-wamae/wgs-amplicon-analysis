@@ -168,7 +168,7 @@ source("scripts/functions/sequence-clusters/clusters-filter.R")
 # -----------------------------------------------------------------------------#
 
 (
-  df_coi_source <- df_clusters_Target %>%
+  df_coi_source_ama1 <- df_clusters_Target %>%
     distinct(s_Sample, .keep_all = TRUE) %>%  # de-duplicate sample entries
     mutate(s_COI = as.numeric(s_COI)) %>%
     summarise(
@@ -183,33 +183,90 @@ source("scripts/functions/sequence-clusters/clusters-filter.R")
 
 
 ### save table
-write_csv(df_coi_source,
-          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/coi-by-souce.csv"))
+write_csv(df_coi_source_ama1,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/coi-by-souce-ama1.csv"))
 
 
 
 ### ___coi by sample ----
 # -----------------------------------------------------------------------------#
 
-df_coi_sample <- df_clusters_Target %>%
+df_coi_sample_ama1 <- df_clusters_Target %>%
   distinct(s_Sample, .keep_all = TRUE) %>%
-  select(source, s_Sample, s_COI); head(df_coi_sample)
+  select(source, s_Sample, s_COI); head(df_coi_sample_ama1)
 
 
 
 ### save table
-write_csv(df_coi_sample,
-          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/coi-by-sample.csv"))
+write_csv(df_coi_sample_ama1,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/coi-by-sample-ama1.csv"))
 
 
 
 # remove temporary objects
-rm(df_clusters_Target, df_clusters_Segregating, df_coi_source, df_coi_sample)
+rm(df_clusters_Target, df_clusters_Segregating, df_coi_source_ama1, df_coi_sample_ama1)
 
 
 
 # =============================================================================#
-## __B) CLUSTERS - PfK13 ----
+## __B) CLUSTERS - PfCSP ----
+# =============================================================================#
+
+### ___aggregate/filter clusters ----
+# -----------------------------------------------------------------------------#
+
+STRING_TARGET = "^PFCSP"
+STRING_GENOME = "^PF3D7"
+source("scripts/functions/sequence-clusters/clusters-filter.R")
+
+
+
+### ___coi by source ----
+# -----------------------------------------------------------------------------#
+
+(
+  df_coi_source_csp <- df_clusters_Target %>%
+    distinct(s_Sample, .keep_all = TRUE) %>%  # de-duplicate sample entries
+    mutate(s_COI = as.numeric(s_COI)) %>%
+    summarise(
+      sample_size=n(),       # determine sample size
+      min = min(s_COI),      # compute mean, median and max COI
+      mean = median(s_COI),
+      max = max(s_COI),
+      .by = source           # group by sample-origin
+    )
+)
+
+
+
+### save table
+write_csv(df_coi_source_csp,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/coi-by-souce-csp.csv"))
+
+
+
+### ___coi by sample ----
+# -----------------------------------------------------------------------------#
+
+df_coi_sample_csp <- df_clusters_Target %>%
+  distinct(s_Sample, .keep_all = TRUE) %>%
+  select(source, s_Sample, s_COI); head(df_coi_sample_csp)
+
+
+
+### save table
+write_csv(df_coi_sample_csp,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/coi-by-sample-csp.csv"))
+
+
+
+# remove temporary objects
+rm(df_clusters_Target, df_clusters_Segregating, df_coi_source_csp, df_coi_sample_csp)
+
+
+
+# =============================================================================#
+## __C) CLUSTERS - PfK13 ----
 # =============================================================================#
 
 ### ___aggregate/filter clusters ----
@@ -319,7 +376,7 @@ write_csv(df_freqHap_Source,
 
 
 # =============================================================================#
-## __C) CLUSTERS - PfMDR1 ----
+## __D) CLUSTERS - PfMDR1 ----
 # =============================================================================#
 
 ### ___aggregate/filter clusters ----
@@ -429,7 +486,7 @@ write_csv(df_freqHap_Source,
 
 
 # =============================================================================#
-## __D) CLUSTERS - PfDHPS ----
+## __E) CLUSTERS - PfDHPS ----
 # =============================================================================#
 
 ### ___aggregate/filter clusters ----
@@ -541,7 +598,7 @@ write_csv(df_freqHap_Source,
 
 
 # =============================================================================#
-## __E) CLUSTERS - PfDHFR ----
+## __F) CLUSTERS - PfDHFR ----
 # =============================================================================#
 
 ### ___aggregate/filter clusters ----
