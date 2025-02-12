@@ -5,10 +5,10 @@
 
 # Description:
 # This script is part of a robust pipeline designed to aggregate and analyze allele
-# frequency data from SeekDeep outputs related to the genomic study of malaria 
+# frequency data from SeekDeep outputs related to the genomic study of malaria
 # parasites. It systematically processes multiple types of genomic data across
-# several malaria genes. The pipeline includes data cleaning, importing, 
-# processing, and saving allele and haplotype frequencies, enabling detailed 
+# several malaria genes. The pipeline includes data cleaning, importing,
+# processing, and saving allele and haplotype frequencies, enabling detailed
 # genetic analysis.
 
 # Workflow Overview:
@@ -22,7 +22,7 @@
 #    - Create an output directory to store generated reports and tables
 
 # 3. Data Importation and Processing:
-#    - Import quality control reports for Illumina and Nanopore data 
+#    - Import quality control reports for Illumina and Nanopore data
 #    - Process SeekDeep analysis data for targeted genetic clusters
 #    - Add sample source information and identify samples without data
 
@@ -302,7 +302,7 @@ df_coi_source <- my_markers %>%
   # try to get each marker's dataframe
   map_df(function(my_markers) {
     df_name <- paste0("df_coi_source_", my_markers)
-    
+
     # check if the dataframe exists in the environment
     if(exists(df_name)) {
       df <- get(df_name)
@@ -332,11 +332,11 @@ cleanup_marker_dfs <- function(my_markers) {
     paste0("df_coi_source_", my_markers),
     paste0("df_coi_sample_", my_markers)
   )
-  
+
   # get all objects that match these patterns
-  to_remove <- ls(pattern = paste(df_patterns, collapse = "|"), 
+  to_remove <- ls(pattern = paste(df_patterns, collapse = "|"),
                   envir = .GlobalEnv)
-  
+
   # remove the objects
   rm(list = to_remove, envir = .GlobalEnv)
 }; cleanup_marker_dfs(my_markers)  # call the function to remove all marker-related dataframes
