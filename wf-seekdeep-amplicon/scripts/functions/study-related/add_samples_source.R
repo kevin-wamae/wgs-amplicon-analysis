@@ -66,7 +66,7 @@ if (file.exists(file_sample_sources)) {
   # display a warning message in the console if the file is missing
   warning(
     "The file 'sample_sources.csv' is missing. Sample origins were not added. ",
-    "Ensure the file is located in the directory: '", PATH_STUDY, "/samples/'. ",
+    "Ensure the file is located in the directory: '", PATH_STUDY, "samples/'. ",
     "The file should contain two columns: 'source' for sample source and 's_Sample' for sample names."
   )
 }
