@@ -274,7 +274,8 @@ rm(df_clusters_Target, df_clusters_Segregating, positions_df, positions_df_wide,
 ### ___merge coi data for ama1, csp, etc. ----
 # -----------------------------------------------------------------------------#
 
-# Define all markers in this vector, e.g. c("ama1", "csp", "msp1)
+# define all markers in this vector, e.g. c("ama1", "csp", "msp1)
+
 # ----------------------------------#
 my_markers <- c("ama1", "csp")
 
@@ -282,6 +283,7 @@ my_markers <- c("ama1", "csp")
 
 # function to process marker data remains the same
 # ----------------------------------#
+
 process_marker_df <- function(df, marker_name) {
   df %>%
     pivot_longer(cols = c(min, mean, max),
@@ -296,8 +298,9 @@ process_marker_df <- function(df, marker_name) {
 
 
 
-# Process all markers at once using map and safely handle missing dataframes
+# process all markers at once using map and safely handle missing dataframes
 # ----------------------------------#
+
 df_coi_source <- my_markers %>%
   # try to get each marker's dataframe
   map_df(function(my_markers) {
@@ -319,6 +322,11 @@ df_coi_source <- my_markers %>%
               values_from = value
               )
 
+
+
+### save table
+write_csv(df_coi_source,
+          paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "output/coi-all-markers.csv"))
 
 
 # remove temporary objects
