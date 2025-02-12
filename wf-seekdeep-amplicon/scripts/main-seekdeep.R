@@ -277,7 +277,7 @@ rm(df_clusters_Target, df_clusters_Segregating, positions_df, positions_df_wide,
 # define all markers in this vector, e.g. c("ama1", "csp", "msp1)
 
 # ----------------------------------#
-my_markers <- c("ama1", "csp")
+my_markers <- c("ama1")
 
 
 
