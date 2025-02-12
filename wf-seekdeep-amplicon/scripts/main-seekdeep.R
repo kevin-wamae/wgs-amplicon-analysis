@@ -204,7 +204,8 @@ write_csv(df_coi_sample_ama1,
 
 
 # remove temporary objects
-rm(df_clusters_Target, df_clusters_Segregating, df_coi_source_ama1, df_coi_sample_ama1)
+rm(df_clusters_Target, df_clusters_Segregating, positions_df, positions_df_wide,
+   positions_Segregating, STRING_GENOME, STRING_TARGET)
 
 
 
@@ -261,7 +262,84 @@ write_csv(df_coi_sample_csp,
 
 
 # remove temporary objects
-rm(df_clusters_Target, df_clusters_Segregating, df_coi_source_csp, df_coi_sample_csp)
+rm(df_clusters_Target, df_clusters_Segregating, positions_df, positions_df_wide,
+   positions_Segregating, STRING_GENOME, STRING_TARGET)
+
+
+
+# =============================================================================#
+## __C) COMPILE COI DATA ACROSS TARGETS ----
+# =============================================================================#
+
+### ___merge coi data for ama1, csp, etc. ----
+# -----------------------------------------------------------------------------#
+
+# Define all markers in this vector, e.g. c("ama1", "csp", "msp1)
+# ----------------------------------#
+my_markers <- c("ama1", "csp")
+
+
+
+# function to process marker data remains the same
+# ----------------------------------#
+process_marker_df <- function(df, marker_name) {
+  df %>%
+    pivot_longer(cols = c(min, mean, max),
+                 names_to = "stat",
+                 values_to = "value") %>%
+    mutate(
+      marker = marker_name,
+      value = sprintf("%g [%d]", value, sample_size)  # move sample size to value
+    ) %>%
+    select(-sample_size)  # Still remove the separate sample_size column
+}
+
+
+
+# Process all markers at once using map and safely handle missing dataframes
+# ----------------------------------#
+df_coi_source <- my_markers %>%
+  # try to get each marker's dataframe
+  map_df(function(my_markers) {
+    df_name <- paste0("df_coi_source_", my_markers)
+    
+    # check if the dataframe exists in the environment
+    if(exists(df_name)) {
+      df <- get(df_name)
+      process_marker_df(df, my_markers)
+    } else {
+      warning(sprintf("dataframe %s not found", df_name))
+      return(NULL)
+    }
+  }) %>%
+  # create the final wide format
+  pivot_wider(
+              id_cols = c(source, stat),
+              names_from = marker,
+              values_from = value
+              )
+
+
+
+# remove temporary objects
+# -----------------------------------------------------------------------------#
+
+# function to remove all marker-related dataframes
+# ----------------------------------#
+cleanup_marker_dfs <- function(my_markers) {
+  # create patterns for both source and sample dataframes
+  df_patterns <- c(
+    paste0("df_coi_source_", my_markers),
+    paste0("df_coi_sample_", my_markers)
+  )
+  
+  # get all objects that match these patterns
+  to_remove <- ls(pattern = paste(df_patterns, collapse = "|"), 
+                  envir = .GlobalEnv)
+  
+  # remove the objects
+  rm(list = to_remove, envir = .GlobalEnv)
+}; cleanup_marker_dfs(my_markers)  # call the function to remove all marker-related dataframes
 
 
 
