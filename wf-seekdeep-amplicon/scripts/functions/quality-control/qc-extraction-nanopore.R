@@ -44,12 +44,11 @@ raw_extractionFastq <- read_tsv(paste0(PATH_STUDY, PATH_RUN, PATH_ANALYSIS, "rep
                        show_col_types = FALSE) %>%
   mutate(
          total = sum(count), .by = sample,
-         freq = as.character(round(count / total, 2)),
-         freq = paste0(count, " [", freq, "]")
+         'total [passed]' = paste0(passed, " [", total, "]")
          ) %>%
   pivot_wider(id_cols = sample,
               names_from = target,
-              values_from = freq,
+              values_from = 'total [passed]',
               names_sep = "_"
               )
 
